@@ -1,0 +1,20 @@
+<div class="container mt-4">
+  <div class="book-wrapper">
+    <button mat-button id="add-book" (click)="addBook()">
+      <mat-icon class="add-book-icon">add</mat-icon>Add New Book
+    </button>
+  </div>
+
+  <div class="book-container">
+    <div class="book" *ngFor="let book of books">
+      <div class="book-cover" (click)="viewBookDetails(book)">
+        <h5 class="book-title">{{ book.title }}</h5>
+        <h6 class="book-author">{{ book.author || "Unknown Author"}}</h6>
+      </div>
+      <div class="book-spine"></div>
+      <div class="book-actions">
+        <p class="book-genre">Genre: {{ book.genre?.name || 'Unknown'}}</p>
+      </div>
+    </div>
+  </div>
+</div>

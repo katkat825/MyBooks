@@ -1,0 +1,65 @@
+<div class="container mt-4">
+  <h2>{{ bookId ? 'Edit Book' : 'Add New Book' }}</h2>
+
+  <form [formGroup]="bookForm" (ngSubmit)="saveBook()">
+    <div class="mb-3">
+      <label class="form-label">Title</label>
+      <input type="text" class="form-control" formControlName="title" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Author</label>
+      <input type="text" class="form-control" formControlName="author">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="series">Series:</label>
+      <select id="series" formControlName="series">
+        <option *ngFor="let series of seriesList" [value]="series">{{ series }}</option>
+      </select>
+      <button mat-button type="button" (click)="toggleNewSeries()"><mat-icon>add</mat-icon></button>
+      <div *ngIf="newSeries">
+        <input id="newSeries" type="text" formControlName="series" />
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Age Category</label>
+      <select class="form-control" formControlName="ageCategoryId">
+        <option value="">Select Appropriate Age</option>
+        <option *ngFor="let category of ageCategories" [value]="category.id">{{ category.name }}</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">ISBN</label>
+      <input type="text" class="form-control" formControlName="isbn">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Description</label>
+      <input type="text" class="form-control" formControlName="description">
+    </div>
+
+    <div class="mb-3">
+      <label class="location">Location</label>
+      <input type="text" class="form-control" formControlName="location">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Genre</label>
+      <select class="form-control" formControlName="genreId">
+        <option value="">Select Genre</option>
+        <option *ngFor="let genre of genres" [value]="genre.id">{{ genre.name }}</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Tags</label>
+      <input type="text" class="form-control" formControlName="tagInput" value="Separated by commas">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <button type="button" class="btn btn-secondary ms-2" (click)="router.navigate(['/'])">Cancel</button>
+  </form>
+</div>

@@ -1,0 +1,14 @@
+C:\Users\creat\source\repos\MyBooks\MyBooks.Common\obj\Debug\net9.0\MyBooks.Common.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\creat\source\repos\MyBooks\MyBooks.Common\obj\Debug\net9.0\MyBooks.Common.AssemblyInfoInputs.cache
+C:\Users\creat\source\repos\MyBooks\MyBooks.Common\obj\Debug\net9.0\MyBooks.Common.AssemblyInfo.cs
+C:\Users\creat\source\repos\MyBooks\MyBooks.Common\obj\Debug\net9.0\MyBooks.Common.csproj.CoreCompileInputs.cache
+C:\Users\creat\source\repos\MyBooks\MyBooks.Common\bin\Debug\net9.0\MyBooks.Common.deps.json
+C:\Users\creat\source\repos\MyBooks\MyBooks.Common\bin\Debug\net9.0\MyBooks.Common.runtimeconfig.json
+C:\Users\creat\source\repos\MyBooks\MyBooks.Common\bin\Debug\net9.0\MyBooks.Common.dll
+C:\Users\creat\source\repos\MyBooks\MyBooks.Common\bin\Debug\net9.0\MyBooks.Common.pdb
+C:\Users\creat\source\repos\MyBooks\MyBooks.Common\obj\Debug\net9.0\MyBooks.Common.csproj.AssemblyReference.cache
+C:\Users\creat\source\repos\MyBooks\MyBooks.Common\obj\Debug\net9.0\MyBooks.Common.dll
+C:\Users\creat\source\repos\MyBooks\MyBooks.Common\obj\Debug\net9.0\refint\MyBooks.Common.dll
+C:\Users\creat\source\repos\MyBooks\MyBooks.Common\obj\Debug\net9.0\MyBooks.Common.pdb
+C:\Users\creat\source\repos\MyBooks\MyBooks.Common\obj\Debug\net9.0\MyBooks.Common.genruntimeconfig.cache
+C:\Users\creat\source\repos\MyBooks\MyBooks.Common\obj\Debug\net9.0\ref\MyBooks.Common.dll

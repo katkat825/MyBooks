@@ -1,0 +1,33 @@
+<mat-toolbar class="navbar" color="primary">
+  <mat-toolbar-row>
+    <a href="/" class="app-title">My Books</a>
+    <span class="spacer"></span>
+    <span class="account-text">My Account</span>
+    <button mat-button [matMenuTriggerFor]="accountMenu" class="user-menu-button">
+      <mat-icon>person_pin</mat-icon>
+    </button>
+
+    <mat-menu #accountMenu="matMenu" xPosition="before" yPosition="below">
+      <button mat-menu-item [matMenuTriggerFor]="themeMenu">
+        <mat-icon>brightness_6</mat-icon> Theme
+      </button>
+      <button mat-menu-item>
+        <mat-icon>settings</mat-icon> Account Settings
+      </button>
+      <button mat-menu-item>
+        <mat-icon>exit_to_app</mat-icon> Logout
+      </button>
+    </mat-menu>
+
+    <mat-menu #themeMenu="matMenu">
+      <button mat-menu-item (click)="setTheme('light')">
+        <mat-icon *ngIf="!isDarkMode">check</mat-icon> Light
+      </button>
+      <button mat-menu-item (click)="setTheme('dark')">
+        <mat-icon *ngIf="isDarkMode">check</mat-icon> Dark
+      </button>
+    </mat-menu>
+  </mat-toolbar-row>
+</mat-toolbar>
+
+<router-outlet></router-outlet>

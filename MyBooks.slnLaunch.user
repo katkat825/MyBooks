@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "MyBooks.CatalogService\\MyBooks.CatalogService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "MyBooks.UI\\MyBooks.UI.esproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
