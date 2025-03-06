@@ -159,4 +159,4 @@ C:\Users\creat\source\repos\MyBooks\MyBooks.CatalogService\obj\Debug\net9.0\MyBo
 C:\Users\creat\source\repos\MyBooks\MyBooks.CatalogService\obj\Debug\net9.0\MyBooks.CatalogService.genruntimeconfig.cache
 C:\Users\creat\source\repos\MyBooks\MyBooks.CatalogService\obj\Debug\net9.0\ref\MyBooks.CatalogService.dll
 C:\Users\creat\source\repos\MyBooks\MyBooks.CatalogService\bin\Debug\net9.0\FluentValidation.DependencyInjectionExtensions.dll
-C:\Users\creat\source\repos\MyBooks\MyBooks.CatalogService\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
+C:\Users\creat\source\repos\MYBooks\MyBooks.CatalogService\obj\Debug\net9.0\MyBooks.CatalogService.sourcelink.json

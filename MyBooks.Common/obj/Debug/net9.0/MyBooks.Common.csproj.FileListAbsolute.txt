@@ -12,3 +12,4 @@ C:\Users\creat\source\repos\MyBooks\MyBooks.Common\obj\Debug\net9.0\refint\MyBoo
 C:\Users\creat\source\repos\MyBooks\MyBooks.Common\obj\Debug\net9.0\MyBooks.Common.pdb
 C:\Users\creat\source\repos\MyBooks\MyBooks.Common\obj\Debug\net9.0\MyBooks.Common.genruntimeconfig.cache
 C:\Users\creat\source\repos\MyBooks\MyBooks.Common\obj\Debug\net9.0\ref\MyBooks.Common.dll
+C:\Users\creat\source\repos\MYBooks\MyBooks.Common\obj\Debug\net9.0\MyBooks.Common.sourcelink.json
