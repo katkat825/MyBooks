@@ -1,3 +1,9 @@
+.container {
+    max-width: 80%x;
+    margin: 0 auto;
+    padding: 20px;
+}
+
 .book-wrapper {
   position: relative;
 }
@@ -5,14 +11,15 @@
 .book-details-container {
   display: flex;
   flex-direction: column;
-  align-items: left;
+  align-items: flex-start;
+  padding: 20px;
 }
 
 #book-list {
   position: absolute;
   right: 10px;
-  background-color: #1976d2;
-  color: white;
+  background-color: var(--button-bg);
+  color: var(--button-text);
   font-weight: bold;
   padding: 8px 16px;
   border-radius: 5px;
@@ -20,6 +27,17 @@
   align-items: center;
 }
 
-  #book-list:hover {
-    background-color: #1565c0;
-  }
+#danger-button {
+    background-color:var(--warn);
+    color: var(--button-text);
+}
+
+#edit-book {
+    background-color: var(--primary);
+    color: var(--button-text);
+}
+
+button {
+    margin-right: 10px;
+}
+

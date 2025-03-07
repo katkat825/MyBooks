@@ -1,1 +1,95 @@
-/* You can add global styles to this file, and also import other style files */
+/* default: light theme */
+:root {
+  --bg-color: #faf3e0;
+  --text-color: #333;
+  --surface-bg: #e8dbc2;
+  --border-color: #ccc;
+  --button-bg: #00a6a6;
+  --button-text: #faf3e0;
+  --title-color: #2e2e2e;
+  --subtitle-color: #3a3a3a;
+  --primary: #66cfcf;
+  --accent: #c2a0e0;
+  --warn:#ef5350;
+}
+
+/* dark theme */
+.dark-mode {
+  --bg-color: #1c1c1e;
+  --text-color: #e3e3e3;
+  --surface-bg: #2e2e2e;
+  --border-color: #3d3d42;
+  --button-bg: #00a6a6;
+  --button-text: #eaeaea;
+  --title-color: #e3e3e3;
+  --subtitle-color: #e5e5e5;
+  --primary: #00a6a6;
+  --accent: #9b6bcc;
+  --warn: #ef5350;
+}
+
+/*high-contrast theme*/
+.high-contrast-mode {
+  --bg-color: #000000;
+  --text-color: #ffffff;
+  --surface-bg: #000000;
+  --border-color: #ffffff;
+  --button-bg: #00cccc;
+  --button-text: #000000;
+  --title-color: #000000;
+  --subtitle-color: #000000;
+  --primary: #00cccc;
+  --accent: #d09bff;
+  --warn: #f26969;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.card {
+  background-color: var(--surface-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+}
+
+.card-title {
+  color: var(--title-color) !important;
+}
+
+.card-subtitle {
+  color: var(--subtitle-color) !important;
+}
+
+button {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+  button:hover {
+    opacity: 0.9;
+  }
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}

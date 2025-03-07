@@ -5,15 +5,29 @@ import { BookService } from '../../services/book.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
+import { MatButton, MatButtonModule } from '@angular/material/button';
 import { HttpClientModule } from '@angular/common/http';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-book-form',
   standalone: true,
   templateUrl: './book-form.component.html',
   styleUrls: ['./book-form.component.css'],
-  imports: [ReactiveFormsModule, CommonModule, MatButtonModule, MatIconModule, HttpClientModule]
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    HttpClientModule,
+    MatCardModule,
+    MatButtonModule,
+    MatInputModule,
+    MatSelectModule,
+  ],
 })
 export class BookFormComponent implements OnInit {
   bookForm!: FormGroup;

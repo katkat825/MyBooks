@@ -4,6 +4,7 @@ import { BookService } from '../../services/book.service';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { HttpClientModule } from '@angular/common/http';
 
 @Component({
@@ -11,7 +12,7 @@ import { HttpClientModule } from '@angular/common/http';
   standalone: true,
   templateUrl: './book-details.component.html',
   styleUrls: ['./book-details.component.css'],
-  imports: [CommonModule, MatIconModule, MatButtonModule, RouterModule, HttpClientModule],
+  imports: [CommonModule, MatIconModule, MatButtonModule, RouterModule, HttpClientModule, MatCardModule],
 })
 export class BookDetailsComponent implements OnInit {
   book: any = null;

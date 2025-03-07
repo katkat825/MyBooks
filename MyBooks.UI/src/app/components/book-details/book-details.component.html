@@ -15,6 +15,6 @@
     <p><strong>Description:</strong> {{ book.description || 'Unknown' }}</p>
     <p><strong>ISBN:</strong> {{ book.isbn || 'Unknown' }}</p>
   </div>
-  <button class="btn btn-primary" (click)="editBook(book)">Edit</button>
-  <button class="btn btn-danger" (click)="deleteBook(book)">Delete</button>
+  <button mat-raised-button id="edit-book" (click)="editBook(book)">Edit</button>
+  <button mat-raised-button id="danger-button" (click)="deleteBook(book)">Delete</button>
 </div>

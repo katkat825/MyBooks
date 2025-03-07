@@ -1,65 +1,80 @@
 <div class="container mt-4">
-  <h2>{{ bookId ? 'Edit Book' : 'Add New Book' }}</h2>
+  <mat-card class="form-container">
+    <mat-card-title>{{ bookId ? 'Edit Book' : 'Add New Book' }}</mat-card-title>
+    <mat-card-content>
+      <form [formGroup]="bookForm" (ngSubmit)="saveBook()">
 
-  <form [formGroup]="bookForm" (ngSubmit)="saveBook()">
-    <div class="mb-3">
-      <label class="form-label">Title</label>
-      <input type="text" class="form-control" formControlName="title" required>
-    </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Title</mat-label>
+          <input matInput type="text" formControlName="title" required>
+        </mat-form-field>
 
-    <div class="mb-3">
-      <label class="form-label">Author</label>
-      <input type="text" class="form-control" formControlName="author">
-    </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Author</mat-label>
+          <input matInput type="text" formControlName="author">
+        </mat-form-field>
 
-    <div class="mb-3">
-      <label class="form-label" for="series">Series:</label>
-      <select id="series" formControlName="series">
-        <option *ngFor="let series of seriesList" [value]="series">{{ series }}</option>
-      </select>
-      <button mat-button type="button" (click)="toggleNewSeries()"><mat-icon>add</mat-icon></button>
-      <div *ngIf="newSeries">
-        <input id="newSeries" type="text" formControlName="series" />
-      </div>
-    </div>
+        <div class="inline-group">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Series</mat-label>
+            <mat-select formControlName="series">
+              <mat-option *ngFor="let series of seriesList" [value]="series">{{ series }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button mat-icon-button type="button" (click)="toggleNewSeries()">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
 
-    <div class="mb-3">
-      <label class="form-label">Age Category</label>
-      <select class="form-control" formControlName="ageCategoryId">
-        <option value="">Select Appropriate Age</option>
-        <option *ngFor="let category of ageCategories" [value]="category.id">{{ category.name }}</option>
-      </select>
-    </div>
+        <div *ngIf="newSeries">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>New Series</mat-label>
+            <input matInput type="text" formControlName="series">
+          </mat-form-field>
+        </div>
 
-    <div class="mb-3">
-      <label class="form-label">ISBN</label>
-      <input type="text" class="form-control" formControlName="isbn">
-    </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Age Category</mat-label>
+          <mat-select formControlName="ageCategoryId">
+            <mat-option value="">Select Appropriate Age</mat-option>
+            <mat-option *ngFor="let category of ageCategories" [value]="category.id">{{ category.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
 
-    <div class="mb-3">
-      <label class="form-label">Description</label>
-      <input type="text" class="form-control" formControlName="description">
-    </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>ISBN</mat-label>
+          <input matInput type="text" formControlName="isbn">
+        </mat-form-field>
 
-    <div class="mb-3">
-      <label class="location">Location</label>
-      <input type="text" class="form-control" formControlName="location">
-    </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description</mat-label>
+          <textarea matInput rows="3" formControlName="description"></textarea>
+        </mat-form-field>
 
-    <div class="mb-3">
-      <label class="form-label">Genre</label>
-      <select class="form-control" formControlName="genreId">
-        <option value="">Select Genre</option>
-        <option *ngFor="let genre of genres" [value]="genre.id">{{ genre.name }}</option>
-      </select>
-    </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Location</mat-label>
+          <input matInput type="text" formControlName="location">
+        </mat-form-field>
 
-    <div class="mb-3">
-      <label class="form-label">Tags</label>
-      <input type="text" class="form-control" formControlName="tagInput" value="Separated by commas">
-    </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Genre</mat-label>
+          <mat-select formControlName="genreId">
+            <mat-option value="">Select Genre</mat-option>
+            <mat-option *ngFor="let genre of genres" [value]="genre.id">{{ genre.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
 
-    <button type="submit" class="btn btn-primary">Save</button>
-    <button type="button" class="btn btn-secondary ms-2" (click)="router.navigate(['/'])">Cancel</button>
-  </form>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Tags</mat-label>
+          <input matInput type="text" formControlName="tagInput" placeholder="Separated by commas">
+        </mat-form-field>
+
+        <div class="button-group">
+          <button mat-raised-button class="save-button" type="submit">Save</button>
+          <button mat-button class="cancel-button" type="button" (click)="router.navigate(['/'])">Cancel</button>
+        </div>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
 </div>

@@ -14,33 +14,33 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     styleUrl: './app.component.css'
 })
 export class AppComponent {
-    isDarkMode = false;
+  isDarkTheme = false;
+  isContrastTheme = false;
+  isLightTheme = true;
 
-    constructor(private renderer: Renderer2) { }
+  constructor(private renderer: Renderer2) { }
 
-    ngOnInit() {
-        const savedTheme = localStorage.getItem('theme');
-        this.isDarkMode = savedTheme === 'dark';
-        this.updateTheme();
-    }
+  ngOnInit() {
+    const savedTheme = localStorage.getItem('theme');
+    this.setTheme(savedTheme || 'light');
+  }
 
-    toggleTheme() {
-        this.isDarkMode = !this.isDarkMode;
-        localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
-        this.updateTheme();
-    }
+  setTheme(theme: string) {
+    this.isDarkTheme = theme === 'dark';
+    this.isContrastTheme = theme === 'contrast';
+    this.isLightTheme = theme === 'light';
+    localStorage.setItem('theme', theme);
+    this.updateTheme();
+  }
 
-    setTheme(theme: string) {
-        this.isDarkMode = theme === 'dark';
-        localStorage.setItem('theme', theme);
-        this.updateTheme();
-    }
-
-    updateTheme() {
-        if (this.isDarkMode) {
-            this.renderer.addClass(document.body, 'dark-mode');
-        } else {
-            this.renderer.removeClass(document.body, 'dark-mode');
-        }
-    }
+  updateTheme() {
+    this.renderer.removeClass(document.body, 'dark-mode');
+    this.renderer.removeClass(document.body, 'high-contrast-mode')
+    if (this.isDarkTheme) {
+      this.renderer.addClass(document.body, 'dark-mode');
+    } else if (this.isContrastTheme) {
+      this.renderer.addClass(document.body, 'high-contrast-mode');
+    } else
+      this.renderer.addClass(document.body, 'light');
+  }
 }
