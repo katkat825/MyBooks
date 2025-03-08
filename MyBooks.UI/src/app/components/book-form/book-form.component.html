@@ -17,8 +17,8 @@
         <div class="inline-group">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Series</mat-label>
-            <mat-select formControlName="series">
-              <mat-option *ngFor="let series of seriesList" [value]="series">{{ series }}</mat-option>
+            <mat-select formControlName="seriesId">
+              <mat-option *ngFor="let series of series" [value]="series.id">{{ series.name }}</mat-option>
             </mat-select>
           </mat-form-field>
           <button mat-icon-button type="button" (click)="toggleNewSeries()">
@@ -29,8 +29,9 @@
         <div *ngIf="newSeries">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>New Series</mat-label>
-            <input matInput type="text" formControlName="series">
-          </mat-form-field>
+            <input matInput type="text" formControlName="seriesName">
+            <button type="button" (click)="saveSeries()">Save Series</button>
+           </mat-form-field>
         </div>
 
         <mat-form-field appearance="outline" class="full-width">

@@ -34,8 +34,9 @@ export class BookFormComponent implements OnInit {
   bookId!: number;
   genres: any[] = [];
   ageCategories: any[] = [];
-  seriesList: string[] = [];
+  series: any[] = [];
   newSeries: boolean = false;
+  newSeriesName: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -48,10 +49,11 @@ export class BookFormComponent implements OnInit {
     this.bookForm = this.fb.group({
       title: ['', Validators.required],
       author: [''],
-      series: [''],
-      genreId: [''],
+      seriesId: [''],
+      seriesName: [''],
+      genreId: ['', Validators.required],
       publishedDate: [''],
-      Genre: [null],
+      genre: [null],
       description: [''],
       isbn: [''],
       location: [''],
@@ -98,14 +100,38 @@ export class BookFormComponent implements OnInit {
 
   loadSeries() {
     this.bookService.getSeries().subscribe({
-      next: (data: string[]) => (this.seriesList = data)
+      next: (data: any[]) => this.series = data
     });
   }
 
   toggleNewSeries() {
     this.newSeries = !this.newSeries;
-    if (!this.newSeries)
-      this.bookForm.patchValue({ series: ' ' });
+    this.newSeriesName = '';
+  }
+
+  saveSeries() {
+    const seriesName = this.bookForm.value.seriesName.trim();
+
+    console.log("series name before sending: ", seriesName);
+
+    if (!seriesName) {
+      alert("Series name cannot be empty.");
+      return;
+    }
+
+    const newSeries = { name: seriesName };
+
+    this.bookService.createSeries(newSeries).subscribe({
+      next: (createdSeries) => {
+        console.log("series created: ", createdSeries);
+        this.series.push(createdSeries);
+        this.bookForm.patchValue({ seriesId: createdSeries.id });
+      },
+      error: (error) => {
+        console.error("Error saving series: ", error);
+        alert("Failed to save series.");
+      }
+    });
   }
 
   saveBook() {
@@ -119,6 +145,10 @@ export class BookFormComponent implements OnInit {
     if (formData.genreId) {
       const selectedGenre = this.genres.find((g) => g.id === formData.genreId);
       formData.Genre = selectedGenre
+    }
+
+    if (this.newSeries && formData.series) {
+      this.series.push({ name: formData.series });
     }
     console.log("Submitting book form: ", formData);
 

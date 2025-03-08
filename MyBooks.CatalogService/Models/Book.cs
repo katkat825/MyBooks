@@ -1,4 +1,5 @@
 ﻿using MyBooks.Common.BaseClasses;
+using System.Text.Json.Serialization;
 
 namespace MyBooks.CatalogService.Models
 {

@@ -30,13 +30,23 @@ namespace MyBooks.CatalogService.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
         {
-            var books = await _context.Books
-                .Include(b => b.Genre)
-                .Include(b => b.AgeCategory)
-                .Include(b => b.Tags)
-                .ToListAsync();
+            try
+            {
+                var books = await _context.Books
+                    .Include(b => b.Genre)
+                    .Include(b => b.AgeCategory)
+                    .Include(b => b.Tags)
+                    .Include(b => b.Series)
+                    .ToListAsync();
 
-            return Ok(books);
+                Console.WriteLine($"Fetched {books.Count} books.");
+                return Ok(books);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return StatusCode(500);
+            }
         }
 
         [HttpGet("{id}")]
@@ -46,6 +56,7 @@ namespace MyBooks.CatalogService.Controllers
                 .Include(b => b.Genre)
                 .Include(b => b.AgeCategory)
                 .Include(b => b.Tags)
+                .Include(b => b.Series)
                 .FirstOrDefaultAsync(b => b.Id == id);
 
             if (book == null) return NotFound();
@@ -94,7 +105,7 @@ namespace MyBooks.CatalogService.Controllers
                 book.Tags = existingTags.Concat(newTags).ToList();
             }
 
-            var genre = await _context.Genres.FindAsync(book.GenreId);
+        var genre = await _context.Genres.FindAsync(book.GenreId);
             if (genre == null) return BadRequest("Invalid genre ID.");
             book.Genre = genre;
 
@@ -160,11 +171,12 @@ namespace MyBooks.CatalogService.Controllers
             existingBook.Author = book.Author;
             existingBook.Description = book.Description;
             existingBook.Location = book.Location;
-            existingBook.Series = book.Series;
+            existingBook.SeriesId = book.SeriesId;
             existingBook.TagInput = book.TagInput;
             existingBook.AgeCategoryId = book.AgeCategoryId;
             existingBook.PublishedDate = book.PublishedDate;
             existingBook.ISBN = book.ISBN;
+            existingBook.GenreId = book.GenreId;
 
             _context.Entry(existingBook).State = EntityState.Modified;
 

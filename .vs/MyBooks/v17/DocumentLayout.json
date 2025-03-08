@@ -3,16 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\creat\\source\\repos\\MyBooks\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{37CCA6AF-A2F4-47CF-BC54-C9F78149D67F}|MyBooks.CatalogService\\MyBooks.CatalogService.csproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.catalogservice\\controllers\\seriescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{37CCA6AF-A2F4-47CF-BC54-C9F78149D67F}|MyBooks.CatalogService\\MyBooks.CatalogService.csproj|solutionrelative:mybooks.catalogservice\\controllers\\seriescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{37CCA6AF-A2F4-47CF-BC54-C9F78149D67F}|MyBooks.CatalogService\\MyBooks.CatalogService.csproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.catalogservice\\controllers\\tagcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{37CCA6AF-A2F4-47CF-BC54-C9F78149D67F}|MyBooks.CatalogService\\MyBooks.CatalogService.csproj|solutionrelative:mybooks.catalogservice\\controllers\\tagcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{37CCA6AF-A2F4-47CF-BC54-C9F78149D67F}|MyBooks.CatalogService\\MyBooks.CatalogService.csproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.catalogservice\\controllers\\bookcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{37CCA6AF-A2F4-47CF-BC54-C9F78149D67F}|MyBooks.CatalogService\\MyBooks.CatalogService.csproj|solutionrelative:mybooks.catalogservice\\controllers\\bookcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\components\\book-details\\book-details.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\components\\book-details\\book-details.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -27,40 +19,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "SeriesController.cs",
-              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.CatalogService\\Controllers\\SeriesController.cs",
-              "RelativeDocumentMoniker": "MyBooks.CatalogService\\Controllers\\SeriesController.cs",
-              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.CatalogService\\Controllers\\SeriesController.cs",
-              "RelativeToolTip": "MyBooks.CatalogService\\Controllers\\SeriesController.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAoAAAAGAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-08T15:34:07.697Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "TagController.cs",
-              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.CatalogService\\Controllers\\TagController.cs",
-              "RelativeDocumentMoniker": "MyBooks.CatalogService\\Controllers\\TagController.cs",
-              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.CatalogService\\Controllers\\TagController.cs",
-              "RelativeToolTip": "MyBooks.CatalogService\\Controllers\\TagController.cs",
-              "ViewState": "AgIAADIAAAAAAAAAAAAwwFIAAAAkAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-08T15:33:03.51Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "BookController.cs",
-              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.CatalogService\\Controllers\\BookController.cs",
-              "RelativeDocumentMoniker": "MyBooks.CatalogService\\Controllers\\BookController.cs",
-              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.CatalogService\\Controllers\\BookController.cs",
-              "RelativeToolTip": "MyBooks.CatalogService\\Controllers\\BookController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAXAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-08T15:28:51.33Z",
+              "Title": "book-details.component.html",
+              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\book-details\\book-details.component.html",
+              "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\components\\book-details\\book-details.component.html",
+              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\book-details\\book-details.component.html*",
+              "RelativeToolTip": "MyBooks.UI\\src\\app\\components\\book-details\\book-details.component.html*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAA0AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2025-03-08T17:33:16.573Z",
               "EditorCaption": ""
             }
           ]

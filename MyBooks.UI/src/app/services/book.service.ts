@@ -44,4 +44,8 @@ export class BookService {
   getSeries(): Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrl}/series`);
   }
+
+  createSeries(series: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/series`, series);
+  }
 }
