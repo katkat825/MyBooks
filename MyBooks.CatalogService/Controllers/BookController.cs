@@ -172,6 +172,7 @@ namespace MyBooks.CatalogService.Controllers
             existingBook.Description = book.Description;
             existingBook.Location = book.Location;
             existingBook.SeriesId = book.SeriesId;
+            existingBook.SeriesPosition = book.SeriesPosition;
             existingBook.TagInput = book.TagInput;
             existingBook.AgeCategoryId = book.AgeCategoryId;
             existingBook.PublishedDate = book.PublishedDate;

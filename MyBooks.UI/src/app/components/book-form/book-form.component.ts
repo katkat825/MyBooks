@@ -37,6 +37,7 @@ export class BookFormComponent implements OnInit {
   series: any[] = [];
   newSeries: boolean = false;
   newSeriesName: string = '';
+  showSeriesPosition = false;
 
   constructor(
     private fb: FormBuilder,
@@ -51,6 +52,7 @@ export class BookFormComponent implements OnInit {
       author: [''],
       seriesId: [null],
       seriesName: [''],
+      seriesPosition: [null],
       genreId: ['', Validators.required],
       description: [''],
       isbn: [''],

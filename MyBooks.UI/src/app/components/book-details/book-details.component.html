@@ -9,6 +9,7 @@
     <h2>{{ book.title }}</h2>
     <p><strong>Author:</strong> {{ book.author || 'Unknown' }}</p>
     <p><strong>Series:</strong> {{ book.series?.name || '' }}</p>
+    <p><strong>Series Position:</strong> Book: {{book.seriesPosition ||'Unknown'}}</p>
     <p><strong>Genre:</strong> {{ book.genre?.name || 'Unknown' }}</p>
     <p><strong>Age Category:</strong> {{ book.ageCategory?.name || 'Unknown' }}</p>
     <p><strong>Location:</strong> {{ book.location || 'Unknown' }}</p>

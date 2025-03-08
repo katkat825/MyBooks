@@ -18,12 +18,15 @@ mat-select,
 mat-select-trigger,
 mat-option,
 .mat-select-value,
+.mat-select-panel,
+.mat-select-content,
 .mat-option.mat-selected,
 input,
 textarea,
 .mat-input-element,
 .mat-select-arrow {
   color: var(--text-color) !important;
+  background-color: var(--bg-color) !important;
 }
 
 mat-card-title {
