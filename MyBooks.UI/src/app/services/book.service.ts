@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { tap, catchError, throwError, from, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,14 @@ export class BookService {
   }
 
   createBook(book: any): Observable<any> {
-    return this.http.post(this.apiUrl, book);
+    console.log("sending book data: ", book);
+    return this.http.post(this.apiUrl, book).pipe(
+      tap(() => console.log("Book created successfully.")),
+      catchError((error) => {
+        console.error("Error creating book:", error);
+        return throwError(error);
+      })
+    );
   }
 
   updateBook(id: number, book: any): Observable<any> {

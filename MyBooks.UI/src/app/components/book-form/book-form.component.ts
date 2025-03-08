@@ -49,11 +49,9 @@ export class BookFormComponent implements OnInit {
     this.bookForm = this.fb.group({
       title: ['', Validators.required],
       author: [''],
-      seriesId: [''],
+      seriesId: [null],
       seriesName: [''],
       genreId: ['', Validators.required],
-      publishedDate: [''],
-      genre: [null],
       description: [''],
       isbn: [''],
       location: [''],
@@ -142,10 +140,7 @@ export class BookFormComponent implements OnInit {
 
     const formData = { ...this.bookForm.value };
 
-    if (formData.genreId) {
-      const selectedGenre = this.genres.find((g) => g.id === formData.genreId);
-      formData.Genre = selectedGenre
-    }
+    formData.publishedDate = null;
 
     if (this.newSeries && formData.series) {
       this.series.push({ name: formData.series });
