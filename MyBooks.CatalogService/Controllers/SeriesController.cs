@@ -1,16 +1,14 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBooks.CatalogService.Data;
 using MyBooks.CatalogService.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MyBooks.CatalogService.Controllers
 {
     [Route("api/books/series")]
     [ApiController]
+    //[Authorize]
     public class SeriesController : ControllerBase
     {
         private readonly CatalogDbContext _context;

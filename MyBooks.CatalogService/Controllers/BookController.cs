@@ -87,6 +87,11 @@ namespace MyBooks.CatalogService.Controllers
                 var newTags = tagNames.Except(existingTags.Select(t => t.Name.ToLower()))
                     .Select(t => new Tag { Name = t })
                     .ToList();
+
+                _context.Tags.AddRange(newTags);
+                await _context.SaveChangesAsync();
+
+                book.Tags = existingTags.Concat(newTags).ToList();
             }
 
             var genre = await _context.Genres.FindAsync(book.GenreId);
@@ -144,6 +149,11 @@ namespace MyBooks.CatalogService.Controllers
                 var newTags = tagNames.Except(existingTags.Select(t => t.Name.ToLower()))
                     .Select(t => new Tag { Name = t })
                     .ToList();
+
+                _context.Tags.AddRange(newTags);
+                await _context.SaveChangesAsync();
+
+                book.Tags = existingTags.Concat(newTags).ToList();
             }
 
             existingBook.Title = book.Title;
