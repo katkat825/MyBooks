@@ -1,18 +1,34 @@
 .container {
-    max-width: 80%x;
-    margin: 0 auto;
-    padding: 20px;
+  max-width: 80%x;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 .book-wrapper {
   position: relative;
+  margin-bottom: 50px;
 }
 
-.book-details-container {
+.book-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  justify-content: center;
+  align-items: center;
+}
+
+mat-card-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.book-details-card {
+  width: 500px;
   padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: var(--bg-color);
 }
 
 #book-list {
@@ -28,16 +44,15 @@
 }
 
 #danger-button {
-    background-color:var(--warn);
-    color: var(--button-text);
+  background-color: var(--warn);
+  color: var(--button-text);
 }
 
 #edit-book {
-    background-color: var(--primary);
-    color: var(--button-text);
+  background-color: var(--primary);
+  color: var(--button-text);
 }
 
 button {
-    margin-right: 10px;
+  margin-right: 10px;
 }
-
