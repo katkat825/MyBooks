@@ -56,4 +56,8 @@ export class BookService {
   createSeries(series: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/series`, series);
   }
+
+  createGenre(genre: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/genres`, genre);
+  }
 }

@@ -36,8 +36,7 @@ export class BookFormComponent implements OnInit {
   ageCategories: any[] = [];
   series: any[] = [];
   newSeries: boolean = false;
-  newSeriesName: string = '';
-  showSeriesPosition = false;
+  newGenre: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -58,7 +57,8 @@ export class BookFormComponent implements OnInit {
       isbn: [''],
       location: [''],
       tagInput: [''],
-      ageCategoryId: ['']
+      ageCategoryId: [''],
+      genreName: ['']
     });
     this.loadGenres();
     this.loadAgeCategories();
@@ -104,9 +104,38 @@ export class BookFormComponent implements OnInit {
     });
   }
 
+  toggleNewGenre() {
+    this.newGenre = !this.newGenre;
+    this.bookForm.patchValue({ genreName: '' });
+  }
+
+  saveGenre() {
+    const genreName = this.bookForm.value.genreName.trim();
+
+    if (!genreName) {
+      alert("Genre name cannot be empty.");
+      return;
+    }
+
+    const newGenre = { name: genreName };
+
+    this.bookService.createGenre(newGenre).subscribe({
+      next: (createdGenre) => {
+        console.log("Genre created: ", createdGenre);
+        this.genres.push(createdGenre);
+        this.bookForm.patchValue({ genreId: createdGenre.id });
+        this.newGenre = false;
+      },
+      error: (error) => {
+        console.error("Error saving genre: ", error);
+        alert("Failed to save genre.");
+      }
+    })
+  }
+
   toggleNewSeries() {
     this.newSeries = !this.newSeries;
-    this.newSeriesName = '';
+    this.bookForm.patchValue({ seriesName: '' });
   }
 
   saveSeries() {

@@ -30,8 +30,10 @@
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>New Series</mat-label>
             <input matInput type="text" formControlName="seriesName">
-            <button type="button" (click)="saveSeries()">Save Series</button>
-           </mat-form-field>
+            <button mat-icon-button type="button" (click)="saveSeries()">
+              <mat-icon>save</mat-icon>
+            </button>
+          </mat-form-field>
         </div>
 
         <mat-form-field appearance="outline" class="full-width">
@@ -62,13 +64,28 @@
           <input matInput type="text" formControlName="location">
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Genre</mat-label>
-          <mat-select formControlName="genreId">
-            <mat-option value="">Select Genre</mat-option>
-            <mat-option *ngFor="let genre of genres" [value]="genre.id">{{ genre.name }}</mat-option>
-          </mat-select>
-        </mat-form-field>
+        <div class="inline-group">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Genre</mat-label>
+            <mat-select formControlName="genreId">
+              <mat-option value="">Select Genre</mat-option>
+              <mat-option *ngFor="let genre of genres" [value]="genre.id">{{ genre.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button mat-icon-button type="button" (click)="toggleNewGenre()">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+
+        <div *ngIf="newGenre">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>New Genre</mat-label>
+            <input matInput type="text" formControlName="genreName">
+          </mat-form-field>
+          <button mat-icon-button type="button" (click)="saveGenre()">
+            <mat-icon>save</mat-icon>
+          </button>
+        </div>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Tags</mat-label>
