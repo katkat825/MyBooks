@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { tap, catchError, throwError, from, Observable } from 'rxjs';
+import { map, tap, catchError, throwError, from, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 
@@ -13,7 +13,14 @@ export class BookService {
   constructor(private http: HttpClient) { }
 
   getAllBooks(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+    return this.http.get<any>(`${this.apiUrl}`).pipe(
+      map(response => response.$values ?? response), // ✅ Extracts $values if present
+      tap((data) => console.log("Fetched books in UI:", data)), // ✅ Debugging log
+      catchError((error) => {
+        console.error("Error fetching books:", error);
+        return throwError(error);
+      })
+    );
   }
 
   deleteBook(id: number): Observable<void> {
@@ -42,7 +49,30 @@ export class BookService {
   }
 
   getGenres(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/genres`);
+    return this.http.get<any>(`${this.apiUrl}/genres`).pipe(
+      map(response => {
+        // ✅ Check if $values exists and is an array
+        return response && typeof response === 'object' && '$values' in response
+          ? response.$values
+          : response;
+      }),
+      catchError((error) => {
+        console.error("Error fetching genre:", error);
+        return throwError(error);
+      })
+    );
+  }
+
+  createGenre(genre: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/genres`, genre);
+  }
+
+  updateGenre(id: number, genre: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/genres/${id}`, genre);
+  }
+
+  deleteGenre(id: number): Observable<any> {
+    return this.http.delete<void>(`${this.apiUrl}/genres/${id}`);
   }
 
   getAgeCategories(): Observable<any[]> {
@@ -50,7 +80,18 @@ export class BookService {
   }
 
   getSeries(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/series`);
+    return this.http.get<any>(`${this.apiUrl}/series`).pipe(
+      map(response => {
+        // ✅ Check if $values exists and is an array
+        return response && typeof response === 'object' && '$values' in response
+          ? response.$values
+          : response;
+      }),
+      catchError((error) => {
+        console.error("Error fetching series:", error);
+        return throwError(error);
+      })
+    );
   }
 
   createSeries(series: any): Observable<any> {

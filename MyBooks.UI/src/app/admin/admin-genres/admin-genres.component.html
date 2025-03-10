@@ -1,0 +1,58 @@
+<div class="container mt-4">
+  <h2>Genres</h2>
+
+  <button mat-button id="add-genre" (click)="addGenre()">
+    <mat-icon>add</mat-icon> Add Genre
+  </button>
+
+  <table mat-table [dataSource]="genres" class="mat-elevation-z8">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let genre">
+        {{ genre.name }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let genre">
+        <button mat-icon-button id="edit-button" (click)="startEdit(genre)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button id="delete-button" (click)="deleteGenre(genre.id)">
+          <mat-icon>delete</mat-icon>
+        </button></td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="['name', 'actions']"></tr>
+    <tr mat-row *matRowDef="let row, columns: ['name', 'actions'];"></tr>
+  </table>
+
+  <div *ngIf="addingGenre" class="create-form">
+    <h3>Add New Genre</h3>
+    <form [formGroup]="createForm">
+      <mat-form-field>
+        <mat-label>Genre Name</mat-label>
+        <input matInput formControlName="name" />
+      </mat-form-field>
+      <div class="button-group">
+        <button mat-raised-button id="save-button" (click)="saveCreate()">Save</button>
+        <button mat-button id="cancel-button" (click)="cancelCreate()">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="editingGenre" class="edit-form">
+    <h3>Edit Genre</h3>
+    <form [formGroup]="editForm">
+      <mat-form-field>
+        <mat-label>Genre Name</mat-label>
+        <input matInput formControlName="name" />
+      </mat-form-field>
+      <div class="button-group">
+        <button mat-raised-button id="save-update-button" (click)="saveEdit()">Save</button>
+        <button mat-button id="cancel-edit-button" (click)="cancelEdit()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>

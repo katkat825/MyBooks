@@ -7,6 +7,7 @@ import { BookDetailsComponent } from './components/book-details/book-details.com
 import { BookFormComponent } from './components/book-form/book-form.component';
 import { HttpClientModule } from '@angular/common/http';
 import { AdminComponent } from './admin/admin/admin.component';
+import { AdminGenresComponent } from './admin/admin-genres/admin-genres.component';
 
 @NgModule({
   imports: [
@@ -20,7 +21,8 @@ import { AdminComponent } from './admin/admin/admin.component';
   providers: [],
   bootstrap: [AppComponent],
   declarations: [
-    AdminComponent
+    AdminComponent,
+    AdminGenresComponent
   ]
 })
 export class AppModule { }

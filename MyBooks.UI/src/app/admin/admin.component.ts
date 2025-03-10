@@ -1,11 +1,8 @@
-import { Component } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatListModule } from '@angular/material/list';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTab, MatTabsModule } from '@angular/material/tabs';
 import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { MatTabsModule } from '@angular/material/tabs';
+import { Router, RouterModule } from '@angular/router';
+import { AdminGenresComponent } from './admin-genres/admin-genres.component';
 import { AdminSeriesComponent } from './admin-series/admin-series.component';
 
 @Component({
@@ -17,7 +14,8 @@ import { AdminSeriesComponent } from './admin-series/admin-series.component';
     RouterModule,
     MatTabsModule,
     CommonModule,
-    AdminSeriesComponent
+    AdminSeriesComponent,
+    AdminGenresComponent
   ]
 })
 

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MyBooks.CatalogService.Data;
 using MyBooks.CatalogService.Validators;
 using MyBooks.Common.Services;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("CatalogConnection");
@@ -28,7 +29,11 @@ builder.Services.AddSingleton<HtmlSanitizationService>();
 builder.Services.AddValidatorsFromAssemblyContaining<BookValidator>();
 
 //add other services
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+    options.JsonSerializerOptions.WriteIndented = true;
+});
 builder.Services.AddDbContext<CatalogDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("CatalogConnection")));
 builder.Services.AddEndpointsApiExplorer();

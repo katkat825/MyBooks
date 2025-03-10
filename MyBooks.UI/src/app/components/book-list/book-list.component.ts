@@ -30,6 +30,7 @@ export class BookListComponent {
   loadBooks() {
     this.bookService.getAllBooks().subscribe({
       next: (data) => {
+        console.log("Books received in UI: ", data);
         this.books = data;
       },
       error: (error) => console.error('Error loading books', error),

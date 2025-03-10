@@ -40,7 +40,7 @@ namespace MyBooks.CatalogService.Controllers
                     .ToListAsync();
 
                 Console.WriteLine($"Fetched {books.Count} books.");
-                return Ok(books);
+                return books;
             }
             catch (Exception ex)
             {
