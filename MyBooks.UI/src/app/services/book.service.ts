@@ -76,7 +76,17 @@ export class BookService {
   }
 
   getAgeCategories(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/agecategories`);
+    return this.http.get<any>(`${this.apiUrl}/agecategories`).pipe(
+      map(response => {
+        return response && typeof response === 'object' && '$values' in response
+          ? response.$values
+          : response;
+      }),
+      catchError((error) => {
+        console.error("Error fetching genre:", error);
+        return throwError(error);
+      })
+    );
   }
 
   getSeries(): Observable<string[]> {

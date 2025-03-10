@@ -4995,9 +4995,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\creat\\source\\repos\\MYBooks\\MyBooks.CatalogService\\MyBooks.CatalogService.csproj",
+      "projectUniqueName": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.CatalogService\\MyBooks.CatalogService.csproj",
       "projectName": "MyBooks.CatalogService",
-      "projectPath": "C:\\Users\\creat\\source\\repos\\MYBooks\\MyBooks.CatalogService\\MyBooks.CatalogService.csproj",
+      "projectPath": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.CatalogService\\MyBooks.CatalogService.csproj",
       "packagesPath": "C:\\Users\\creat\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.CatalogService\\obj\\",
       "projectStyle": "PackageReference",
@@ -5020,8 +5020,8 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "C:\\Users\\creat\\source\\repos\\MYBooks\\MyBooks.Common\\MyBooks.Common.csproj": {
-              "projectPath": "C:\\Users\\creat\\source\\repos\\MYBooks\\MyBooks.Common\\MyBooks.Common.csproj"
+            "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.Common\\MyBooks.Common.csproj": {
+              "projectPath": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.Common\\MyBooks.Common.csproj"
             }
           }
         }
