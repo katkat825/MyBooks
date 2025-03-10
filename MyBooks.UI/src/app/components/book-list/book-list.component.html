@@ -5,9 +5,14 @@
     </button>
   </div>
 
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Search Books</mat-label>
+    <input matInput type="text" [(ngModel)]="searchQuery" (input)="filterBooks()" placeholder="Search by Title or Author" />
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+
   <div class="book-container">
-    <div class="book" *ngFor="let book of books">
-      
+    <div class="book" *ngFor="let book of filteredBooks">      
       <div class="book-cover" (click)="viewBookDetails(book)">
         <h5 class="book-title">{{ book.title }}</h5>
         <h6 class="book-author">{{ book.author || "Unknown Author"}}</h6>
