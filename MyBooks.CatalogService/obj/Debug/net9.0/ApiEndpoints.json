@@ -306,6 +306,22 @@
   },
   {
     "ContainingType": "MyBooks.CatalogService.Controllers.SeriesController",
+    "Method": "DeleteSeries",
+    "RelativePath": "api/books/series/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MyBooks.CatalogService.Controllers.SeriesController",
     "Method": "GetBooksInSeries",
     "RelativePath": "api/books/series/{id}/books",
     "HttpMethod": "GET",

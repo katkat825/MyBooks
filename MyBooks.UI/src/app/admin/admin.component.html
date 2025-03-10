@@ -1,0 +1,12 @@
+<div class="admin-container">
+  <h1>Admin</h1>
+
+  <mat-tab-group>
+    <mat-tab label="Manage Series">
+      <router-outlet></router-outlet>
+      <ng-container *ngIf="currentTab === 'series'">
+        <app-admin-series></app-admin-series>
+      </ng-container>
+    </mat-tab>
+  </mat-tab-group>
+</div>

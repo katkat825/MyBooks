@@ -57,8 +57,7 @@ export class BookFormComponent implements OnInit {
       isbn: [''],
       location: [''],
       tagInput: [''],
-      ageCategoryId: [''],
-      genreName: ['']
+      ageCategoryId: ['', Validators.required]
     });
     this.loadGenres();
     this.loadAgeCategories();
@@ -102,35 +101,6 @@ export class BookFormComponent implements OnInit {
     this.bookService.getSeries().subscribe({
       next: (data: any[]) => this.series = data
     });
-  }
-
-  toggleNewGenre() {
-    this.newGenre = !this.newGenre;
-    this.bookForm.patchValue({ genreName: '' });
-  }
-
-  saveGenre() {
-    const genreName = this.bookForm.value.genreName.trim();
-
-    if (!genreName) {
-      alert("Genre name cannot be empty.");
-      return;
-    }
-
-    const newGenre = { name: genreName };
-
-    this.bookService.createGenre(newGenre).subscribe({
-      next: (createdGenre) => {
-        console.log("Genre created: ", createdGenre);
-        this.genres.push(createdGenre);
-        this.bookForm.patchValue({ genreId: createdGenre.id });
-        this.newGenre = false;
-      },
-      error: (error) => {
-        console.error("Error saving genre: ", error);
-        alert("Failed to save genre.");
-      }
-    })
   }
 
   toggleNewSeries() {

@@ -3,12 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\creat\\source\\repos\\MyBooks\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\components\\book-form\\book-form.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\components\\book-form\\book-form.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\admin\\admin-series\\admin-series.component.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\admin\\admin-series\\admin-series.component.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\components\\book-form\\book-form.component.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
-      "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\components\\book-form\\book-form.component.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+      "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\admin\\admin-series\\admin-series.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\admin\\admin-series\\admin-series.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\components\\book-details\\book-details.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\components\\book-details\\book-details.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\services\\book.service.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
@@ -22,45 +26,64 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "book.service.ts",
               "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\services\\book.service.ts",
               "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\services\\book.service.ts",
               "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\services\\book.service.ts",
               "RelativeToolTip": "MyBooks.UI\\src\\app\\services\\book.service.ts",
-              "ViewState": "AgIAABMAAAAAAAAAAAAgwDwAAAA6AAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADwAAABAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2025-03-09T13:09:02.528Z",
+              "WhenOpened": "2025-03-10T12:54:13.839Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "book-form.component.ts",
-              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\book-form\\book-form.component.ts",
-              "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\components\\book-form\\book-form.component.ts",
-              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\book-form\\book-form.component.ts",
-              "RelativeToolTip": "MyBooks.UI\\src\\app\\components\\book-form\\book-form.component.ts",
-              "ViewState": "AgIAAHUAAAAAAAAAAAArwIEAAAAnAAAAAAAAAA==",
+              "Title": "admin-series.component.html",
+              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\admin\\admin-series\\admin-series.component.html",
+              "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\admin\\admin-series\\admin-series.component.html",
+              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\admin\\admin-series\\admin-series.component.html",
+              "RelativeToolTip": "MyBooks.UI\\src\\app\\admin\\admin-series\\admin-series.component.html",
+              "ViewState": "AgIAABgAAAAAAAAAAAAAABkAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2025-03-10T12:34:59.316Z",
+              "EditorCaption": ""
+            }
+          ]
+        },
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "admin-series.component.ts",
+              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\admin\\admin-series\\admin-series.component.ts",
+              "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\admin\\admin-series\\admin-series.component.ts",
+              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\admin\\admin-series\\admin-series.component.ts",
+              "RelativeToolTip": "MyBooks.UI\\src\\app\\admin\\admin-series\\admin-series.component.ts",
+              "ViewState": "AgIAAEYAAAAAAAAAAAAgwFEAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2025-03-09T12:59:45.269Z",
+              "WhenOpened": "2025-03-10T12:34:53.08Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "book-form.component.html",
-              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\book-form\\book-form.component.html",
-              "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\components\\book-form\\book-form.component.html",
-              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\book-form\\book-form.component.html",
-              "RelativeToolTip": "MyBooks.UI\\src\\app\\components\\book-form\\book-form.component.html",
-              "ViewState": "AgIAADkAAAAAAAAAAAAAACEAAAAcAAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "book-details.component.html",
+              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\book-details\\book-details.component.html",
+              "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\components\\book-details\\book-details.component.html",
+              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\book-details\\book-details.component.html",
+              "RelativeToolTip": "MyBooks.UI\\src\\app\\components\\book-details\\book-details.component.html",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
-              "WhenOpened": "2025-03-09T12:56:28.261Z",
+              "WhenOpened": "2025-03-10T13:26:14.076Z",
               "EditorCaption": ""
             }
           ]

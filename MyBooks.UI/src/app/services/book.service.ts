@@ -57,7 +57,11 @@ export class BookService {
     return this.http.post(`${this.apiUrl}/series`, series);
   }
 
-  createGenre(genre: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/genres`, genre);
+  updateSeries(id: number, series: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/series/${id}`, series);
+  }
+
+  deleteSeries(id: number): Observable<any> {
+    return this.http.delete<void>(`${this.apiUrl}/series/${id}`);
   }
 }

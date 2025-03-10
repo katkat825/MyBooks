@@ -1,0 +1,55 @@
+<div class="container mt-4">
+  <h2>Series</h2>
+
+  <button mat-button id="add-series" (click)="addSeries()">
+    <mat-icon>add</mat-icon> Add Series
+  </button>
+
+  <table mat-table [dataSource]="series" class="mat-elevation-z8">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let series">
+        {{ series.name }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let series">
+        <button mat-icon-button id="edit-button" (click)="startEdit(series)"><mat-icon>edit</mat-icon></button>
+        <button mat-icon-button id="delete-button" (click)="deleteSeries(series.id)"><mat-icon>delete</mat-icon></button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="['name', 'actions']"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['name', 'actions'];"></tr>
+  </table>
+
+  <div *ngIf="addingSeries" class="create-form">
+    <h3>Add New Series</h3>
+    <form [formGroup]="createForm">
+      <mat-form-field>
+        <mat-label>Series Name</mat-label>
+        <input matInput formControlName="name" />
+      </mat-form-field>
+      <div class="button-group">
+        <button mat-raised-button id="save-button" (click)="saveCreate()">Save</button>
+        <button mat-button id="cancel-button" (click)="cancelCreate()">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="editingSeries" class="edit-form">
+    <h3>Edit Series</h3>
+    <form [formGroup]="editForm">
+      <mat-form-field>
+        <mat-label>Series Name</mat-label>
+        <input matInput formControlName="name">
+      </mat-form-field>
+      <div class="button-group">
+        <button mat-raised-button id="save-button" (click)="saveEdit()">Save</button>
+        <button mat-button id="cancel-button" (click)="cancelEdit()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>

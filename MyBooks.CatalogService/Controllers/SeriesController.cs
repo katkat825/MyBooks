@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBooks.CatalogService.Data;
 using MyBooks.CatalogService.Models;
+using MyBooks.Common.Services;
 
 namespace MyBooks.CatalogService.Controllers
 {
@@ -12,10 +13,12 @@ namespace MyBooks.CatalogService.Controllers
     public class SeriesController : ControllerBase
     {
         private readonly CatalogDbContext _context;
+        private readonly HtmlSanitizationService _sanitizationService;
 
-        public SeriesController(CatalogDbContext context)
+        public SeriesController(CatalogDbContext context, HtmlSanitizationService htmlSanitizationService)
         {
             _context = context;
+            _sanitizationService = htmlSanitizationService;
         }
 
         // 🔹 GET: Fetch all series
@@ -46,8 +49,14 @@ namespace MyBooks.CatalogService.Controllers
             if (string.IsNullOrWhiteSpace(series.Name))
                 return BadRequest("Series name is required.");
 
-            series.CreatedBy = "System";  // Replace with real user later
-            series.CreatedDate = DateTime.UtcNow;
+            series.Name = _sanitizationService.Sanitize(series.Name.Trim());
+
+            //disallow duplicates
+            var existingSeries = await _context.Series
+                .Where(s => s.Name.ToLower() == series.Name.ToLower())
+                .FirstOrDefaultAsync();
+
+            if (existingSeries != null) return Conflict($"A series with the name '{series.Name}' already exists.");
 
             _context.Series.Add(series);
             await _context.SaveChangesAsync();
@@ -66,9 +75,17 @@ namespace MyBooks.CatalogService.Controllers
             if (series == null)
                 return NotFound("Series not found.");
 
+            updatedSeries.Name = _sanitizationService.Sanitize(updatedSeries.Name.Trim());
+
+            //disallow duplicates
+            var duplicateSeries = await _context.Series
+                .Where(s => s.Id != id && s.Name.ToLower() == updatedSeries.Name.ToLower())
+                .FirstOrDefaultAsync();
+
+            if (duplicateSeries != null)
+                return Conflict($"A series with the name '{updatedSeries.Name}' already exists.");
+
             series.Name = updatedSeries.Name;
-            series.LastModifiedBy = "System"; // Replace with real user later
-            series.LastModifiedDate = DateTime.UtcNow;
 
             _context.Entry(series).State = EntityState.Modified;
             await _context.SaveChangesAsync();
@@ -90,5 +107,26 @@ namespace MyBooks.CatalogService.Controllers
 
             return Ok(books);
         }
+
+        //delete series
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteSeries(int id)
+        {
+            var series = await _context.Series
+                .Include(s => s.Books) // Include books related to the series
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (series == null)
+                return NotFound("Series not found.");
+
+            if (series.Books != null && series.Books.Any())
+                return Conflict("Cannot delete this series because it contains books.");
+
+            _context.Series.Remove(series);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
     }
 }
