@@ -9,6 +9,7 @@ import { environment } from '../../environments/environment';
 })
 export class BookService {
   private apiUrl = `${environment.apiUrl}/books`;
+  private fileApiUrl = `https://localhost:7142/api/files`;
 
   constructor(private http: HttpClient) { }
 
@@ -42,6 +43,17 @@ export class BookService {
     const updatedBook = {
       ...book, id};
     return this.http.put(`${this.apiUrl}/${id}`, updatedBook);
+  }
+
+  updateBookFileId(bookId: number, fileId: number): Observable<any> {
+    console.log('request to update book ${bookId} with FileId: ${fileId}');
+    return this.http.patch(`${environment.apiUrl}/books/${bookId}/file`, { fileId }).pipe(
+      tap(() => console.log('successfulle updated bookId: ${bookId} with fileId: ${fileId}')),
+      catchError(error => {
+        console.error("❌ Error updating book with FileId:", error);
+        return throwError(() => new Error("Failed to update book with FileId"));
+      })
+    );
   }
 
   getBook(id: number): Observable<any> {
@@ -114,5 +126,18 @@ export class BookService {
 
   deleteSeries(id: number): Observable<any> {
     return this.http.delete<void>(`${this.apiUrl}/series/${id}`);
+  }
+
+  uploadFile(file: File, bookId?: number): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (bookId) { 
+      formData.append('bookId', bookId.toString());
+    }
+    return this.http.post(`${this.fileApiUrl}/upload`, formData);
+  }
+
+  downloadFile(fileId: number): Observable<Blob> {
+    return this.http.get(`${this.fileApiUrl}/${fileId}`, { responseType: 'blob' });
   }
 }

@@ -38,6 +38,7 @@ builder.Services.AddDbContext<CatalogDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("CatalogConnection")));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 

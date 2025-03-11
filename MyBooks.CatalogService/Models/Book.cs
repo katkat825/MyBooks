@@ -21,5 +21,6 @@ namespace MyBooks.CatalogService.Models
         public AgeCategory? AgeCategory { get; set; }
         public string? TagInput { get; set; }
         public ICollection<Tag>? Tags { get; set; }
+        public int? FileId { get; set; }
     }
 }

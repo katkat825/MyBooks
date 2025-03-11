@@ -95,6 +95,9 @@ namespace MyBooks.CatalogService.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("FileId")
+                        .HasColumnType("int");
+
                     b.Property<int>("GenreId")
                         .HasColumnType("int");
 

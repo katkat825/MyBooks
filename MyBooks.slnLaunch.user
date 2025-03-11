@@ -9,6 +9,10 @@
       {
         "Path": "MyBooks.UI\\MyBooks.UI.esproj",
         "Action": "Start"
+      },
+      {
+        "Path": "MyBooks.FileService\\MyBooks.FileService.csproj",
+        "Action": "Start"
       }
     ]
   }

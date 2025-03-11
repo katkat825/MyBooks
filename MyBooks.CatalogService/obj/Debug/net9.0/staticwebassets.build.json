@@ -1,11 +1,23 @@
 {
   "Version": 1,
-  "Hash": "zVjEkIVdLJeUYexF+WctJ9T6xq8Lhpc+f1NT72mPTR0=",
+  "Hash": "3s9xq0JpHQeYmi0t4Y3iWaPEffOrxM8OfWdfcVujdeg=",
   "Source": "MyBooks.CatalogService",
   "BasePath": "_content/MyBooks.CatalogService",
   "Mode": "Default",
   "ManifestType": "Build",
-  "ReferencedProjectsConfiguration": [],
+  "ReferencedProjectsConfiguration": [
+    {
+      "Identity": "C:\\Users\\creat\\source\\repos\\MYBooks\\MyBooks.FileService\\MyBooks.FileService.csproj",
+      "Version": 2,
+      "Source": "MyBooks.FileService",
+      "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalPublishPropertiesToRemove": "WebPublishProfileFile;TargetFramework",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework"
+    }
+  ],
   "DiscoveryPatterns": [],
   "Assets": [],
   "Endpoints": []

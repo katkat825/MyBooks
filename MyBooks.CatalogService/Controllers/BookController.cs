@@ -1,10 +1,12 @@
-﻿using FluentValidation;
+﻿using Azure;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBooks.CatalogService.Data;
 using MyBooks.CatalogService.Models;
 using MyBooks.Common.Services;
+using System.Net.Http;
 
 namespace MyBooks.CatalogService.Controllers
 {
@@ -16,15 +18,18 @@ namespace MyBooks.CatalogService.Controllers
         private readonly CatalogDbContext _context;
         private readonly IValidator<Book> _validator;
         private readonly HtmlSanitizationService _htmlSanitizationService;
+        private readonly HttpClient _httpClient;
 
         public BookController(
             CatalogDbContext context,
             HtmlSanitizationService htmlSanitizationService,
-            IValidator<Book> validator)
+            IValidator<Book> validator,
+            IHttpClientFactory httpClientFactory)
         {
             _context = context;
             _htmlSanitizationService = htmlSanitizationService;
             _validator = validator;
+            _httpClient = httpClientFactory.CreateClient();
         }
 
         [HttpGet]
@@ -105,9 +110,15 @@ namespace MyBooks.CatalogService.Controllers
                 book.Tags = existingTags.Concat(newTags).ToList();
             }
 
-        var genre = await _context.Genres.FindAsync(book.GenreId);
-            if (genre == null) return BadRequest("Invalid genre ID.");
-            book.Genre = genre;
+            var genre = await _context.Genres.FindAsync(book.GenreId);
+                if (genre == null) return BadRequest("Invalid genre ID.");
+                book.Genre = genre;
+
+            if(book.FileId.HasValue)
+            {
+                var response = await _httpClient.GetAsync($"https://localhost:7142/api/files/{book.FileId}");
+                if (!response.IsSuccessStatusCode) return BadRequest("Invalid FileId. File not found.");
+            }
 
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
@@ -167,6 +178,12 @@ namespace MyBooks.CatalogService.Controllers
                 book.Tags = existingTags.Concat(newTags).ToList();
             }
 
+            if (book.FileId.HasValue)
+            {
+                var response = await _httpClient.GetAsync($"https://localhost:7142/api/files/{book.FileId}");
+                if (!response.IsSuccessStatusCode) return BadRequest("Invalid FileId. File not found.");
+            }
+
             existingBook.Title = book.Title;
             existingBook.Author = book.Author;
             existingBook.Description = book.Description;
@@ -177,13 +194,47 @@ namespace MyBooks.CatalogService.Controllers
             existingBook.AgeCategoryId = book.AgeCategoryId;
             existingBook.PublishedDate = book.PublishedDate;
             existingBook.ISBN = book.ISBN;
-            existingBook.GenreId = book.GenreId;
+            existingBook.GenreId = book.GenreId;      
+            existingBook.FileId = book.FileId;
 
             _context.Entry(existingBook).State = EntityState.Modified;
 
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpPatch("{id}/file")]
+        public async Task<IActionResult> UpdateBookFileId(int id, [FromBody] FileUpdateDto request)
+        {
+            Console.WriteLine($"📡 Received request to update book {id} with FileId: {request.FileId}");
+
+            var book = await _context.Books.FindAsync(id);
+            if (book == null)
+            {
+                Console.WriteLine($"❌ Book {id} not found.");
+                return NotFound("Book not found.");
+            }
+
+            if (request.FileId <= 0)
+            {
+                Console.WriteLine("❌ Invalid FileId received.");
+                return BadRequest("Invalid FileId.");
+            }
+
+            book.FileId = request.FileId;
+            _context.Entry(book).State = EntityState.Modified;
+
+            await _context.SaveChangesAsync();
+
+            Console.WriteLine($"✅ Book {id} successfully updated with FileId {request.FileId}");
+
+            return NoContent();
+        }
+
+        public class FileUpdateDto
+        {
+            public int FileId { get; set; }
         }
 
         [HttpDelete("{id}")]
@@ -203,6 +254,15 @@ namespace MyBooks.CatalogService.Controllers
 
             if (!isAdmin && !isEditor && !isOwner) return Forbid("Only an admin, editor, or the book's creator is authorized to update this book.");
             */
+
+            if (book.FileId.HasValue)
+            {
+                var response = await _httpClient.DeleteAsync($"https://localhost:7042/api/files/{book.FileId}");
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Warning: File deletion failed, but continuing with book deletion.");
+                }
+            }
 
             _context.Books.Remove(book);
             await _context.SaveChangesAsync();

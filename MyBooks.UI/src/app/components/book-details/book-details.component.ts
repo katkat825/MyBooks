@@ -55,4 +55,19 @@ export class BookDetailsComponent implements OnInit {
       });
     }
   }
+
+  downloadBookFile(fileId: number) {
+    this.bookService.downloadFile(fileId).subscribe({
+      next: (fileBlob) => {
+        const blobUrl = window.URL.createObjectURL(fileBlob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = this.book.fileName || 'book-file';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      },
+      error: (error) => console.error('Error downloading file', error)
+    });
+  }
 }

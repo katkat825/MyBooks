@@ -7,7 +7,7 @@
 
   <div class="book-container">
     <mat-card class="book-details-card">
-      <mat-card-title>{{ book.title }}</mat-card-title>
+      <mat-card-title>{{ book?.title }}</mat-card-title>
       <div *ngIf="book" class="book-details-container">
         <p><strong>Author:</strong> {{ book.author || 'Unknown' }}</p>
         <p><strong>Series:</strong> {{ book.series?.name || '' }}</p>
@@ -17,6 +17,11 @@
         <p><strong>Location:</strong> {{ book.location || 'Unknown' }}</p>
         <p><strong>Description:</strong> {{ book.description || 'Unknown' }}</p>
         <p><strong>ISBN:</strong> {{ book.isbn || 'Unknown' }}</p>
+        <div *ngIf="book.fileId">
+          <p><strong>Book File: </strong>
+          <button mat-icon-button (click)="downloadBookFile(book.fileId)">
+            <mat-icon>download</mat-icon></button></p>
+        </div>
       </div>
     </mat-card>
     <div class="button-group">

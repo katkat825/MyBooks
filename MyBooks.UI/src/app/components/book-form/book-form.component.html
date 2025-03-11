@@ -1,86 +1,99 @@
-<div class="container mt-4">
-  <mat-card class="form-container">
-    <mat-card-title>{{ bookId ? 'Edit Book' : 'Add New Book' }}</mat-card-title>
-    <mat-card-content>
-      <form [formGroup]="bookForm" (ngSubmit)="saveBook()">
+<mat-stepper linear>
+  <!-- Step 1: Required Info -->
+  <mat-step [stepControl]="bookForm.controls['step1']">
+    <form [formGroup]="step1">
+      <h3>Step 1: Required Information</h3>
+      <mat-form-field class="full-width">
+        <mat-label>Title</mat-label>
+        <input matInput type="text" formControlName="title" required>
+      </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Title</mat-label>
-          <input matInput type="text" formControlName="title" required>
+      <mat-form-field class="full-width">
+        <mat-label>Genre</mat-label>
+        <mat-select formControlName="genreId" required>
+          <mat-option *ngFor="let genre of genres" [value]="genre.id">{{ genre.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="full-width">
+        <mat-label>Age Category</mat-label>
+        <mat-select formControlName="ageCategoryId" required>
+          <mat-option *ngFor="let category of ageCategories" [value]="category.id">{{ category.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-button matStepperNext>Next</button>
+    </form>
+  </mat-step>
+
+  <!-- Step 2: Optional Fields -->
+  <mat-step [stepControl]="bookForm.controls['step2']">
+    <form [formGroup]="step2">
+      <h3>Step 2: Optional Fields</h3>
+      <mat-form-field class="full-width">
+        <mat-label>Author</mat-label>
+        <input matInput type="text" formControlName="author">
+      </mat-form-field>
+
+      <div class="inline-group">
+        <mat-form-field class="full-width">
+          <mat-label>Series</mat-label>
+          <mat-select formControlName="seriesId">
+            <mat-option *ngFor="let series of seriesList" [value]="series.id">{{ series.name }}</mat-option>
+          </mat-select>
         </mat-form-field>
+        <button mat-icon-button type="button" (click)="toggleNewSeries()">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
 
+      <div *ngIf="newSeries">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Author</mat-label>
-          <input matInput type="text" formControlName="author">
-        </mat-form-field>
-
-        <div class="inline-group">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Series</mat-label>
-            <mat-select formControlName="seriesId">
-              <mat-option *ngFor="let series of series" [value]="series.id">{{ series.name }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <button mat-icon-button type="button" (click)="toggleNewSeries()">
-            <mat-icon>add</mat-icon>
+          <mat-label>New Series</mat-label>
+          <input matInput type="text" formControlName="seriesName" />
+          <button mat-icon-button type="button" (click)="saveSeries()">
+            <mat-icon>save</mat-icon>
           </button>
-        </div>
-
-        <div *ngIf="newSeries">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>New Series</mat-label>
-            <input matInput type="text" formControlName="seriesName">
-            <button mat-icon-button type="button" (click)="saveSeries()">
-              <mat-icon>save</mat-icon>
-            </button>
-          </mat-form-field>
-        </div>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Series Position</mat-label>
-          <input matInput type="number" formControlName="seriesPosition">
         </mat-form-field>
+      </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Genre</mat-label>
-          <mat-select formControlName="genreId">
-            <mat-option *ngFor="let genre of genres" [value]="genre.id">{{ genre.name }}</mat-option>
-          </mat-select>
-        </mat-form-field>
+      <mat-form-field class="full-width">
+        <mat-label>Series Position</mat-label>
+        <input matInput type="number" formControlName="seriesPosition">
+      </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Age Category</mat-label>
-          <mat-select formControlName="ageCategoryId">
-            <mat-option *ngFor="let category of ageCategories" [value]="category.id">{{ category.name }}</mat-option>
-          </mat-select>
-        </mat-form-field>
+      <mat-form-field class="full-width">
+        <mat-label>ISBN</mat-label>
+        <input matInput type="text" formControlName="isbn">
+      </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>ISBN</mat-label>
-          <input matInput type="text" formControlName="isbn">
-        </mat-form-field>
+      <mat-form-field class="full-width">
+        <mat-label>Description</mat-label>
+        <textarea matInput rows="3" formControlName="description"></textarea>
+      </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Description</mat-label>
-          <textarea matInput rows="3" formControlName="description"></textarea>
-        </mat-form-field>
+      <button mat-button matStepperPrevious>Back</button>
+      <button mat-button matStepperNext>Next</button>
+    </form>
+  </mat-step>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Location</mat-label>
-          <input matInput type="text" formControlName="location">
-        </mat-form-field>
+  <!-- Step 3: File Upload -->
+  <mat-step [stepControl]="step3">
+    <h3>Step 3: Upload File</h3>
+    <input type="file" (change)="onFileSelected($event)">
+    <p *ngIf="selectedFile">{{ selectedFile.name }}</p>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Tags</mat-label>
-          <input matInput type="text" formControlName="tagInput" placeholder="Separated by commas">
-        </mat-form-field>
+    <button mat-button matStepperPrevious>Back</button>
+    <button mat-button id="upload-file" (click)="uploadFileWithBookId()">Upload & Next</button>
+    <button mat-button matStepperNext>Skip</button>
+  </mat-step>
 
-        <div class="button-group">
-          <button mat-raised-button class="save-button" type="submit">Save</button>
-          <button mat-button class="cancel-button" type="button" (click)="router.navigate(['/'])">Cancel</button>
-        </div>
+  <!-- Step 4: Finalization -->
+  <mat-step>
+    <h3>Step 4: Finalize</h3>
+    <p>Click "Save" to complete the process.</p>
 
-      </form>
-    </mat-card-content>
-  </mat-card>
-</div>
+    <button mat-button matStepperPrevious>Back</button>
+    <button mat-button (click)="saveBook()">Save</button>
+  </mat-step>
+</mat-stepper>

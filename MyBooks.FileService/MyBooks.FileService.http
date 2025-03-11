@@ -1,4 +1,4 @@
-@MyBooks.FileService_HostAddress = http://localhost:5261
+@MyBooks.FileService_HostAddress = https://localhost:5001
 
 GET {{MyBooks.FileService_HostAddress}}/weatherforecast/
 Accept: application/json
