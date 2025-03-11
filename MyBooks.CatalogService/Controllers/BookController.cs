@@ -255,15 +255,6 @@ namespace MyBooks.CatalogService.Controllers
             if (!isAdmin && !isEditor && !isOwner) return Forbid("Only an admin, editor, or the book's creator is authorized to update this book.");
             */
 
-            if (book.FileId.HasValue)
-            {
-                var response = await _httpClient.DeleteAsync($"https://localhost:7042/api/files/{book.FileId}");
-                if (!response.IsSuccessStatusCode)
-                {
-                    Console.WriteLine("Warning: File deletion failed, but continuing with book deletion.");
-                }
-            }
-
             _context.Books.Remove(book);
             await _context.SaveChangesAsync();
             return NoContent();

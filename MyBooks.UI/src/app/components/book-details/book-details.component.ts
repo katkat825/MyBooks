@@ -44,16 +44,30 @@ export class BookDetailsComponent implements OnInit {
   deleteBook(book: any) {
     if (confirm("Are you sure you want to delete this book?")) {
       const id = book.id;
-      this.bookService.deleteBook(id).subscribe({
-        next: () => {
-          console.log('Book deleted successfully');
-          this.bookCards = this.bookCards.filter(book => book.id !== id);
-          this.router.navigate(['/']);
-        },
-        error: (error) => console.error('Error deleting book', error),
-        complete: () => console.log("Delete completed.")
-      });
+
+      if (book.fileId) {
+        this.bookService.deleteFile(book.fileId).subscribe({
+          next: () => {
+            console.log("File deleted successfully, proceeding with book deletion...");
+            this.deleteBookRecord(id);
+          },
+          error: (error) => console.error("Error deleting file", error),
+        });
+      } else {
+        console.log("else called - no fileId detected");
+        this.deleteBookRecord(id);
+      }
     }
+  }
+
+  private deleteBookRecord(id: number) {
+    this.bookService.deleteBook(id).subscribe({
+      next: () => {
+        console.log("book deleted successfully");
+        this.router.navigate(['/']);
+      },
+      error: (error) => console.error("Error deleting book: ", error),
+    });
   }
 
   downloadBookFile(fileId: number) {

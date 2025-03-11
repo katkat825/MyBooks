@@ -140,4 +140,8 @@ export class BookService {
   downloadFile(fileId: number): Observable<Blob> {
     return this.http.get(`${this.fileApiUrl}/${fileId}`, { responseType: 'blob' });
   }
+
+  deleteFile(fileId: number) {
+    return this.http.delete(`${this.fileApiUrl}/${fileId}`);
+  }
 }

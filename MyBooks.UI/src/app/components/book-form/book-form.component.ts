@@ -90,10 +90,24 @@ export class BookFormComponent implements OnInit {
   loadBook(id: number) {
     this.bookService.getBook(id).subscribe({
       next: (book) => {
-        if (book) {
-          this.bookForm.patchValue({ step1: book, step2: book });
+        if (book) {   
           this.bookId = book.id;
           this.fileId = book.fileId;
+
+          this.bookForm.patchValue({
+            step1: {
+              title: book.title,
+              genreId: book.genreId,
+              ageCategoryId: book.ageCategoryId
+            },
+            step2: {
+              author: book.author,
+              seriesId: book.seriesId,
+              seriesPosition: book.seriesPosition,
+              isbn: book.isbn,
+              description: book.description
+            }
+          });
         }
       },
       error: (error) => console.error('Error loading book: ', error)
@@ -150,7 +164,12 @@ export class BookFormComponent implements OnInit {
       return;
     }
 
-    const bookData = { ...this.step1.value };
+    const bookData = {
+      id: this.bookId,
+      ...this.step1.value,
+      ...this.step2.value,
+      fileId: this.fileId ?? null
+    };
 
     if (this.bookId) {
       this.bookService.updateBook(this.bookId, bookData).subscribe({

@@ -84,7 +84,7 @@ namespace MyBooks.FileService.Controllers
             if (file == null)
                 return NotFound("File not found.");
 
-            if (!System.IO.File.Exists(file.FileName))
+            if (!System.IO.File.Exists(file.FilePath))
                 return NotFound("File not found on server.");
 
             var fileBytes = await System.IO.File.ReadAllBytesAsync(file.FilePath);
