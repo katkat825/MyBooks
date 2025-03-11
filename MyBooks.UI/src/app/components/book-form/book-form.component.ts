@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BookService } from '../../services/book.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,6 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-book-form',
@@ -23,7 +24,8 @@ import { MatIconModule } from '@angular/material/icon';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatIconModule
+    MatIconModule,
+    HttpClientModule
   ]
 })
 export class BookFormComponent implements OnInit {
@@ -34,8 +36,14 @@ export class BookFormComponent implements OnInit {
   ageCategories: any[] = [];
   seriesList: any[] = [];
   newSeries: boolean = false;
+  fileId?: number;
 
-  constructor(private fb: FormBuilder, private bookService: BookService, private router: Router) { }
+  constructor(
+    private fb: FormBuilder,
+    private bookService: BookService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) { }
 
   ngOnInit(): void {
     this.bookForm = this.fb.group({
@@ -53,9 +61,18 @@ export class BookFormComponent implements OnInit {
       }),
       step3: this.fb.group({ file: [null] })
     });
+
     this.loadGenres();
     this.loadAgeCategories();
     this.loadSeries();
+
+    this.route.paramMap.subscribe(params => {
+      const id = Number(params.get('id'));
+      if (id) {
+        this.bookId = id;
+        this.loadBook(this.bookId);
+      }
+    });
   }
 
   get step1(): FormGroup {
@@ -68,6 +85,19 @@ export class BookFormComponent implements OnInit {
 
   get step3(): FormGroup {
     return this.bookForm.get('step3') as FormGroup;
+  }
+
+  loadBook(id: number) {
+    this.bookService.getBook(id).subscribe({
+      next: (book) => {
+        if (book) {
+          this.bookForm.patchValue({ step1: book, step2: book });
+          this.bookId = book.id;
+          this.fileId = book.fileId;
+        }
+      },
+      error: (error) => console.error('Error loading book: ', error)
+    });
   }
 
   loadGenres() {
@@ -86,6 +116,11 @@ export class BookFormComponent implements OnInit {
     this.bookService.getSeries().subscribe({
       next: (data: any[]) => this.seriesList = data
     })
+  }
+
+  toggleNewSeries() {
+    this.newSeries = !this.newSeries;
+    this.bookForm.patchValue({ seriesName: '' });
   }
 
   saveSeries() {
@@ -109,9 +144,47 @@ export class BookFormComponent implements OnInit {
     })
   }
 
-  toggleNewSeries() {
-    this.newSeries = !this.newSeries;
-    this.bookForm.patchValue({ seriesName: '' });
+  saveStep1() {
+    if (this.step1.invalid) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    const bookData = { ...this.step1.value };
+
+    if (this.bookId) {
+      this.bookService.updateBook(this.bookId, bookData).subscribe({
+        next: () => console.log("Step 1: book updated successfully"),
+        error: (error) => console.error("Error updating book: ", error)
+      });
+    } else {
+      this.bookService.createBook(bookData).subscribe({
+        next: (response) => {
+          console.log("Step 1: book created successfully");
+          this.bookId = response.id;
+        },
+        error: (error) => console.error("Error creating book: ", error)
+      });
+    }
+  }
+
+  saveStep2() {
+    if (!this.bookId) return;
+
+    const bookData = {
+      id: this.bookId,
+      ...this.step1.value,
+      ...this.step2.value,
+      fileId: this.fileId ?? null
+    };
+
+    console.log("updating book ID: ", this.bookId);
+    console.log("book data sent:", bookData);
+
+    this.bookService.updateBook(this.bookId, bookData).subscribe({
+      next: () => console.log('Step 2: book updated successfully'),
+      error: (error) => console.error('Error updating book: ', error)
+    });
   }
 
   onFileSelected(event: any) {
@@ -141,33 +214,12 @@ export class BookFormComponent implements OnInit {
     });
   }
 
-  saveBook() {
-    if (this.bookForm.invalid) {
-      alert('Please complete all required steps.');
-      return;
-    }
+  updateBookWithFileId() {
+    if (!this.fileId || !this.bookId) return;
 
-    const bookData = {
-      ...this.bookForm.value.step1,
-      ...this.bookForm.value.step2
-    };
-
-    this.bookService.createBook(bookData).subscribe({
-      next: (response) => {
-        console.log('✅ Book saved:', response);
-        this.bookId = response.id;  // Store the generated bookId
-
-        // Check if a file is selected before proceeding
-        if (this.selectedFile) {
-          this.uploadFileWithBookId();
-        } else {
-          this.router.navigate(['/']); // No file? Just navigate away
-        }
-      },
-      error: (error) => {
-        console.error('❌ Error saving book:', error);
-        alert('Failed to save book.');
-      }
+    this.bookService.updateBookFileId(this.bookId, this.fileId).subscribe({
+      next: () => console.log("Step 4: book updated with FileId"),
+      error: (error) => console.error("Failed to update book with FileId", error)
     });
   }
 }

@@ -22,7 +22,7 @@
         </mat-select>
       </mat-form-field>
 
-      <button mat-button matStepperNext>Next</button>
+      <button mat-button (click)="saveStep1()" matStepperNext>Save & Next</button>
     </form>
   </mat-step>
 
@@ -73,7 +73,7 @@
       </mat-form-field>
 
       <button mat-button matStepperPrevious>Back</button>
-      <button mat-button matStepperNext>Next</button>
+      <button mat-button (click)="saveStep2()" matStepperNext>Save & Next</button>
     </form>
   </mat-step>
 
@@ -94,6 +94,6 @@
     <p>Click "Save" to complete the process.</p>
 
     <button mat-button matStepperPrevious>Back</button>
-    <button mat-button (click)="saveBook()">Save</button>
+    <button mat-button (click)="updateBookWithFileId()">Finish</button>
   </mat-step>
 </mat-stepper>
