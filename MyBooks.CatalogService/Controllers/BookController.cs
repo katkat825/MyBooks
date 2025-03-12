@@ -212,13 +212,11 @@ namespace MyBooks.CatalogService.Controllers
             var book = await _context.Books.FindAsync(id);
             if (book == null)
             {
-                Console.WriteLine($"❌ Book {id} not found.");
                 return NotFound("Book not found.");
             }
 
             if (request.FileId <= 0)
             {
-                Console.WriteLine("❌ Invalid FileId received.");
                 return BadRequest("Invalid FileId.");
             }
 

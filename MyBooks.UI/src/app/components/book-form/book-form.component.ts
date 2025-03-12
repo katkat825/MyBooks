@@ -212,24 +212,23 @@ export class BookFormComponent implements OnInit {
 
   uploadFileWithBookId() {
     if (!this.selectedFile || !this.bookId) {
-      console.warn("❌ No file selected or bookId missing.");
+      console.warn("No file selected or bookId missing.");
       return;
     }
 
     this.bookService.uploadFile(this.selectedFile, this.bookId).subscribe({
       next: (response) => {
-        console.log('✅ File uploaded:', response);
+        console.log('File uploaded:', response);
 
         // Now update the book with the fileId
         this.bookService.updateBookFileId(this.bookId!, response.fileId).subscribe({
           next: () => {
-            console.log("✅ Book updated with FileId");
-            this.router.navigate(['/']); // Navigate after everything is done
+            this.router.navigate(['/']);
           },
-          error: (error) => console.error("❌ Failed to update book with FileId", error)
+          error: (error) => console.error("Failed to update book with FileId", error)
         });
       },
-      error: (error) => console.error('❌ File upload failed:', error)
+      error: (error) => console.error('File upload failed:', error)
     });
   }
 

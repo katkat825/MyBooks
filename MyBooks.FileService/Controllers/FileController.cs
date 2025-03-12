@@ -42,6 +42,20 @@ namespace MyBooks.FileService.Controllers
 
             var filePath = Path.Combine(_storagePath, sanitizedFileName);
 
+            //remove old file if it exists
+            var existingFile = await _context.Files.FirstOrDefaultAsync(f => f.BookId == bookId);
+            if (existingFile != null) 
+            {
+                if (System.IO.File.Exists(existingFile.FilePath))
+                {
+                    System.IO.File.Delete(existingFile.FilePath);
+                }
+
+                _context.Files.Remove(existingFile);
+                await _context.SaveChangesAsync();
+            }
+
+            //save new file
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);

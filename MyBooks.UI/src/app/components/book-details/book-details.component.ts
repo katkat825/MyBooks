@@ -76,7 +76,7 @@ export class BookDetailsComponent implements OnInit {
         const blobUrl = window.URL.createObjectURL(fileBlob);
         const a = document.createElement('a');
         a.href = blobUrl;
-        a.download = this.book.fileName || 'book-file';
+        a.download = this.book.title || 'book-file';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
