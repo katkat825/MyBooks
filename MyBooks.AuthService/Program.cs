@@ -10,6 +10,17 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalHost", policy =>
+    {
+        policy.SetIsOriginAllowedToAllowWildcardSubdomains()
+            .WithOrigins("http://localhost:62194")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 // Add services to the container.
 
 builder.Services.AddDbContext<AuthDbContext>(options =>
@@ -45,6 +56,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseCors("AllowLocalHost");
 
 app.UseHttpsRedirection();
 

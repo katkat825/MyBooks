@@ -177,3 +177,4 @@ C:\Users\creat\source\repos\MYBooks\MyBooks.CatalogService\bin\Debug\net9.0\Micr
 C:\Users\creat\source\repos\MYBooks\MyBooks.CatalogService\bin\Debug\net9.0\Microsoft.Extensions.Options.dll
 C:\Users\creat\source\repos\MYBooks\MyBooks.CatalogService\bin\Debug\net9.0\Microsoft.Extensions.Primitives.dll
 C:\Users\creat\source\repos\MYBooks\MyBooks.CatalogService\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
+C:\Users\creat\source\repos\MYBooks\MyBooks.CatalogService\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

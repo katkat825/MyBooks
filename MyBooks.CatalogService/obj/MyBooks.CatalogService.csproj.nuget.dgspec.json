@@ -69,6 +69,10 @@
               "target": "Package",
               "version": "[9.0.876, )"
             },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[9.0.3, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[9.0.3, )"
@@ -271,6 +275,10 @@
             "HtmlSanitizer": {
               "target": "Package",
               "version": "[9.0.876, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[9.0.3, )"
             },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",

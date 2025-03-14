@@ -37,14 +37,19 @@ namespace MyBooks.CatalogService.Controllers
         {
             try
             {
+                var ageCategoryClaim = User.FindFirst("AgeCategoryId")?.Value;
+                if (string.IsNullOrWhiteSpace(ageCategoryClaim)) return Unauthorized("User age category could not be determined.");
+                int userAgeCategory = int.Parse(ageCategoryClaim);
+
                 var books = await _context.Books
+                    .Where(b => b.AgeCategoryId <= userAgeCategory)
                     .Include(b => b.Genre)
                     .Include(b => b.AgeCategory)
                     .Include(b => b.Tags)
                     .Include(b => b.Series)
                     .ToListAsync();
 
-                Console.WriteLine($"Fetched {books.Count} books.");
+                Console.WriteLine($"Fetched {books.Count} books. User AgeCategoryId {userAgeCategory}");
                 return books;
             }
             catch (Exception ex)
@@ -57,7 +62,12 @@ namespace MyBooks.CatalogService.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Book>> GetBook(int id)
         {
+            var ageCategoryClaim = User.FindFirst("AgeCategoryId")?.Value;
+            if (string.IsNullOrWhiteSpace(ageCategoryClaim)) return Unauthorized("User age category cannot be determined.");
+            int userAgeCategory = int.Parse(ageCategoryClaim);
+
             var book = await _context.Books
+                .Where(b => b.Id == id && b.AgeCategoryId <= userAgeCategory)
                 .Include(b => b.Genre)
                 .Include(b => b.AgeCategory)
                 .Include(b => b.Tags)

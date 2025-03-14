@@ -1,13 +1,15 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
 import { routes } from './app.routes';
 import { AppComponent } from './app.component';
 import { BookListComponent } from './components/book-list/book-list.component';
 import { BookDetailsComponent } from './components/book-details/book-details.component';
 import { BookFormComponent } from './components/book-form/book-form.component';
 import { HttpClientModule } from '@angular/common/http';
-import { AdminComponent } from './admin/admin/admin.component';
+import { AdminComponent } from './admin/admin.component';
 import { AdminGenresComponent } from './admin/admin-genres/admin-genres.component';
+import { LoginComponent } from './components/login/login.component';
 
 @NgModule({
   imports: [
@@ -16,13 +18,15 @@ import { AdminGenresComponent } from './admin/admin-genres/admin-genres.componen
     AppComponent,
     BookListComponent,
     BookDetailsComponent,
-    BookFormComponent
+    BookFormComponent,
+    RouterModule.forRoot(routes),
   ],
   providers: [],
   bootstrap: [AppComponent],
   declarations: [
     AdminComponent,
-    AdminGenresComponent
+    AdminGenresComponent,
+    LoginComponent
   ]
 })
 export class AppModule { }

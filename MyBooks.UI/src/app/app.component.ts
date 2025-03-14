@@ -1,5 +1,5 @@
 import { Component, Renderer2 } from '@angular/core';
-import { RouterOutlet, RouterModule } from '@angular/router';
+import { RouterOutlet, RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,7 +18,7 @@ export class AppComponent {
   isContrastTheme = false;
   isLightTheme = true;
 
-  constructor(private renderer: Renderer2) { }
+  constructor(private renderer: Renderer2, private router: Router) { }
 
   ngOnInit() {
     const savedTheme = localStorage.getItem('theme');
@@ -42,5 +42,14 @@ export class AppComponent {
       this.renderer.addClass(document.body, 'high-contrast-mode');
     } else
       this.renderer.addClass(document.body, 'light');
+  }
+
+  isAuthenticated(): boolean {
+    return !!localStorage.getItem('token');
+  }
+
+  logout() {
+    localStorage.removeItem('token');
+    this.router.navigate(['/login']);
   }
 }
