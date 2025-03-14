@@ -33,7 +33,7 @@ namespace MyBooks.FileService.Controllers
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile([FromForm] IFormFile file, [FromForm] int bookId)
         {
-            Console.WriteLine("UploadFule API hit");
+            Console.WriteLine("UploadFile API hit");
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
 

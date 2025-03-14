@@ -210,6 +210,10 @@ export class BookFormComponent implements OnInit {
     this.selectedFile = event.target.files[0] || null;
   }
 
+  skipFile() {
+    this.router.navigate(['/']);
+  }
+
   uploadFileWithBookId() {
     if (!this.selectedFile || !this.bookId) {
       console.warn("No file selected or bookId missing.");
@@ -218,25 +222,27 @@ export class BookFormComponent implements OnInit {
 
     this.bookService.uploadFile(this.selectedFile, this.bookId).subscribe({
       next: (response) => {
-        console.log('File uploaded:', response);
-
-        // Now update the book with the fileId
-        this.bookService.updateBookFileId(this.bookId!, response.fileId).subscribe({
-          next: () => {
-            this.router.navigate(['/']);
-          },
-          error: (error) => console.error("Failed to update book with FileId", error)
-        });
+        console.log('step 3: file uploaded successfully');
+        if (response && response.fileId) {
+          this.fileId = response.fileId;
+          console.log("file id sent: ", this.fileId);
+        } else {
+          console.warn("no file id returned from api");
+        }
       },
-      error: (error) => console.error('File upload failed:', error)
+      error: (error) => console.error('error uploading file', error)
     });
   }
 
   updateBookWithFileId() {
+    console.log("Updating book with file ID:", this.fileId, "Book ID:", this.bookId);
     if (!this.fileId || !this.bookId) return;
 
     this.bookService.updateBookFileId(this.bookId, this.fileId).subscribe({
-      next: () => console.log("Step 4: book updated with FileId"),
+      next: () => {
+        console.log("Step 4: book updated with FileId");
+        this.router.navigate(['/']);
+      },
       error: (error) => console.error("Failed to update book with FileId", error)
     });
   }

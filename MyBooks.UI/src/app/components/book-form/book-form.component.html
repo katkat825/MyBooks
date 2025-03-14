@@ -84,14 +84,14 @@
     <p *ngIf="selectedFile">{{ selectedFile.name }}</p>
 
     <button mat-button matStepperPrevious>Back</button>
-    <button mat-button id="upload-file" (click)="uploadFileWithBookId()">Upload & Next</button>
-    <button mat-button matStepperNext>Skip</button>
+    <button mat-button id="upload-file" (click)="uploadFileWithBookId()" matStepperNext>Upload & Next</button>
+    <button mat-button id="skip-file" (click)="skipFile()">Skip</button>
   </mat-step>
 
   <!-- Step 4: Finalization -->
   <mat-step>
     <h3>Step 4: Finalize</h3>
-    <p>Click "Save" to complete the process.</p>
+    <p>Click "Finish" to complete the process.</p>
 
     <button mat-button matStepperPrevious>Back</button>
     <button mat-button (click)="updateBookWithFileId()">Finish</button>
