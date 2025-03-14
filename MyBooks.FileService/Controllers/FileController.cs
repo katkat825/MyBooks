@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBooks.Common.Services;
 using MyBooks.FileService.Data;
@@ -9,6 +10,7 @@ namespace MyBooks.FileService.Controllers
 {
     [Route("api/files")]
     [ApiController]
+    [Authorize]
     public class FileController : ControllerBase
     {
         private readonly FileDbContext _context;

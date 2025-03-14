@@ -1,3 +1,5 @@
+//MyBooks.CatalogService
+
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using MyBooks.CatalogService.Data;

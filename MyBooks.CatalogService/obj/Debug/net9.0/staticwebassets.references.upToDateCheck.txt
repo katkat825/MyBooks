@@ -49,3 +49,4 @@ C:\Users\creat\source\repos\MYBooks\MyBooks.FileService\obj\Debug\net9.0\staticw
 C:\Users\creat\source\repos\MYBooks\MyBooks.FileService\obj\Debug\net9.0\staticwebassets.build.json
 C:\Users\creat\source\repos\MYBooks\MyBooks.FileService\obj\Debug\net9.0\staticwebassets.build.json
 C:\Users\creat\source\repos\MYBooks\MyBooks.FileService\obj\Debug\net9.0\staticwebassets.build.json
+C:\Users\creat\source\repos\MYBooks\MyBooks.FileService\obj\Debug\net9.0\staticwebassets.build.json

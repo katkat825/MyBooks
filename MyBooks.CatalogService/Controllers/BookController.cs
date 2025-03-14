@@ -12,7 +12,7 @@ namespace MyBooks.CatalogService.Controllers
 {
     [Route("api/books")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class BookController :  ControllerBase
     {
         private readonly CatalogDbContext _context;

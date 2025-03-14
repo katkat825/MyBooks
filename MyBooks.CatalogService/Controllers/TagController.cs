@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBooks.CatalogService.Data;
 using MyBooks.CatalogService.Models;
@@ -11,6 +12,7 @@ namespace MyBooks.CatalogService.Controllers
 {
     [Route("api/books/tag")]
     [ApiController]
+    [Authorize]
     public class TagController : ControllerBase
     {
         private readonly CatalogDbContext _context;

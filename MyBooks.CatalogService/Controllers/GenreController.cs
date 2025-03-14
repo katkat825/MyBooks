@@ -10,7 +10,7 @@ namespace MyBooks.CatalogService.Controllers
 {
     [Route("api/books/genres")]
     [ApiController]
-    //[Authorize(Roles = "Admin")] 
+    [Authorize(Roles = "Admin,Editor")] 
     public class GenreController : ControllerBase
     {
         private readonly CatalogDbContext _context;
