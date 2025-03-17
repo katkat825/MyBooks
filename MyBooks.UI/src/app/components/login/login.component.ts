@@ -36,7 +36,7 @@ export class LoginComponent {
       return;
     }
 
-    this.http.post<any>('https://localhost:7254/api/auth/login', this.loginForm.value).subscribe({
+    this.http.post<any>('https://localhost:7254/login', this.loginForm.value).subscribe({
       next: (response) => {
         localStorage.setItem('token', response.token);
         this.router.navigate(['/']); 

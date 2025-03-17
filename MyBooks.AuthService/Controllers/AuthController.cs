@@ -1,35 +1,97 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using BCrypt.Net;
 using MyBooks.AuthService.Data;
 using MyBooks.AuthService.Dtos;
 using MyBooks.AuthService.Models;
 using MyBooks.Common.Services;
+using System.Security.Claims;
 
 namespace MyBooks.AuthService.Controllers
 {
-    [Route("api/auth")]
-    [ApiController]
+    [Route("api/users")]
+    [ApiController]   
+    [Authorize(Roles = "Admin")] 
     public class AuthController : Controller
     {
         private readonly AuthDbContext _context;
-        private readonly IConfiguration _config;
         private readonly HtmlSanitizationService _sanitizationService;
 
         public AuthController(AuthDbContext context, IConfiguration config, HtmlSanitizationService sanitizationService)
         {
             _context = context;
-            _config = config;
             _sanitizationService = sanitizationService;
         }
 
+        [HttpGet]        
+        public async Task<IActionResult> GetUsers()
+        {
+            Console.WriteLine($"User authenticated? {User.Identity.IsAuthenticated}");
+
+            foreach (var claim in User.Claims)
+            {
+                Console.WriteLine($"Claim type: {claim.Type}, value: {claim.Value}");
+            }
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+            var manualRole = User.FindFirst("http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value ?? "None";
+            Console.WriteLine($"User role from jwt: {userRole}, Manual role: {manualRole}");
+
+
+            var roles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+            Console.WriteLine($"🔹 Recognized Roles: {string.Join(", ", roles)}");
+
+            if (!User.IsInRole("Admin"))
+            {
+                Console.WriteLine("User not recognized as an admin");
+            }
+            else
+            {
+                Console.WriteLine("user is recognized as an admin");
+            }
+                            
+            var users = await _context.Users.ToListAsync();
+            return Ok(users);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUser(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return NotFound("User not found.");
+
+            return Ok(user);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutUser(int id, [FromBody] UserDto request)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return NotFound("User not found.");
+
+            //sanitize input
+            request.FirstName = _sanitizationService.Sanitize(request.FirstName);
+            request.LastName = _sanitizationService.Sanitize(request.LastName);
+            request.Email = _sanitizationService.Sanitize(request.Email);
+
+            var ageCategoryExists = await VerifyAgeCategoryExists(request.AgeCategoryId);
+            if (!ageCategoryExists) return BadRequest("Invalid age category id.");
+
+            user.FirstName = request.FirstName;
+            user.LastName = request.LastName;
+            user.Email = request.Email;
+            user.Role = request.Role;
+            user.AgeCategoryId = request.AgeCategoryId;
+
+            if (!string.IsNullOrWhiteSpace(request.Password))
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return Ok("User updated successfully.");
+        }
+
         [HttpPost("register")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Register(UserDto request)
         {
             //sanitize inputs
@@ -57,43 +119,7 @@ namespace MyBooks.AuthService.Controllers
             await _context.SaveChangesAsync();
 
             return Ok("User resgistered successfully");
-        }
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto request)
-        {
-            var user = await _context.Users
-                .Where(u => u.Email.ToLower().Trim() == request.Email.ToLower().Trim())
-                .FirstOrDefaultAsync();
-
-            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-                return Unauthorized("Invalid username or password.");
-
-            var token = GenerateJwtToken(user);
-            return Ok(new {Token  = token});
-        }
-
-        public string GenerateJwtToken(User user)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role),
-                new Claim("AgeCategoryId", user.AgeCategoryId.ToString())
-            };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(
-                _config["Jwt:Issuer"],
-                _config["Jwt:Audience"],
-                claims,
-                expires: DateTime.UtcNow.AddHours(2),
-                signingCredentials: creds);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+        }        
 
         public async Task<bool> VerifyAgeCategoryExists(int ageCategoryId)
         {

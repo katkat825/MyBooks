@@ -3,10 +3,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Logging;
 using MyBooks.AuthService.Data;
 using MyBooks.AuthService.Models;
 using MyBooks.Common.Services;
 using System.Text;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,15 +42,40 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+            ValidIssuer = "MyBooks",
+            ValidAudience = "MyBooksUsers",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+            RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role", 
+            NameClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = context =>
+            {
+                var identity = (ClaimsIdentity)context.Principal.Identity;
+                var roleClaim = identity.FindFirst("http://schemas.microsoft.com/ws/2008/06/identity/claims/role");
+
+                if (roleClaim != null)
+                {
+                    identity.AddClaim(new Claim(ClaimTypes.Role, roleClaim.Value)); // ?? Force-add role claim
+                    Console.WriteLine($"? Role '{roleClaim.Value}' added manually.");
+                }
+                else
+                {
+                    Console.WriteLine("? No role claim found!");
+                }
+
+                return Task.CompletedTask;
+            }
         };
     });
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
+IdentityModelEventSource.ShowPII = true;
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -61,7 +88,15 @@ app.UseCors("AllowLocalHost");
 
 app.UseHttpsRedirection();
 
+app.UseRouting();
+
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
 
 app.MapControllers();
 

@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 })
 export class BookService {
   private apiUrl = `${environment.apiUrl}/books`;
-  private fileApiUrl = `https://localhost:7142/api/files`;
+  private fileApiUrl = environment.fileApiUrl;
 
   constructor(private http: HttpClient) { }
 

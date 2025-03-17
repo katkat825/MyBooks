@@ -36,7 +36,6 @@ export class AdminGenresComponent {
   loadGenres() {
     this.bookService.getGenres().subscribe({
       next: (data) => {
-        console.log("Fetched genres: ", data);
         this.genres = data;
         },
       error: (error) => console.error("Error fetching genres: ", error)

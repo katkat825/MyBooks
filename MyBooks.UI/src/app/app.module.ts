@@ -10,6 +10,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { AdminComponent } from './admin/admin.component';
 import { AdminGenresComponent } from './admin/admin-genres/admin-genres.component';
 import { LoginComponent } from './components/login/login.component';
+import { AdminUsersComponent } from './admin/admin-users/admin-users.component';
 
 @NgModule({
   imports: [
@@ -26,7 +27,8 @@ import { LoginComponent } from './components/login/login.component';
   declarations: [
     AdminComponent,
     AdminGenresComponent,
-    LoginComponent
+    LoginComponent,
+    AdminUsersComponent
   ]
 })
 export class AppModule { }
