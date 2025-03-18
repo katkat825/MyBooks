@@ -3,14 +3,6 @@
   "WorkspaceRootPath": "C:\\Users\\creat\\source\\repos\\MyBooks\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{C8BD21C9-75A4-4825-B516-B1FCD82394E1}|MyBooks.AuthService\\MyBooks.AuthService.csproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.authservice\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C8BD21C9-75A4-4825-B516-B1FCD82394E1}|MyBooks.AuthService\\MyBooks.AuthService.csproj|solutionrelative:mybooks.authservice\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\admin\\admin-users\\admin-users.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\admin\\admin-users\\admin-users.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\admin\\admin-users\\admin-users.component.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
       "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\admin\\admin-users\\admin-users.component.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
     },
@@ -19,8 +11,8 @@
       "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\services\\user.service.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C8BD21C9-75A4-4825-B516-B1FCD82394E1}|MyBooks.AuthService\\MyBooks.AuthService.csproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.authservice\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C8BD21C9-75A4-4825-B516-B1FCD82394E1}|MyBooks.AuthService\\MyBooks.AuthService.csproj|solutionrelative:mybooks.authservice\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\admin\\admin-users\\admin-users.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\admin\\admin-users\\admin-users.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,43 +22,30 @@
       "DocumentGroups": [
         {
           "DockedWidth": 291,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "admin-users.component.html",
               "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\admin\\admin-users\\admin-users.component.html",
               "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\admin\\admin-users\\admin-users.component.html",
               "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\admin\\admin-users\\admin-users.component.html",
               "RelativeToolTip": "MyBooks.UI\\src\\app\\admin\\admin-users\\admin-users.component.html",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAnAAAAAAAAAA==",
+              "ViewState": "AgIAACcAAAAAAAAAAAAAAEEAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
               "WhenOpened": "2025-03-18T14:25:54.721Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "User.cs",
-              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.AuthService\\Models\\User.cs",
-              "RelativeDocumentMoniker": "MyBooks.AuthService\\Models\\User.cs",
-              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.AuthService\\Models\\User.cs",
-              "RelativeToolTip": "MyBooks.AuthService\\Models\\User.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAABBAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-18T13:15:25.689Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
               "Title": "user.service.ts",
               "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\services\\user.service.ts",
               "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\services\\user.service.ts",
               "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\services\\user.service.ts",
               "RelativeToolTip": "MyBooks.UI\\src\\app\\services\\user.service.ts",
-              "ViewState": "AgIAABYAAAAAAAAAAAAgwA8AAAAyAAAAAAAAAA==",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAEgAAABUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
               "WhenOpened": "2025-03-18T12:47:09.386Z",
               "EditorCaption": ""
@@ -74,25 +53,12 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "AuthController.cs",
-              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.AuthService\\Controllers\\AuthController.cs",
-              "RelativeDocumentMoniker": "MyBooks.AuthService\\Controllers\\AuthController.cs",
-              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.AuthService\\Controllers\\AuthController.cs",
-              "RelativeToolTip": "MyBooks.AuthService\\Controllers\\AuthController.cs",
-              "ViewState": "AgIAAC0AAAAAAAAAAAAowGgAAABXAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-17T18:54:25.729Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
               "Title": "admin-users.component.ts",
               "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\admin\\admin-users\\admin-users.component.ts",
               "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\admin\\admin-users\\admin-users.component.ts",
               "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\admin\\admin-users\\admin-users.component.ts",
               "RelativeToolTip": "MyBooks.UI\\src\\app\\admin\\admin-users\\admin-users.component.ts",
-              "ViewState": "AgIAACgAAAAAAAAAAAAgwDkAAAAbAAAAAAAAAA==",
+              "ViewState": "AgIAAC4AAAAAAAAAAAAgwEoAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
               "WhenOpened": "2025-03-17T18:45:59.389Z",
               "EditorCaption": ""

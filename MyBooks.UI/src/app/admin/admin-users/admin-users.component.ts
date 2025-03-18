@@ -31,14 +31,34 @@ export class AdminUsersComponent {
   constructor(private userService: UserService, private fb: FormBuilder) { }
 
   ngOnInit(): void {
-    this.loadUsers();
+    this.loadAgeCategories();
   }
 
   loadUsers() {
     this.userService.getUsers().subscribe({
-      next: (data) => this.users = data,
+      next: (data) => {
+        this.users = data.map(user => ({
+          ...user,
+          ageCategoryName: this.getAgeCategoryName(user.ageCategoryId)
+        }));
+        },
       error: (error) => console.error('Error fetching users: ', error)
     });
+  }
+
+  loadAgeCategories() {
+    this.userService.getAgeCategories().subscribe({
+      next: (data) => {
+        this.ageCategories = data;
+        this.loadUsers();
+      },
+      error: (error) => console.error("error fetching age categories: ", error)
+    });
+  }
+
+  getAgeCategoryName(ageCategoryId: number): string {
+    const category = this.ageCategories.find(cat => cat.id === ageCategoryId);
+    return category ? category.name : 'Unknown';
   }
 
   startEdit(userId: number, field: string) {
@@ -48,7 +68,11 @@ export class AdminUsersComponent {
 
   saveEdit(user: any, field: string, event: Event) {
     const target = event.target as HTMLInputElement | HTMLSelectElement;
-    const newValue = target.value.trim();
+    let newValue: any = target.value.trim();
+
+    if (field === "ageCategoryId") {
+      newValue = Number(newValue);
+    }
 
     console.log(user.id, field, newValue);
     user[field] = newValue;

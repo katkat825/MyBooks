@@ -56,7 +56,7 @@
       <th mat-header-cell *matHeaderCellDef>Age Category</th>
       <td mat-cell *matCellDef="let user">
         <span *ngIf="!(editingUserId === user.id && editingField === 'ageCategoryId')" (click)="startEdit(user.id, 'ageCategoryId')">
-          {{ user.ageCategoryId }}
+          {{ user.ageCategoryName || 'Unknown' }}
         </span>
         <select *ngIf="editingUserId === user.id && editingField === 'ageCategoryId'"
                 (blur)="saveEdit(user, 'ageCategoryId', $event)">

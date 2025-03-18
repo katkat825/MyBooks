@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, catchError, throwError, tap } from 'rxjs';
+import { Observable, catchError, throwError, tap, map } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -63,6 +63,16 @@ export class UserService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() }).pipe(
       catchError(error => {
         console.error("Error deleting user:", error);
+        return throwError(error);
+      })
+    );
+  }
+
+  getAgeCategories(): Observable<any[]> {
+    return this.http.get<any>(`${environment.apiUrl}/books/agecategories`, { headers: this.getAuthHeaders() }).pipe(
+      map(response => Array.isArray(response) ? response : response?.$values || []),
+      catchError(error => {
+        console.error("Error fetching age categories:", error);
         return throwError(error);
       })
     );
