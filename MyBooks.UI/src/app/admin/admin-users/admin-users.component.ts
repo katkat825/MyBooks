@@ -23,31 +23,15 @@ import { UserService } from '../../services/user.service';
 })
 export class AdminUsersComponent {
   users: any[] = [];
-  editForm!: FormGroup;
-  editingUser: any = null;
-  createForm!: FormGroup;
-  addingUser: boolean = false;
+  editingUserId: number | null = null;
+  editingField: string | null = null;
+  ageCategories: any[] = [];
+  roles: string[] = ['Admin', 'Editor', 'User'];
 
   constructor(private userService: UserService, private fb: FormBuilder) { }
 
   ngOnInit(): void {
     this.loadUsers();
-    this.editForm = this.fb.group({
-      fname: ['', Validators.required],
-      lname: ['', Validators.required],
-      email: ['', Validators.required, Validators.email],
-      password: ['', Validators.required],
-      role: ['', Validators.required],
-      ageCategoryId: ['', Validators.required]
-    });
-    this.createForm = this.fb.group({
-      fname: ['', Validators.required],
-      lname: ['', Validators.required],
-      email: ['', Validators.required, Validators.email],
-      password: ['', Validators.required],
-      role: ['', Validators.required],
-      ageCategoryId: ['', Validators.required]
-    });
   }
 
   loadUsers() {
@@ -57,68 +41,29 @@ export class AdminUsersComponent {
     });
   }
 
-  startEdit(user: any) {
-    this.editingUser = user;
-    this.editForm.patchValue({
-      email: user.email,
-      password: user.password
-    });
+  startEdit(userId: number, field: string) {
+    this.editingUserId = userId;
+    this.editingField = field;
   }
 
-  cancelEdit() {
-    this.editingUser = null;
-    this.editForm.reset();
-  }
+  saveEdit(user: any, field: string, event: Event) {
+    const target = event.target as HTMLInputElement | HTMLSelectElement;
+    const newValue = target.value.trim();
 
-  saveEdit() {
-    if (!this.editingUser) return;
+    console.log(user.id, field, newValue);
+    user[field] = newValue;
+    const updates = { [field]: newValue };
 
-    const updatedUser = {
-      ...this.editingUser,
-      email: this.editForm.value.email,
-      password: this.editForm.value.password
-    };
-
-    this.userService.updateUser(updatedUser.id, updatedUser).subscribe({
-      next: () => {
-        this.loadUsers();
-        this.cancelEdit();
-      },
-      error: (error) => {
-        console.error("error updating user: ", error);
-        alert("Failed to update user.");
-      }
-    });
-  }
-
-  cancelCreate() {
-    this.addingUser = false;
-    this.createForm.reset();
-  }
-
-  addUser() {
-    this.addingUser = true;
-    this.createForm.reset();
-  }
-
-  saveCreate() {
-    if (this.createForm.invalid) {
-      alert("Please fill in all required fields.");
-      return;
-    }
-
-    const newUser = { email: this.createForm.value.email.trim() };
-
-    this.userService.createUser(newUser).subscribe({
-      next: (createdUser) => {
-        this.users.push(createdUser);
-        this.addingUser = false;
-        this.createForm.reset();
+    this.userService.updateUser(user.id, updates).subscribe({
+      next: (response) => {
+        console.log("user patch updated successfully:", response);
+        this.editingUserId = null;
+        this.editingField = null;
         this.loadUsers();
       },
       error: (error) => {
-        console.error("error adding user: ", error);
-        alert("Failed to add user.");
+        console.error('error updating user: ', error);
+        alert('Failed to update user.');
       }
     })
   }

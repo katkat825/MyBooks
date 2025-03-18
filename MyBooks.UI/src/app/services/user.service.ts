@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, catchError, throwError } from 'rxjs';
+import { Observable, catchError, throwError, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -38,8 +38,11 @@ export class UserService {
     );
   }  
 
-  updateUser(id: number, user: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, user, { headers: this.getAuthHeaders() }).pipe(
+  updateUser(id: number, updates: any): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/${id}`, updates, { headers: this.getAuthHeaders() }).pipe(
+      tap(response => {
+        console.log("api response (patch_: ", response);
+      }),
       catchError(error => {
         console.error("Error updating user:", error);
         return throwError(error);

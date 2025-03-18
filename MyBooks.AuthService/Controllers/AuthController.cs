@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MyBooks.AuthService.Data;
 using MyBooks.AuthService.Dtos;
 using MyBooks.AuthService.Models;
 using MyBooks.Common.Services;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace MyBooks.AuthService.Controllers
 {
@@ -25,30 +27,7 @@ namespace MyBooks.AuthService.Controllers
 
         [HttpGet]        
         public async Task<IActionResult> GetUsers()
-        {
-            Console.WriteLine($"User authenticated? {User.Identity.IsAuthenticated}");
-
-            foreach (var claim in User.Claims)
-            {
-                Console.WriteLine($"Claim type: {claim.Type}, value: {claim.Value}");
-            }
-            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            var manualRole = User.FindFirst("http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value ?? "None";
-            Console.WriteLine($"User role from jwt: {userRole}, Manual role: {manualRole}");
-
-
-            var roles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
-            Console.WriteLine($"🔹 Recognized Roles: {string.Join(", ", roles)}");
-
-            if (!User.IsInRole("Admin"))
-            {
-                Console.WriteLine("User not recognized as an admin");
-            }
-            else
-            {
-                Console.WriteLine("user is recognized as an admin");
-            }
-                            
+        {                            
             var users = await _context.Users.ToListAsync();
             return Ok(users);
         }
@@ -62,34 +41,84 @@ namespace MyBooks.AuthService.Controllers
             return Ok(user);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, [FromBody] UserDto request)
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> PatchUser(int id, [FromBody] Dictionary<string, object> updates)
         {
+            Console.WriteLine($"🛠 Received PATCH request for User ID: {id}");
+            Console.WriteLine($"📥 Payload: {System.Text.Json.JsonSerializer.Serialize(updates)}");
+
             var user = await _context.Users.FindAsync(id);
-            if (user == null) return NotFound("User not found.");
+            if (user == null)
+            {
+                Console.WriteLine("❌ User not found.");
+                return NotFound("User not found.");
+            }
 
-            //sanitize input
-            request.FirstName = _sanitizationService.Sanitize(request.FirstName);
-            request.LastName = _sanitizationService.Sanitize(request.LastName);
-            request.Email = _sanitizationService.Sanitize(request.Email);
+            foreach (var key in updates.Keys)
+            {
+                // ✅ Normalize property names to match model (firstName → FirstName)
+                var property = typeof(User).GetProperties()
+                    .FirstOrDefault(p => string.Equals(p.Name, key, StringComparison.OrdinalIgnoreCase));
 
-            var ageCategoryExists = await VerifyAgeCategoryExists(request.AgeCategoryId);
-            if (!ageCategoryExists) return BadRequest("Invalid age category id.");
+                if (property != null && property.Name != "PasswordHash" && property.Name != "CreatedBy" && property.Name != "CreatedDate" && property.Name != "LastModifiedBy" && property.Name != "LastModifiedDate")
+                {
+                    try
+                    {
+                        // ✅ Handle nullable types correctly
+                        Type targetType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+                        object newValue = updates[key] is JsonElement jsonElement
+                            ? JsonElementToObject(jsonElement, targetType) // Convert JSON correctly
+                            : Convert.ChangeType(updates[key], targetType);
 
-            user.FirstName = request.FirstName;
-            user.LastName = request.LastName;
-            user.Email = request.Email;
-            user.Role = request.Role;
-            user.AgeCategoryId = request.AgeCategoryId;
+                        property.SetValue(user, newValue);
 
-            if (!string.IsNullOrWhiteSpace(request.Password))
-                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+                        // ✅ Force EF to track the change
+                        _context.Entry(user).Property(property.Name).IsModified = true;
+                        Console.WriteLine($"🔹 Successfully updated {property.Name} to {newValue}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"❌ Failed to update {property.Name}: {ex.Message}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"⚠ Skipping invalid field: {key}");
+                }
+            }
 
-            _context.Users.Update(user);
+            // ✅ Ensure tracking recognizes changes
+            _context.Entry(user).State = EntityState.Modified;
+
+            Console.WriteLine($"✅ Saving user - ID: {user.Id}, New FirstName: {user.FirstName}");
+
             await _context.SaveChangesAsync();
 
-            return Ok("User updated successfully.");
+            // 🔄 Fetch the updated user from the database to confirm changes
+            var updatedUser = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+            Console.WriteLine($"🔄 Confirmed DB Update - New FirstName: {updatedUser.FirstName}");
+
+            return Ok(new { message = "User updated successfully", updatedUser });
         }
+
+        // ✅ Converts JSON element values correctly
+        private static object JsonElementToObject(JsonElement element, Type targetType)
+        {
+            try
+            {
+                return targetType == typeof(int) ? element.GetInt32() :
+                       targetType == typeof(string) ? element.GetString() :
+                       targetType == typeof(bool) ? element.GetBoolean() :
+                       targetType == typeof(double) ? element.GetDouble() :
+                       targetType == typeof(DateTime) ? element.GetDateTime() :
+                       Convert.ChangeType(element.ToString(), targetType);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
 
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserDto request)
