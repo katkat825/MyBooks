@@ -44,9 +44,6 @@ namespace MyBooks.AuthService.Controllers
         [HttpPatch("{id}")]
         public async Task<IActionResult> PatchUser(int id, [FromBody] Dictionary<string, object> updates)
         {
-            Console.WriteLine($"🛠 Received PATCH request for User ID: {id}");
-            Console.WriteLine($"📥 Payload: {System.Text.Json.JsonSerializer.Serialize(updates)}");
-
             var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
@@ -56,7 +53,6 @@ namespace MyBooks.AuthService.Controllers
 
             foreach (var key in updates.Keys)
             {
-                // ✅ Normalize property names to match model (firstName → FirstName)
                 var property = typeof(User).GetProperties()
                     .FirstOrDefault(p => string.Equals(p.Name, key, StringComparison.OrdinalIgnoreCase));
 
@@ -64,15 +60,13 @@ namespace MyBooks.AuthService.Controllers
                 {
                     try
                     {
-                        // ✅ Handle nullable types correctly
                         Type targetType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
                         object newValue = updates[key] is JsonElement jsonElement
-                            ? JsonElementToObject(jsonElement, targetType) // Convert JSON correctly
+                            ? JsonElementToObject(jsonElement, targetType)
                             : Convert.ChangeType(updates[key], targetType);
 
                         property.SetValue(user, newValue);
 
-                        // ✅ Force EF to track the change
                         _context.Entry(user).Property(property.Name).IsModified = true;
                         Console.WriteLine($"🔹 Successfully updated {property.Name} to {newValue}");
                     }
@@ -87,21 +81,15 @@ namespace MyBooks.AuthService.Controllers
                 }
             }
 
-            // ✅ Ensure tracking recognizes changes
             _context.Entry(user).State = EntityState.Modified;
-
-            Console.WriteLine($"✅ Saving user - ID: {user.Id}, New FirstName: {user.FirstName}");
 
             await _context.SaveChangesAsync();
 
-            // 🔄 Fetch the updated user from the database to confirm changes
             var updatedUser = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
-            Console.WriteLine($"🔄 Confirmed DB Update - New FirstName: {updatedUser.FirstName}");
 
             return Ok(new { message = "User updated successfully", updatedUser });
         }
 
-        // ✅ Converts JSON element values correctly
         private static object JsonElementToObject(JsonElement element, Type targetType)
         {
             try
@@ -126,13 +114,10 @@ namespace MyBooks.AuthService.Controllers
             //sanitize inputs
             request.FirstName = _sanitizationService.Sanitize(request.FirstName);
             request.LastName = _sanitizationService.Sanitize(request.LastName);
-            request.Email = _sanitizationService.Sanitize(request.Email);
+            request.Email = _sanitizationService.Sanitize(request.Email, true);
 
             //check if email in use
             if (await _context.Users.AnyAsync(u => u.Email == request.Email))  return BadRequest("Email already in use.");
-
-            var ageCategoryExists = await VerifyAgeCategoryExists(request.AgeCategoryId);
-            if (!ageCategoryExists) return BadRequest("Invalid AgeCategoryId.");
 
             var user = new User
             {
@@ -141,24 +126,47 @@ namespace MyBooks.AuthService.Controllers
                 Email = request.Email,
                 Role = request.Role,
                 AgeCategoryId = request.AgeCategoryId,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password)
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                IsActive = true
             };
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return Ok("User resgistered successfully");
-        }        
-
-        public async Task<bool> VerifyAgeCategoryExists(int ageCategoryId)
-        {
-            using var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync("https://localhost:5001/api/books/agecategories");
-
-            if (!response.IsSuccessStatusCode) return false;
-
-            var ageCategories = await response.Content.ReadFromJsonAsync<List<AgeCategoryDto>>();
-            return ageCategories.Any(a => a.Id == ageCategoryId);
+            return Ok();
         }
+
+        [HttpPatch("deactivate/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeactivateUser(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                return NotFound("User not found.");
+
+            user.IsActive = false;
+            _context.Entry(user).Property(u => u.IsActive).IsModified = true;
+            await _context.SaveChangesAsync();
+
+            Console.WriteLine($"✅ User {id} deactivated.");
+            return Ok(new { message = "User deactivated successfully" });
+        }
+
+        [HttpPatch("reactivate/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ReactivateUser(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                return NotFound("User not found.");
+
+            user.IsActive = true;
+            _context.Entry(user).Property(u => u.IsActive).IsModified = true;
+            await _context.SaveChangesAsync();
+
+            Console.WriteLine($"✅ User {id} reactivated.");
+            return Ok(new { message = "User reactivated successfully" });
+        }
+
     }
 }

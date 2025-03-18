@@ -7,7 +7,8 @@
         public string Email { get; set; }
         public string Password { get; set; }
         public string Role { get; set; } = "User"; // Defaults to User
-        public int AgeCategoryId { get; set; } // Must exist in CatalogDB
+        public int AgeCategoryId { get; set; } 
+        public bool IsActive { get; set; }
     }
 
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, catchError, throwError, tap, map } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -13,11 +13,23 @@ export class UserService {
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
-    console.log("Token used in headers: ", token);
     return new HttpHeaders({
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     });
+  }
+
+  getProfile(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/profile`, { headers: this.getAuthHeaders() }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          console.error("❌ User is unauthorized. Logging out...");
+          localStorage.removeItem('token'); // ❌ Remove invalid token
+          window.location.href = '/login'; // 🚀 Redirect to login
+        }
+        return throwError(() => error);
+      })
+    );
   }
 
   getUsers(): Observable<any[]> {
@@ -51,6 +63,7 @@ export class UserService {
   }
 
   createUser(user: any): Observable<any> {
+    console.log("sending user payload: ", user);
     return this.http.post<any>(`${this.apiUrl}/register`, user, { headers: this.getAuthHeaders() }).pipe(
       catchError(error => {
         console.error("Error creating user:", error);
@@ -59,11 +72,22 @@ export class UserService {
     );
   }
 
-  deleteUser(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() }).pipe(
+  deactivateUser(id: number): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/deactivate/${id}`, {}, { headers: this.getAuthHeaders() }).pipe(
+      tap(() => console.log("successfully deactivated user ID: ${id}")),
       catchError(error => {
-        console.error("Error deleting user:", error);
-        return throwError(error);
+        console.error("error deactivating user. ", error);
+        return throwError(() => new Error("Failed to deactivate user."));
+      })
+    );
+  }
+
+  reactivateUser(id: number): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/reactivate/${id}`, {}, { headers: this.getAuthHeaders() }).pipe(
+      tap(() => console.log(`✅ Successfully reactivated user ID: ${id}`)),
+      catchError(error => {
+        console.error("❌ Error reactivating user:", error);
+        return throwError(() => new Error("Failed to reactivate user."));
       })
     );
   }

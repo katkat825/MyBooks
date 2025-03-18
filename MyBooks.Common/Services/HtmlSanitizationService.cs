@@ -23,7 +23,7 @@ namespace MyBooks.Common.Services
             _sanitizer.AllowedAttributes.Remove("onclick");
         }
 
-        public string Sanitize(string input)
+        public string Sanitize(string input, bool allowEmail = false)
         {
             if (string.IsNullOrWhiteSpace(input))
                 return string.Empty;
@@ -31,8 +31,15 @@ namespace MyBooks.Common.Services
             // Step 1: Apply HTML sanitization
             string sanitized = _sanitizer.Sanitize(input).Trim();
 
-            // Step 2: Remove unsafe filename characters (for general text fields)
-            sanitized = Regex.Replace(sanitized, @"[^a-zA-Z0-9_\-.\s]", "");
+            // Step 2: Remove unsafe characters (for general text fields)
+            if (allowEmail)
+            {
+                //allow @ in an email
+                sanitized = Regex.Replace(sanitized, @"[^a-zA-Z0-9_\-.\s@]", "");
+            } else
+            {
+                sanitized = Regex.Replace(sanitized, @"[^a-zA-Z0-9_\-.\s]", "");
+            }                
 
             return sanitized;
         }

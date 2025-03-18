@@ -62,7 +62,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])) // Same key as AuthService
         };
     });
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ActiveUser", policy =>
+    {
+        policy.RequireAssertion(context =>
+        {
+            var isActive = context.User.FindFirst("IsActive")?.Value;
+            return isActive == "True";
+        });
+    });
+});
 
 builder.Services.AddDbContext<CatalogDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("CatalogConnection")));

@@ -33,6 +33,12 @@ namespace MyBooks.AuthService.Controllers
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
                 return Unauthorized("Invalid username or password.");
 
+            if(!user.IsActive)
+            {
+                Console.WriteLine($"Login attempt for deactivated user: {user.Email}");
+                return Unauthorized("Your account has been deactivated.");
+            }
+
             var token = GenerateJwtToken(user);
             return Ok(new { Token = token });
         }
@@ -43,7 +49,8 @@ namespace MyBooks.AuthService.Controllers
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim("role", user.Role),
-                new Claim("AgeCategoryId", user.AgeCategoryId.ToString())
+                new Claim("AgeCategoryId", user.AgeCategoryId.ToString()),
+                new Claim("IsActive", user.IsActive.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));

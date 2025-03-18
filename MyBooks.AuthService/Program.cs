@@ -70,7 +70,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ActiveUser", policy =>
+    {
+        policy.RequireAssertion(context =>
+        {
+            var isActive = context.User.FindFirst("IsActive")?.Value;
+            return isActive == "True";
+        });
+    });
+});
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();

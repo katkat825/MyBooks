@@ -1,9 +1,11 @@
 <div class="container mt-4">
   <h2>Series</h2>
 
-  <button mat-button id="add-series" (click)="addSeries()">
-    <mat-icon>add</mat-icon> Add Series
+  <button mat-button (click)="addingSeries = !addingSeries">
+    <mat-icon>{{ addingSeries ? 'close' : 'add' }}</mat-icon>
+    {{ addingSeries ? 'Cancel' : 'Add Series' }}
   </button>
+
 
   <table mat-table [dataSource]="series" class="mat-elevation-z8">
     <ng-container matColumnDef="name">
