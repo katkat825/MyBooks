@@ -1,0 +1,5 @@
+button {
+  background-color: var(--button-bg) !important;
+  color: var(--button-text) !important;
+  margin: 8px;
+}

@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { UserService } from './services/user.service';
-
+import { isTokenExpired } from './utilities/auth-utilities';
 
 @Component({
   selector: 'app-root',
@@ -34,16 +34,31 @@ export class AppComponent {
     const savedTheme = localStorage.getItem('theme');
     this.setTheme(savedTheme || 'light');
 
-    this.userService.getProfile().subscribe({
-      next: (user) => {
-        this.userRole = user.role;
+    const token = localStorage.getItem('token');
 
-        this.accessAdminMenu = this.userRole === 'Admin' || this.userRole === 'Editor';
-      },
-      error: (error) => {
-        console.error('error retrieving profile: ', error);
+    if (!token) {
+      this.router.navigate(['/login']);
+    }
+
+    if (token) { 
+      if (isTokenExpired(token)) {
+        console.warn('token expired. redirecting');
+        localStorage.removeItem('token');
+        this.router.navigate(['/login']);
+      } else {
+
+        this.userService.getProfile().subscribe({
+          next: (user) => {
+            this.userRole = user.role;
+
+            this.accessAdminMenu = this.userRole === 'Admin' || this.userRole === 'Editor';
+          },
+          error: (error) => {
+            console.error('error retrieving profile: ', error);
+          }
+        });
       }
-    });
+    }
   }
 
   setTheme(theme: string) {

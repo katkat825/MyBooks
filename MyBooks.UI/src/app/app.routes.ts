@@ -5,7 +5,7 @@ import { BookDetailsComponent } from './components/book-details/book-details.com
 import { AdminComponent } from './admin/admin.component';
 import { LoginComponent } from './components/login/login.component';
 import { AccountSettingsComponent } from './components/account-settings/account-settings.component';
-import { AdminGuard } from './guards/admin.guard';
+import { AdminGuard } from './utilities/admin.guard';
 
 export const routes: Routes = [
   { path: '', component: BookListComponent },
