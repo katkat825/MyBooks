@@ -5,6 +5,7 @@ using MyBooks.Common.Services;
 using MyBooks.FileService.Data;
 using MyBooks.FileService.Models;
 using MyBooks.FileService.Validators;
+using System.Text.RegularExpressions;
 
 namespace MyBooks.FileService.Controllers
 {
@@ -31,18 +32,17 @@ namespace MyBooks.FileService.Controllers
 
         // 🔹 Upload File
         [HttpPost("upload")]
-        public async Task<IActionResult> UploadFile([FromForm] IFormFile file, [FromForm] int bookId)
+        public async Task<IActionResult> UploadFile([FromForm] IFormFile file, [FromForm] int bookId, [FromForm] string bookTitle)
         {
-            Console.WriteLine("UploadFile API hit");
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
 
-            Console.WriteLine($"Received file: {file.FileName}, size: {file.Length} bytes");
+            var extension = Path.GetExtension(file.FileName);
+            var sanitizedBookTitle = _sanitizationService.Sanitize(bookTitle).Trim();
+            sanitizedBookTitle = Regex.Replace(sanitizedBookTitle, @"\s+", "_");
+            var fileName = $"{bookId}_{sanitizedBookTitle}{extension}";
 
-            var sanitizedFileName = _sanitizationService.Sanitize(file.FileName).Trim();
-            sanitizedFileName = Path.GetFileName(sanitizedFileName);
-
-            var filePath = Path.Combine(_storagePath, sanitizedFileName);
+            var filePath = Path.Combine(_storagePath, fileName);
 
             //remove old file if it exists
             var existingFile = await _context.Files.FirstOrDefaultAsync(f => f.BookId == bookId);
@@ -65,7 +65,7 @@ namespace MyBooks.FileService.Controllers
 
             var fileMetadata = new FileMetadata
             {
-                FileName = sanitizedFileName,
+                FileName = sanitizedBookTitle,
                 FilePath = filePath,
                 ContentType = file.ContentType,
                 FileSize = file.Length,

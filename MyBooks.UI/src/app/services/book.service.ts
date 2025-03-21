@@ -135,12 +135,11 @@ export class BookService {
     return this.http.delete<void>(`${this.apiUrl}/series/${id}`, { headers: this.getAuthHeaders() });
   }
 
-  uploadFile(file: File, bookId: number): Observable<any> {
+  uploadFile(file: File, bookId: number, bookTitle: string): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('bookId', bookId.toString());
-
-    formData.forEach((value, key) => console.log(`📝 ${key}:`, value));
+    formData.append('bookTitle', bookTitle);
 
     return this.http.post(`${this.fileApiUrl}/upload`, formData, {
       headers: new HttpHeaders({

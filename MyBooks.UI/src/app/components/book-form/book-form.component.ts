@@ -220,12 +220,12 @@ export class BookFormComponent implements OnInit {
       return;
     }
 
-    this.bookService.uploadFile(this.selectedFile, this.bookId).subscribe({
+    const bookTitle = this.bookForm.get('step1')?.get('title')?.value;
+
+    this.bookService.uploadFile(this.selectedFile, this.bookId, bookTitle).subscribe({
       next: (response) => {
-        console.log('step 3: file uploaded successfully');
         if (response && response.fileId) {
           this.fileId = response.fileId;
-          console.log("file id sent: ", this.fileId);
         } else {
           console.warn("no file id returned from api");
         }
@@ -235,12 +235,10 @@ export class BookFormComponent implements OnInit {
   }
 
   updateBookWithFileId() {
-    console.log("Updating book with file ID:", this.fileId, "Book ID:", this.bookId);
     if (!this.fileId || !this.bookId) return;
 
     this.bookService.updateBookFileId(this.bookId, this.fileId).subscribe({
       next: () => {
-        console.log("Step 4: book updated with FileId");
         this.router.navigate(['/']);
       },
       error: (error) => console.error("Failed to update book with FileId", error)
