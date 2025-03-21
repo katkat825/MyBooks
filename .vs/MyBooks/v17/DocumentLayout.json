@@ -3,16 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\creat\\source\\repos\\MyBooks\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{37CCA6AF-A2F4-47CF-BC54-C9F78149D67F}|MyBooks.CatalogService\\MyBooks.CatalogService.csproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.catalogservice\\controllers\\bookcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{37CCA6AF-A2F4-47CF-BC54-C9F78149D67F}|MyBooks.CatalogService\\MyBooks.CatalogService.csproj|solutionrelative:mybooks.catalogservice\\controllers\\bookcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C3DAC7D4-D6FB-4CEF-800A-7E86CFAF027B}|MyBooks.FileService\\MyBooks.FileService.csproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.fileservice\\controllers\\filecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C3DAC7D4-D6FB-4CEF-800A-7E86CFAF027B}|MyBooks.FileService\\MyBooks.FileService.csproj|solutionrelative:mybooks.fileservice\\controllers\\filecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\components\\book-form\\book-form.component.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
-      "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\components\\book-form\\book-form.component.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+      "AbsoluteMoniker": "D:0:0:{C3DAC7D4-D6FB-4CEF-800A-7E86CFAF027B}|MyBooks.FileService\\MyBooks.FileService.csproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.fileservice\\validators\\filevalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C3DAC7D4-D6FB-4CEF-800A-7E86CFAF027B}|MyBooks.FileService\\MyBooks.FileService.csproj|solutionrelative:mybooks.fileservice\\validators\\filevalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -27,39 +19,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "BookController.cs",
-              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.CatalogService\\Controllers\\BookController.cs",
-              "RelativeDocumentMoniker": "MyBooks.CatalogService\\Controllers\\BookController.cs",
-              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.CatalogService\\Controllers\\BookController.cs",
-              "RelativeToolTip": "MyBooks.CatalogService\\Controllers\\BookController.cs",
-              "ViewState": "AgIAALsAAAAAAAAAAAAcwMkAAAAyAAAAAAAAAA==",
+              "Title": "FileValidator.cs",
+              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.FileService\\Validators\\FileValidator.cs",
+              "RelativeDocumentMoniker": "MyBooks.FileService\\Validators\\FileValidator.cs",
+              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.FileService\\Validators\\FileValidator.cs",
+              "RelativeToolTip": "MyBooks.FileService\\Validators\\FileValidator.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAgwFMAAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-21T19:27:35.573Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "book-form.component.ts",
-              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\book-form\\book-form.component.ts",
-              "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\components\\book-form\\book-form.component.ts",
-              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\book-form\\book-form.component.ts",
-              "RelativeToolTip": "MyBooks.UI\\src\\app\\components\\book-form\\book-form.component.ts",
-              "ViewState": "AgIAAMIAAAAAAAAAAAAIwEgAAAAjAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2025-03-21T19:07:47.985Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "FileController.cs",
-              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.FileService\\Controllers\\FileController.cs",
-              "RelativeDocumentMoniker": "MyBooks.FileService\\Controllers\\FileController.cs",
-              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.FileService\\Controllers\\FileController.cs",
-              "RelativeToolTip": "MyBooks.FileService\\Controllers\\FileController.cs",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAAADYAAABIAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-21T18:15:14.123Z",
+              "WhenOpened": "2025-03-21T19:38:52.734Z",
               "EditorCaption": ""
             }
           ]
