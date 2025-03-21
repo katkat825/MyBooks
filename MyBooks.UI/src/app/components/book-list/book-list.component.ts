@@ -34,21 +34,22 @@ export class BookListComponent {
   loadBooks() {
     this.bookService.getAllBooks().subscribe({
       next: (data) => {
-        console.log("Books received in UI: ", data);
-        this.books = data;
-        this.filteredBooks = data;
+        this.books = data.sort((a,b) => a.title.localeCompare(b.title));
+        this.filteredBooks = [...this.books];
       },
-      error: (error) => console.error('Error loading books', error),
-      complete: () => console.log("Books fetch completed.")
+      error: (error) => console.error('Error loading books', error)
     });
   }
 
   filterBooks() {
     const query = this.searchQuery.toLowerCase().trim();
-    this.filteredBooks = this.books.filter(book =>
-      book.title.toLowerCase().includes(query) ||
-      (book.author && book.author.toLowerCase().includes(query))
-    );
+    this.filteredBooks = this.books
+      .filter(book =>
+        book.title.toLowerCase().includes(query) ||
+        (book.author && book.author.toLowerCase().includes(query)) ||
+        (book.series && book.series.name && book.series.name.toLowerCase().includes(query))
+      )
+      .sort((a, b) => a.title.localeCompare(b.title));
   }
 
   addBook() {
