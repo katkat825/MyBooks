@@ -188,10 +188,12 @@ namespace MyBooks.CatalogService.Controllers
                 book.Tags = existingTags.Concat(newTags).ToList();
             }
 
+
             if (book.FileId.HasValue)
             {
                 var response = await _httpClient.GetAsync($"https://localhost:7142/api/files/{book.FileId}");
                 if (!response.IsSuccessStatusCode) return BadRequest("Invalid FileId. File not found.");
+                existingBook.FileId = book.FileId;
             }
 
             existingBook.Title = book.Title;
@@ -205,7 +207,7 @@ namespace MyBooks.CatalogService.Controllers
             existingBook.PublishedDate = book.PublishedDate;
             existingBook.ISBN = book.ISBN;
             existingBook.GenreId = book.GenreId;      
-            existingBook.FileId = book.FileId;
+            
 
             _context.Entry(existingBook).State = EntityState.Modified;
 

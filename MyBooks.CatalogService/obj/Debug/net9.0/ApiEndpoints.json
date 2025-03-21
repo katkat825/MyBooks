@@ -540,6 +540,11 @@
         "Name": "bookId",
         "Type": "System.Int32",
         "IsRequired": false
+      },
+      {
+        "Name": "bookTitle",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []

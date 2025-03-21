@@ -167,8 +167,7 @@ export class BookFormComponent implements OnInit {
     const bookData = {
       id: this.bookId,
       ...this.step1.value,
-      ...this.step2.value,
-      fileId: this.fileId ?? null
+      ...this.step2.value,      
     };
 
     if (this.bookId) {
@@ -193,8 +192,7 @@ export class BookFormComponent implements OnInit {
     const bookData = {
       id: this.bookId,
       ...this.step1.value,
-      ...this.step2.value,
-      fileId: this.fileId ?? null
+      ...this.step2.value
     };
 
     console.log("updating book ID: ", this.bookId);

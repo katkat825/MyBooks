@@ -30,12 +30,19 @@ namespace MyBooks.FileService.Controllers
                 Directory.CreateDirectory(_storagePath);            
         }
 
-        // 🔹 Upload File
+        // upload File
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile([FromForm] IFormFile file, [FromForm] int bookId, [FromForm] string bookTitle)
         {
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
+
+            var fileValidator = new FileValidator();
+            var fileValidationResult = fileValidator.Validate(file);
+            if (!fileValidationResult.IsValid)
+            {
+                return BadRequest(fileValidationResult.Errors);
+            }
 
             var extension = Path.GetExtension(file.FileName);
             var sanitizedBookTitle = _sanitizationService.Sanitize(bookTitle).Trim();
@@ -65,7 +72,7 @@ namespace MyBooks.FileService.Controllers
 
             var fileMetadata = new FileMetadata
             {
-                FileName = sanitizedBookTitle,
+                FileName = fileName,
                 FilePath = filePath,
                 ContentType = file.ContentType,
                 FileSize = file.Length,
@@ -83,8 +90,7 @@ namespace MyBooks.FileService.Controllers
                     Console.WriteLine($"- {error.PropertyName}: {error.ErrorMessage}");
                 }
                 return BadRequest(validationResult.Errors);
-            }
-               
+            }               
 
             _context.Files.Add(fileMetadata);
             await _context.SaveChangesAsync();
@@ -92,7 +98,7 @@ namespace MyBooks.FileService.Controllers
             return Ok(new { FileId = fileMetadata.Id, Message = "File uploaded successfully" });
         }
 
-        // 🔹 Download File
+        // download file
         [HttpGet("{id}")]
         public async Task<IActionResult> DownloadFile(int id)
         {
@@ -107,7 +113,7 @@ namespace MyBooks.FileService.Controllers
             return File(fileBytes, file.ContentType, file.FileName);
         }
 
-        // 🔹 Delete File
+        // delete file
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFile(int id)
         {
@@ -124,7 +130,7 @@ namespace MyBooks.FileService.Controllers
             return NoContent();
         }
 
-        // 🔹 List All Files for a Book
+        // get file for single book
         [HttpGet("book/{bookId}")]
         public async Task<IActionResult> GetFilesByBook(int bookId)
         {
