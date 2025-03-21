@@ -5,6 +5,7 @@ import { BookDetailsComponent } from './components/book-details/book-details.com
 import { AdminComponent } from './admin/admin.component';
 import { LoginComponent } from './components/login/login.component';
 import { AccountSettingsComponent } from './components/account-settings/account-settings.component';
+import { AdminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   { path: '', component: BookListComponent },
@@ -12,6 +13,6 @@ export const routes: Routes = [
   { path: 'create', component: BookFormComponent },
   { path: 'create/:id', component: BookFormComponent },
   { path: 'book/:id', component: BookDetailsComponent },
-  { path: 'admin', component: AdminComponent },
+  { path: 'admin', component: AdminComponent, canActivate: [AdminGuard] },
   { path: 'account', component: AccountSettingsComponent }, 
 ];

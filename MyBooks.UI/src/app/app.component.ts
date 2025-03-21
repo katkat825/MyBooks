@@ -5,24 +5,45 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { UserService } from './services/user.service';
+
 
 @Component({
-    selector: 'app-root',
-    standalone: true,
-    imports: [RouterOutlet, CommonModule, MatMenuModule, MatIconModule, MatButtonModule, MatToolbarModule, RouterModule],
-    templateUrl: './app.component.html',
-    styleUrl: './app.component.css'
+  selector: 'app-root',
+  standalone: true,
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.css',
+  imports: [RouterOutlet,
+    CommonModule,
+    MatMenuModule,
+    MatIconModule,
+    MatButtonModule,
+    MatToolbarModule,
+    RouterModule],    
 })
 export class AppComponent {
   isDarkTheme = false;
   isContrastTheme = false;
   isLightTheme = true;
+  userRole: string = '';
+  accessAdminMenu: boolean = false;
 
-  constructor(private renderer: Renderer2, private router: Router) { }
+  constructor(private renderer: Renderer2, private router: Router, private userService: UserService) { }
 
   ngOnInit() {
     const savedTheme = localStorage.getItem('theme');
     this.setTheme(savedTheme || 'light');
+
+    this.userService.getProfile().subscribe({
+      next: (user) => {
+        this.userRole = user.role;
+
+        this.accessAdminMenu = this.userRole === 'Admin' || this.userRole === 'Editor';
+      },
+      error: (error) => {
+        console.error('error retrieving profile: ', error);
+      }
+    });
   }
 
   setTheme(theme: string) {
@@ -52,4 +73,6 @@ export class AppComponent {
     localStorage.removeItem('token');
     this.router.navigate(['/login']);
   }
+  
+  
 }
