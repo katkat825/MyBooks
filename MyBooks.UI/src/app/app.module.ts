@@ -11,6 +11,7 @@ import { AdminComponent } from './admin/admin.component';
 import { AdminGenresComponent } from './admin/admin-genres/admin-genres.component';
 import { LoginComponent } from './components/login/login.component';
 import { AdminUsersComponent } from './admin/admin-users/admin-users.component';
+import { AccountSettingsComponent } from './components/account-settings/account-settings.component';
 
 @NgModule({
   imports: [
@@ -28,7 +29,8 @@ import { AdminUsersComponent } from './admin/admin-users/admin-users.component';
     AdminComponent,
     AdminGenresComponent,
     LoginComponent,
-    AdminUsersComponent
+    AdminUsersComponent,
+    AccountSettingsComponent
   ]
 })
 export class AppModule { }

@@ -3,6 +3,30 @@
   "WorkspaceRootPath": "C:\\Users\\creat\\source\\repos\\MyBooks\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\services\\user.service.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\services\\user.service.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\components\\account-settings\\account-settings.component.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\components\\account-settings\\account-settings.component.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\components\\account-settings\\account-settings.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\components\\account-settings\\account-settings.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\app.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\app.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\app.routes.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\app.routes.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C8BD21C9-75A4-4825-B516-B1FCD82394E1}|MyBooks.AuthService\\MyBooks.AuthService.csproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.authservice\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C8BD21C9-75A4-4825-B516-B1FCD82394E1}|MyBooks.AuthService\\MyBooks.AuthService.csproj|solutionrelative:mybooks.authservice\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\components\\book-list\\book-list.component.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
       "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\components\\book-list\\book-list.component.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
     }
@@ -19,12 +43,90 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "user.service.ts",
+              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\services\\user.service.ts",
+              "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\services\\user.service.ts",
+              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\services\\user.service.ts",
+              "RelativeToolTip": "MyBooks.UI\\src\\app\\services\\user.service.ts",
+              "ViewState": "AgIAABAAAAAAAAAAAAAgwCEAAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-03-21T12:05:13.13Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "account-settings.component.html",
+              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\account-settings\\account-settings.component.html",
+              "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\components\\account-settings\\account-settings.component.html",
+              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\account-settings\\account-settings.component.html",
+              "RelativeToolTip": "MyBooks.UI\\src\\app\\components\\account-settings\\account-settings.component.html",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2025-03-21T12:03:24.21Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "app.component.html",
+              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\app.component.html",
+              "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\app.component.html",
+              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\app.component.html",
+              "RelativeToolTip": "MyBooks.UI\\src\\app\\app.component.html",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAA0AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2025-03-21T12:01:52.328Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "app.routes.ts",
+              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\app.routes.ts",
+              "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\app.routes.ts",
+              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\app.routes.ts",
+              "RelativeToolTip": "MyBooks.UI\\src\\app\\app.routes.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAA5AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-03-21T12:01:08.041Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "account-settings.component.ts",
+              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\account-settings\\account-settings.component.ts",
+              "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\components\\account-settings\\account-settings.component.ts",
+              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\account-settings\\account-settings.component.ts",
+              "RelativeToolTip": "MyBooks.UI\\src\\app\\components\\account-settings\\account-settings.component.ts",
+              "ViewState": "AgIAADQAAAAAAAAAAAAgwCwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-03-21T11:58:52.786Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "AccountController.cs",
+              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.AuthService\\Controllers\\AccountController.cs",
+              "RelativeDocumentMoniker": "MyBooks.AuthService\\Controllers\\AccountController.cs",
+              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.AuthService\\Controllers\\AccountController.cs",
+              "RelativeToolTip": "MyBooks.AuthService\\Controllers\\AccountController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-21T11:52:17.231Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
               "Title": "book-list.component.ts",
               "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\book-list\\book-list.component.ts",
               "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\components\\book-list\\book-list.component.ts",
               "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\book-list\\book-list.component.ts",
               "RelativeToolTip": "MyBooks.UI\\src\\app\\components\\book-list\\book-list.component.ts",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAAACkAAAADAAAAAAAAAA==",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAgwCIAAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
               "WhenOpened": "2025-03-21T11:39:37.045Z",
               "EditorCaption": ""
