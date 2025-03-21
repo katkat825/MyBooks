@@ -49,6 +49,58 @@ body {
   transition: background 0.3s ease, color 0.3s ease;
 }
 
+mat-form-field {
+  --mat-form-field-container-background-color: var(--bg-color);
+  --mat-form-field-container-text-color: var(--text-color);
+  --mat-form-field-container-border-color: var(--border-color);
+}
+
+  mat-form-field .mat-mdc-text-field-wrapper,
+  mat-form-field textarea {
+    background-color: var(--bg-color) !important;
+    color: var(--text-color) !important;
+  }
+
+  mat-form-field input,
+  mat-form-field select {
+    background-color: var(--bg-color) !important;
+    color: var(--text-color) !important;
+  }
+
+  mat-form-field label {
+      color: var(--text-color) !important;
+      opacity: 0.7;
+  }
+
+mat-select {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+.mat-mdc-select-panel {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+.mat-mdc-option {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+  .mat-mdc-option:hover {
+    background-color: var(--surface-bg) !important;
+  }
+
+input, select {
+  background-color: var(--bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+::placeholder {
+  color: var(--text-color);
+  opacity: 0.7;
+}
+
 .card {
   background-color: var(--surface-bg);
   border: 1px solid var(--border-color);
@@ -85,11 +137,24 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-html, body {
-  height: 100%;
+table,
+th,
+td {
+  background: var(--bg-color) !important;
+  color: var(--text-color) !important;
 }
 
-body {
-  margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+mat-tab-group,
+mat-tab {
+  margin-top: 20px;
+  background-color: var(--bg-color);
+  color: var(--title-color) !important;
+  border-radius: 5px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 }
+
+.mat-mdc-tab-group .mat-mdc-tab .mdc-tab__content .mdc-tab__text-label {
+  color: var(--text-color) !important;
+}
+
+

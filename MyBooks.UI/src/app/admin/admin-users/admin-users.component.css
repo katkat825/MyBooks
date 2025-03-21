@@ -1,8 +1,9 @@
 button {
-  background-color: var(--button-bg);
+  background-color: var(--button-bg) !important;
   color: var(--button-text) !important;
   border: none;
   padding: 8px 12px;
+  margin: 8px;
   border-radius: 5px;
   cursor: pointer;
 }
@@ -11,8 +12,15 @@ button {
     opacity: 0.9;
   }
 
+h2,
+mat-card-title
+{
+  padding: 8px;
+  margin: 8px;
+}
+
 mat-icon {
   vertical-align: middle;
   line-height: 1;
-  font-size: 20px; /* Ensure consistent size */
+  font-size: 20px;
 }

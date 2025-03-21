@@ -41,13 +41,10 @@ mat-card-title {
   margin-top: 20px;
 }
 
-.save-button {
-  background-color: var(--primary) !important;
+button {
+  background-color: var(--button-bg) !important;
   color: var(--button-text) !important;
-}
-
-.cancel-button {
-  color: var(--primary) !important;
+  margin: 8px;
 }
 
 /* Stepper Styles */

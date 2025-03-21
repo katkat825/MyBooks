@@ -14,57 +14,53 @@
   </button>
 
   <!-- Add User Form inside a Card -->
-  <mat-card *ngIf="showAddUserForm" class="add-user-card">
-    <mat-card-title>Add New User</mat-card-title>
-    <form [formGroup]="userForm" (ngSubmit)="addUser()" class="user-form">
+    <mat-card *ngIf="showAddUserForm" class="add-user-card">
+      <mat-card-title>Add New User</mat-card-title>
+      <form [formGroup]="userForm" (ngSubmit)="addUser()" class="user-form">
 
-      <mat-form-field>
-        <mat-label>First Name</mat-label>
-        <input matInput formControlName="firstName" required />
-      </mat-form-field>
+        <mat-form-field>
+          <mat-label>First Name</mat-label>
+          <input matInput formControlName="firstName" required />
+        </mat-form-field>
 
-      <mat-form-field>
-        <mat-label>Last Name</mat-label>
-        <input matInput formControlName="lastName" required />
-      </mat-form-field>
+        <mat-form-field>
+          <mat-label>Last Name</mat-label>
+          <input matInput formControlName="lastName" required />
+        </mat-form-field>
 
-      <mat-form-field>
-        <mat-label>Email</mat-label>
-        <input matInput formControlName="email" type="email" required />
-      </mat-form-field>
+        <mat-form-field>
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" type="email" required />
+        </mat-form-field>
 
-      <mat-form-field>
-        <mat-label>Password</mat-label>
-        <input matInput formControlName="password" type="password" required />
-      </mat-form-field>
+        <mat-form-field>
+          <mat-label>Password</mat-label>
+          <input matInput formControlName="password" type="password" required />
+        </mat-form-field>
 
-      <mat-form-field>
-        <mat-label>Role</mat-label>
-        <mat-select formControlName="role" required>
-          <mat-option *ngFor="let role of roles" [value]="role">{{ role }}</mat-option>
-        </mat-select>
-      </mat-form-field>
+        <mat-form-field>
+          <mat-label>Role</mat-label>
+          <mat-select formControlName="role" required>
+            <mat-option *ngFor="let role of roles" [value]="role">{{ role }}</mat-option>
+          </mat-select>
+        </mat-form-field>
 
-      <mat-form-field>
-        <mat-label>Age Category</mat-label>
-        <mat-select formControlName="ageCategoryId" required>
-          <mat-option *ngFor="let category of ageCategories" [value]="category.id">
-            {{ category.name }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+        <mat-form-field>
+          <mat-label>Age Category</mat-label>
+          <mat-select formControlName="ageCategoryId" required>
+            <mat-option *ngFor="let category of ageCategories" [value]="category.id">
+              {{ category.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
 
-      <div class="button-group">
-        <button mat-raised-button color="primary" type="submit" [disabled]="userForm.invalid">
-          Save
-        </button>
-        <button mat-raised-button color="warn" type="button" (click)="toggleAddUserForm()">
-          Cancel
-        </button>
-      </div>
-    </form>
-  </mat-card>
-
+        <div class="button-group">
+          <button mat-button type="submit" [disabled]="userForm.invalid">
+            Save
+          </button>
+        </div>
+      </form>
+    </mat-card>
 
   <!-- List all users -->
   <table mat-table [dataSource]="users" class="mat-elevation-z8">
