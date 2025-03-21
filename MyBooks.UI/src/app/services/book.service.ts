@@ -55,7 +55,7 @@ export class BookService {
 
   updateBookFileId(bookId: number, fileId: number): Observable<any> {
     return this.http.patch(`${environment.apiUrl}/books/${bookId}/file`, { fileId }, { headers: this.getAuthHeaders() }).pipe(
-      tap(() => console.log('successfully updated bookId: ${bookId} with fileId: ${fileId}')),
+      tap(() => console.log('successfully updated book fileId: ', {fileId})),
       catchError(error => {
         console.error("❌ Error updating book with FileId:", error);
         return throwError(() => new Error("Failed to update book with FileId"));

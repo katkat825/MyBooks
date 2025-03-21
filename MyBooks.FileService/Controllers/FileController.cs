@@ -98,7 +98,7 @@ namespace MyBooks.FileService.Controllers
             return Ok(new { FileId = fileMetadata.Id, Message = "File uploaded successfully" });
         }
 
-        // download file
+        // file download or read inline 
         [HttpGet("{id}")]
         public async Task<IActionResult> DownloadFile(int id)
         {

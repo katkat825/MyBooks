@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
@@ -14,6 +14,7 @@ import { MatInputModule } from '@angular/material/input';
   standalone: true,
   templateUrl: './book-list.component.html',
   styleUrl: './book-list.component.css',
+  encapsulation: ViewEncapsulation.None,
   imports: [CommonModule, MatIconModule, MatButtonModule, HttpClientModule, MatFormFieldModule, MatInputModule, FormsModule]
 })
 export class BookListComponent {

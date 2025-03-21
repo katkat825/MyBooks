@@ -11,6 +11,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { HttpClientModule } from '@angular/common/http';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 
 @Component({
   selector: 'app-book-form',
@@ -25,7 +27,8 @@ import { HttpClientModule } from '@angular/common/http';
     MatInputModule,
     MatSelectModule,
     MatIconModule,
-    HttpClientModule
+    HttpClientModule,
+    MatProgressSpinnerModule
   ]
 })
 export class BookFormComponent implements OnInit {
@@ -37,6 +40,7 @@ export class BookFormComponent implements OnInit {
   seriesList: any[] = [];
   newSeries: boolean = false;
   fileId?: number;
+  isFinalizing: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -164,6 +168,8 @@ export class BookFormComponent implements OnInit {
       return;
     }
 
+    this.isFinalizing = true;
+
     const bookData = {
       id: this.bookId,
       ...this.step1.value,
@@ -172,16 +178,22 @@ export class BookFormComponent implements OnInit {
 
     if (this.bookId) {
       this.bookService.updateBook(this.bookId, bookData).subscribe({
-        next: () => console.log("Step 1: book updated successfully"),
-        error: (error) => console.error("Error updating book: ", error)
+        next: () => this.isFinalizing = false,
+        error: (error) => {
+          console.error("Error updating book: ", error);
+          this.isFinalizing = false;
+        }
       });
     } else {
       this.bookService.createBook(bookData).subscribe({
         next: (response) => {
-          console.log("Step 1: book created successfully");
           this.bookId = response.id;
+          this.isFinalizing = false;
         },
-        error: (error) => console.error("Error creating book: ", error)
+        error: (error) => {
+          console.error("Error creating book: ", error);
+          this.isFinalizing = false;
+        }
       });
     }
   }
@@ -189,18 +201,19 @@ export class BookFormComponent implements OnInit {
   saveStep2() {
     if (!this.bookId) return;
 
+    this.isFinalizing = true;
     const bookData = {
       id: this.bookId,
       ...this.step1.value,
       ...this.step2.value
     };
 
-    console.log("updating book ID: ", this.bookId);
-    console.log("book data sent:", bookData);
-
     this.bookService.updateBook(this.bookId, bookData).subscribe({
-      next: () => console.log('Step 2: book updated successfully'),
-      error: (error) => console.error('Error updating book: ', error)
+      next: () => this.isFinalizing = false,
+      error: (error) => {
+        console.error('Error updating book: ', error);
+        this.isFinalizing = false;
+      }
     });
   }
 
@@ -219,27 +232,36 @@ export class BookFormComponent implements OnInit {
     }
 
     const bookTitle = this.bookForm.get('step1')?.get('title')?.value;
+    this.isFinalizing = true;  
 
     this.bookService.uploadFile(this.selectedFile, this.bookId, bookTitle).subscribe({
       next: (response) => {
         if (response && response.fileId) {
           this.fileId = response.fileId;
+
+          if (!this.fileId) { //yes I know it's redundant, but I can't get updateBookFileId to work without it
+            this.isFinalizing = false;
+            return;
+          }
+          this.bookService.updateBookFileId(this.bookId, this.fileId).subscribe({
+            next: () => {
+              this.isFinalizing = false;
+              this.router.navigate(['/']);
+            },
+            error: (error) => {
+              console.error("Failed to update book with FileId", error);
+              this.isFinalizing = false;
+            }
+          });
         } else {
           console.warn("no file id returned from api");
+          this.isFinalizing = false;
         }
       },
-      error: (error) => console.error('error uploading file', error)
-    });
-  }
-
-  updateBookWithFileId() {
-    if (!this.fileId || !this.bookId) return;
-
-    this.bookService.updateBookFileId(this.bookId, this.fileId).subscribe({
-      next: () => {
-        this.router.navigate(['/']);
-      },
-      error: (error) => console.error("Failed to update book with FileId", error)
+      error: (error) => {
+        console.error('error uploading file', error);
+        this.isFinalizing = false;
+      }
     });
   }
 }

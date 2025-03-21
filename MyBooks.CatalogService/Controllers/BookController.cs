@@ -188,7 +188,6 @@ namespace MyBooks.CatalogService.Controllers
                 book.Tags = existingTags.Concat(newTags).ToList();
             }
 
-
             if (book.FileId.HasValue)
             {
                 var response = await _httpClient.GetAsync($"https://localhost:7142/api/files/{book.FileId}");

@@ -157,4 +157,7 @@ mat-tab {
   color: var(--text-color) !important;
 }
 
-
+.mat-progress-spinner circle,
+.mat-spinner circle {
+  stroke: var(--primary) !important;
+}
