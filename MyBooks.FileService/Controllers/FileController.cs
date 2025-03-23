@@ -145,6 +145,16 @@ namespace MyBooks.FileService.Controllers
             return Ok(files);
         }
 
+        // get file metadata for a given file id
+        [HttpGet("metadata/{id}")]
+        public async Task<IActionResult> GetFileMetadata(int id)
+        {
+            var file = await _context.Files.FindAsync(id);
+            if (file == null)
+                return NotFound("File not found.");
+            return Ok(file);
+        }
+
         //get reading progress for inline reading
         [HttpGet("progress/{fileId}")]
         public async Task<IActionResult> GetReadingProgress(int fileId)

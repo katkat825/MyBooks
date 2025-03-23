@@ -153,6 +153,10 @@ export class BookService {
     return this.http.delete(`${this.fileApiUrl}/${fileId}`, { headers: this.getAuthHeaders() });
   }
 
+  getFileMetadata(fileId: number): Observable<any> {
+    return this.http.get(`${this.fileApiUrl}/metadata/${fileId}`, { headers: this.getAuthHeaders() });
+  }
+
   getReadingProgress(fileId: number): Observable<any> {
     return this.http.get(`${this.fileApiUrl}/progress/${fileId}`, { headers: this.getAuthHeaders() });
   }

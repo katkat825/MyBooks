@@ -1,0 +1,15 @@
+.viewer-container {
+  border: 1px solid #ccc;
+  margin: 20px;
+  height: 90vh;
+  position: absolute;
+  justify-content: center;
+}
+
+.spinner-overlay {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}

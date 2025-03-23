@@ -505,6 +505,22 @@
   },
   {
     "ContainingType": "MyBooks.FileService.Controllers.FileController",
+    "Method": "GetFileMetadata",
+    "RelativePath": "api/files/metadata/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MyBooks.FileService.Controllers.FileController",
     "Method": "GetReadingProgress",
     "RelativePath": "api/files/progress/{fileId}",
     "HttpMethod": "GET",

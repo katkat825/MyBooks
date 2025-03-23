@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { BookFormComponent } from './components/book-form/book-form.component';
 import { BookListComponent } from './components/book-list/book-list.component';
 import { BookDetailsComponent } from './components/book-details/book-details.component';
+import { BookViewerComponent } from './components/book-viewer/book-viewer.component';
 import { AdminComponent } from './admin/admin.component';
 import { LoginComponent } from './components/login/login.component';
 import { AccountSettingsComponent } from './components/account-settings/account-settings.component';
@@ -14,5 +15,6 @@ export const routes: Routes = [
   { path: 'create/:id', component: BookFormComponent },
   { path: 'book/:id', component: BookDetailsComponent },
   { path: 'admin', component: AdminComponent, canActivate: [AdminGuard] },
-  { path: 'account', component: AccountSettingsComponent }, 
+  { path: 'account', component: AccountSettingsComponent },
+  { path: 'book-viewer/:fileId', component: BookViewerComponent }
 ];

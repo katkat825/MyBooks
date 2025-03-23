@@ -22,11 +22,11 @@ namespace MyBooks.FileService.Validators
                 .MaximumLength(255).WithMessage("File name must not exceed 255 characters.")
                 .Must(fileName =>
                 {
-                    var allowedExtensions = new[] { ".pdf", ".epub", ".mobi", ".txt" };
+                    var allowedExtensions = new[] { ".pdf", ".epub", ".txt" };
                     var extension = Path.GetExtension(fileName)?.ToLowerInvariant();
                     return !string.IsNullOrEmpty(extension) && allowedExtensions.Contains(extension);
                 })
-                .WithMessage("Invalid file extension. Allowed extensions are: .pdf, .epub, .mobi, .txt.");
+                .WithMessage("Invalid file extension. Allowed extensions are: .pdf, .epub, .txt.");
 
             // Validate MIME type: non-empty and one of the allowed types
             RuleFor(file => file.ContentType)
@@ -37,12 +37,11 @@ namespace MyBooks.FileService.Validators
                     {
                         "application/pdf",                // PDF
                         "application/epub+zip",           // EPUB
-                        "application/x-mobipocket-ebook", // MOBI
                         "text/plain"                      // TXT
                     };
                     return allowedMimeTypes.Contains(contentType);
                 })
-                .WithMessage("Invalid MIME type. Allowed types are: application/pdf, application/epub+zip, application/x-mobipocket-ebook, text/plain.");
+                .WithMessage("Invalid MIME type. Allowed types are: application/pdf, application/epub+zip, text/plain.");
 
             // file signature validation
             RuleFor(file => file)
@@ -75,11 +74,6 @@ namespace MyBooks.FileService.Validators
                     // EPUB is a zip archive, so it should start with "PK" (hex: 50 4B)
                     var zipSignature = new byte[] { 0x50, 0x4B };
                     return header.Take(2).SequenceEqual(zipSignature);
-
-                case ".mobi":
-                    // MOBI files are more complex. A common approach is to check for the "BOOKMOBI" string in header
-                    string headerText = System.Text.Encoding.ASCII.GetString(header);
-                    return headerText.Contains("BOOKMOBI");
 
                 case ".txt":
                     // For plain text files, there isn't a standard signature.

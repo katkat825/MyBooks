@@ -12,6 +12,7 @@ import { AdminGenresComponent } from './admin/admin-genres/admin-genres.componen
 import { LoginComponent } from './components/login/login.component';
 import { AdminUsersComponent } from './admin/admin-users/admin-users.component';
 import { AccountSettingsComponent } from './components/account-settings/account-settings.component';
+import { BookViewerComponent } from './components/book-viewer/book-viewer.component';
 
 @NgModule({
   imports: [
@@ -30,7 +31,8 @@ import { AccountSettingsComponent } from './components/account-settings/account-
     AdminGenresComponent,
     LoginComponent,
     AdminUsersComponent,
-    AccountSettingsComponent
+    AccountSettingsComponent,
+    BookViewerComponent
   ]
 })
 export class AppModule { }

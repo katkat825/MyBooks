@@ -1,3 +1,5 @@
+@import "pdfjs-dist/web/pdf_viewer.css";
+
 /* default: light theme */
 :root {
   --bg-color: #faf3e0;
