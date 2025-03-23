@@ -9,11 +9,16 @@ namespace MyBooks.FileService.Data
         public FileDbContext(DbContextOptions<FileDbContext> options) : base(options) { }
 
         public DbSet<FileMetadata> Files { get; set; }
+        public DbSet<ReadingProgress> ReadingProgresses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Indexing for faster queries
             modelBuilder.Entity<FileMetadata>()
-                .HasIndex(f => f.BookId); // Indexing for faster queries
+                .HasIndex(f => f.BookId); 
+
+            modelBuilder.Entity<ReadingProgress>()
+                .HasIndex(r => new {r.FileId, r.UserId});
         }
 
         public override int SaveChanges()

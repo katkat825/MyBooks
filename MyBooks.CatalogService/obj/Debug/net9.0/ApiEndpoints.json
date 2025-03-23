@@ -462,6 +462,11 @@
         "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
+      },
+      {
+        "Name": "inline",
+        "Type": "System.Boolean",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -493,6 +498,43 @@
       {
         "Name": "bookId",
         "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MyBooks.FileService.Controllers.FileController",
+    "Method": "GetReadingProgress",
+    "RelativePath": "api/files/progress/{fileId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "fileId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MyBooks.FileService.Controllers.FileController",
+    "Method": "UpdateReadingProgress",
+    "RelativePath": "api/files/progress/{fileId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "fileId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "dto",
+        "Type": "MyBooks.FileService.Models.ReadingProgressUpdateDto",
         "IsRequired": true
       }
     ],

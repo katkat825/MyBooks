@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 })
 export class BookService {
   private apiUrl = `${environment.apiUrl}/books`;
-  private fileApiUrl = environment.fileApiUrl;
+  public fileApiUrl = environment.fileApiUrl;
 
   constructor(private http: HttpClient) { }
 
@@ -24,7 +24,6 @@ export class BookService {
   getAllBooks(): Observable<any[]> {
     return this.http.get<any>(this.apiUrl, {headers: this.getAuthHeaders()}).pipe(
       map(response => response.$values ?? response), 
-      tap((data) => console.log("Fetched books in UI:", data)), 
       catchError((error) => {
         console.error("Error fetching books:", error);
         return throwError(error);
@@ -37,7 +36,6 @@ export class BookService {
   }
 
   createBook(book: any): Observable<any> {
-    console.log("sending book data: ", book);
     return this.http.post(this.apiUrl, book, { headers: this.getAuthHeaders() }).pipe(
       tap(() => console.log("Book created successfully.")),
       catchError((error) => {
@@ -55,7 +53,6 @@ export class BookService {
 
   updateBookFileId(bookId: number, fileId: number): Observable<any> {
     return this.http.patch(`${environment.apiUrl}/books/${bookId}/file`, { fileId }, { headers: this.getAuthHeaders() }).pipe(
-      tap(() => console.log('successfully updated book fileId: ', {fileId})),
       catchError(error => {
         console.error("❌ Error updating book with FileId:", error);
         return throwError(() => new Error("Failed to update book with FileId"));
@@ -154,5 +151,13 @@ export class BookService {
 
   deleteFile(fileId: number) {
     return this.http.delete(`${this.fileApiUrl}/${fileId}`, { headers: this.getAuthHeaders() });
+  }
+
+  getReadingProgress(fileId: number): Observable<any> {
+    return this.http.get(`${this.fileApiUrl}/progress/${fileId}`, { headers: this.getAuthHeaders() });
+  }
+
+  updateReadingProgress(fileId: number, progress: number): Observable<any> {
+    return this.http.post(`${this.fileApiUrl}/progress/${fileId}`, { ProgressPercent: progress }, { headers: this.getAuthHeaders() });
   }
 }

@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { HttpClientModule } from '@angular/common/http';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-book-details',
@@ -17,11 +18,15 @@ import { HttpClientModule } from '@angular/common/http';
 export class BookDetailsComponent implements OnInit {
   book: any = null;
   bookCards: any[] = [];
+  readingMode: boolean = false;
+  readingUrl: SafeResourceUrl = '';
+  readingProgress: number = 0;
 
   constructor(
     private route: ActivatedRoute,
     private bookService: BookService,
-    private router: Router
+    private router: Router,
+    private sanitizer: DomSanitizer
   ) { }
 
   ngOnInit(): void {
@@ -82,6 +87,39 @@ export class BookDetailsComponent implements OnInit {
         document.body.removeChild(a);
       },
       error: (error) => console.error('Error downloading file', error)
+    });
+  }
+
+  readBookNewWindow(fileId: number) {
+    this.bookService.downloadFile(fileId).subscribe({
+      next: (fileBlob) => {
+        const blobUrl = window.URL.createObjectURL(fileBlob);
+        window.open(blobUrl, '_blank');
+      },
+      error: (error) => console.error('Error opening book in new window', error)
+    });
+  }
+
+  onReaderLoad(event: any) {
+    const iframe = event.target;
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+
+    if (this.readingProgress > 0) {
+      const totalScrollable = doc.documentElement.scrollHeight - doc.documentElement.clientHeight;
+      const scrollToPosition = (this.readingProgress / 100) * totalScrollable;
+      iframe.contentWindow.scrollTo(0, scrollToPosition);
+    }
+
+    iframe.contentWindow.addEventListener('scroll', () => {
+      const scrollTop = iframe.contentWindow.scrollY;
+      const totalScrollable = doc.documentElement.scrollHeight - doc.documentElement.clientHeight;
+      const progress = totalScrollable > 0 ? (scrollTop / totalScrollable) * 100 : 0;
+      this.readingProgress = progress;
+
+      this.bookService.updateReadingProgress(this.book.fileId, progress).subscribe({
+        next: (res) => console.log('Progress updated:', res),
+        error: (err) => console.error('Error updating progress:', err)
+      });
     });
   }
 }

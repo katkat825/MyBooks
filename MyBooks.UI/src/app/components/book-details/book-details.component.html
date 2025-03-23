@@ -19,8 +19,9 @@
         <p><strong>ISBN:</strong> {{ book.isbn || 'Unknown' }}</p>
         <div *ngIf="book.fileId">
           <p><strong>Book File: </strong>
-          <button mat-icon-button (click)="downloadBookFile(book.fileId)">
-            <mat-icon>download</mat-icon></button></p>
+          <button mat-button (click)="downloadBookFile(book.fileId)">Download</button></p>
+          <button mat-button (click)="readBookNewWindow(book.fileId)">Read</button>
+
         </div>
       </div>
     </mat-card>
