@@ -37,7 +37,6 @@ export class BookDetailsComponent implements OnInit {
           this.book = data;
         },
         error: (error) => console.error('Error fetching book details:', error),
-        complete: () => console.log('Book fetch completed.')
       });
     }
   }
@@ -53,13 +52,11 @@ export class BookDetailsComponent implements OnInit {
       if (book.fileId) {
         this.bookService.deleteFile(book.fileId).subscribe({
           next: () => {
-            console.log("File deleted successfully, proceeding with book deletion...");
             this.deleteBookRecord(id);
           },
           error: (error) => console.error("Error deleting file", error),
         });
       } else {
-        console.log("else called - no fileId detected");
         this.deleteBookRecord(id);
       }
     }
@@ -68,7 +65,6 @@ export class BookDetailsComponent implements OnInit {
   private deleteBookRecord(id: number) {
     this.bookService.deleteBook(id).subscribe({
       next: () => {
-        console.log("book deleted successfully");
         this.router.navigate(['/']);
       },
       error: (error) => console.error("Error deleting book: ", error),
@@ -87,39 +83,6 @@ export class BookDetailsComponent implements OnInit {
         document.body.removeChild(a);
       },
       error: (error) => console.error('Error downloading file', error)
-    });
-  }
-
-  readBookNewWindow(fileId: number) {
-    this.bookService.downloadFile(fileId).subscribe({
-      next: (fileBlob) => {
-        const blobUrl = window.URL.createObjectURL(fileBlob);
-        window.open(blobUrl, '_blank');
-      },
-      error: (error) => console.error('Error opening book in new window', error)
-    });
-  }
-
-  onReaderLoad(event: any) {
-    const iframe = event.target;
-    const doc = iframe.contentDocument || iframe.contentWindow.document;
-
-    if (this.readingProgress > 0) {
-      const totalScrollable = doc.documentElement.scrollHeight - doc.documentElement.clientHeight;
-      const scrollToPosition = (this.readingProgress / 100) * totalScrollable;
-      iframe.contentWindow.scrollTo(0, scrollToPosition);
-    }
-
-    iframe.contentWindow.addEventListener('scroll', () => {
-      const scrollTop = iframe.contentWindow.scrollY;
-      const totalScrollable = doc.documentElement.scrollHeight - doc.documentElement.clientHeight;
-      const progress = totalScrollable > 0 ? (scrollTop / totalScrollable) * 100 : 0;
-      this.readingProgress = progress;
-
-      this.bookService.updateReadingProgress(this.book.fileId, progress).subscribe({
-        next: (res) => console.log('Progress updated:', res),
-        error: (err) => console.error('Error updating progress:', err)
-      });
     });
   }
 }

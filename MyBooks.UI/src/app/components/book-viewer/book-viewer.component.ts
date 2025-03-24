@@ -41,17 +41,16 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.bookService.getFileMetadata(this.fileId).subscribe({
       next: (metadata) => {
-        if (metadata && metadata.ContentType) {
-          if (metadata.ContentType === 'application/pdf') {
+        if (metadata && metadata.contentType) {
+          if (metadata.contentType === 'application/pdf') {
             this.fileType = 'pdf';
-          } else if (metadata.ContentType === 'application/epub+zip') {
+          } else if (metadata.contentType === 'application/epub+zip') {
             this.fileType = 'epub';
           } else {
             console.warn('Unsupported ContentType, defaulting to pdf');
             this.fileType = 'pdf';
           }
         }
-
         this.loadFile();
       },
       error: (err) => {
@@ -93,7 +92,6 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     const blobUrl = URL.createObjectURL(fileBlob);
     const loadingTask = pdfjsLib.getDocument(blobUrl);
     loadingTask.promise.then((pdf: any) => {
-      console.log('PDF loaded with', pdf.numPages, 'pages.');
       this.pdfDocument = pdf;
       this.renderPdf();
     }).catch((error: any) => {
@@ -140,27 +138,78 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   loadEpub(fileBlob: Blob): void {
     const blobUrl = URL.createObjectURL(fileBlob);
-    this.epubBook = ePub(blobUrl);
+    this.epubBook = ePub(blobUrl, { openAs: 'epub' });
 
     this.rendition = this.epubBook.renderTo(this.viewerContainer.nativeElement, {
       width: '100%',
-      height: '90vh'
+      height: '90vh',
+      allowScriptedContent: true
     });
 
-    this.rendition.display();
-    this.epubBook.locations.generate(1600).then(() => {
-      this.rendition.on('relocated', (location: any) => {
-        const progress = this.epubBook.locations.percentageFromCfi(location.start.cfi) * 100;
-        this.updateProgress(progress);
-      });
-      this.isLoading = false;
+    this.rendition.hooks.content.register((contents: any) => {
+      contents.document.defaultView.frameElement.setAttribute('sandbox', 'allow-scripts allow-same-origin');
     });
+
+    this.epubBook.ready.then(() => {
+      return this.epubBook.locations.generate(1600);
+    }).then(() => {
+      this.rendition.on('relocated', (location: any) => {
+        const currentLocation = this.epubBook.locations.locationFromCfi(location.start.cfi);
+        const totalLocations = this.epubBook.locations.total;
+
+        //calculate progress
+        if (currentLocation !== undefined && totalLocations > 0) {
+          const progress = (currentLocation / totalLocations) * 100;
+          this.updateProgress(progress);
+        } else {
+          console.warn("Unable to calculate EPUB progress.");
+        }
+      });
+
+      //get reading progress
+      this.bookService.getReadingProgress(this.fileId).subscribe({
+        next: (progressData) => {
+          const progressPercent = progressData && (progressData.ProgressPercent || progressData.progressPercent) || 0;
+
+          const totalLocations = this.epubBook.locations.total;
+          const savedLocationIndex = Math.floor((progressPercent / 100) * totalLocations);
+          const cfi = this.epubBook.locations.cfiFromLocation(savedLocationIndex);
+
+          if (cfi) {
+            this.rendition.display(cfi);
+          } else {
+            this.rendition.display();
+          }
+
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error("Error fetching reading progress:", error);
+          this.rendition.display();
+          this.isLoading = false;
+        }
+      });
+
+    }).catch((err: any) => {
+      console.error('Error generating locations:', err);
+    });      
   }
 
   updateProgress(progress: number): void {
     this.bookService.updateReadingProgress(this.fileId, progress).subscribe({
-      next: () => console.log(`Progress updated: ${progress.toFixed(2)}%`),
       error: (error) => console.error('Error updating progress: ', error)
     });
+  }
+
+  nextPage(): void {
+    if (this.rendition) {
+      this.rendition.next();
+    }
+  }
+
+  prevPage(): void {
+    if (this.rendition) {
+      this.rendition.prev();
+    }
   }
 }
