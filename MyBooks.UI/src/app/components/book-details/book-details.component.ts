@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { BookService } from '../../services/book.service';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
+import { HttpClientModule } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { HttpClientModule } from '@angular/common/http';
+import { MatIconModule } from '@angular/material/icon';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { BookService } from '../../services/book.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-book-details',
@@ -22,15 +23,22 @@ export class BookDetailsComponent implements OnInit {
   readingUrl: SafeResourceUrl = '';
   readingProgress: number = 0;
   unauthorized: boolean = false;
+  currentUser: any = null;
 
   constructor(
     private route: ActivatedRoute,
     private bookService: BookService,
+    private userService: UserService,
     private router: Router,
     private sanitizer: DomSanitizer
   ) { }
 
   ngOnInit(): void {
+    this.userService.getProfile().subscribe({
+      next: (user) => { this.currentUser = user; },
+      error: (err) => { console.error("Error fetching current user profile", err); }
+    });
+
     const bookId = Number(this.route.snapshot.paramMap.get('id'));
     if (bookId) {
       this.bookService.getBook(bookId).subscribe({
@@ -45,13 +53,19 @@ export class BookDetailsComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error fetching book details:', error);
-          if (error.status === 403 || error.status === 401 || error.status === 404) {
+          if ([403, 401, 404].includes(error.status)) {
             this.unauthorized = true;
             this.book = null;
           }
         }
       });
     }
+  }
+
+  hasEditDeletePermission(): boolean {
+    if (!this.book || !this.currentUser) return false;
+    return this.book.createdBy === this.currentUser.id.toString() ||
+      ['admin', 'editor'].includes(this.currentUser.role.toLowerCase());
   }
 
   editBook(book: any) {

@@ -33,7 +33,7 @@
         </div>
       </div>
     </mat-card>
-    <div class="button-group">
+    <div class="button-group" *ngIf="hasEditDeletePermission()">
       <button mat-raised-button id="edit-book" (click)="editBook(book)">Edit</button>
       <button mat-raised-button id="danger-button" (click)="deleteBook(book)">Delete</button>
     </div>

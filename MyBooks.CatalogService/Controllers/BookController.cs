@@ -1,12 +1,10 @@
-﻿using Azure;
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBooks.CatalogService.Data;
 using MyBooks.CatalogService.Models;
 using MyBooks.Common.Services;
-using System.Net.Http;
 
 namespace MyBooks.CatalogService.Controllers
 {
@@ -32,6 +30,7 @@ namespace MyBooks.CatalogService.Controllers
             _httpClient = httpClientFactory.CreateClient();
         }
 
+        // get all books
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
         {
@@ -59,6 +58,7 @@ namespace MyBooks.CatalogService.Controllers
             }
         }
 
+        // get 1 book
         [HttpGet("{id}")]
         public async Task<ActionResult<Book>> GetBook(int id)
         {
@@ -145,16 +145,12 @@ namespace MyBooks.CatalogService.Controllers
             var existingBook = await _context.Books.Include(b => b.Genre).FirstOrDefaultAsync(b => b.Id == id);
 
             //verify authenticated user is either admin, editor, or creator
-
-            //uncomment below once auth is added
-            /*
-            var userId = User.Identity.Name;
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             var isAdmin = User.IsInRole("Admin");
             var isEditor = User.IsInRole("Editor");
-            var isOwner = book.CreatedBy == userId;
+            var isOwner = book.CreatedBy == userId.ToString();
 
             if (!isAdmin && !isEditor && !isOwner) return Forbid("Only an admin, editor, or the book's creator is authorized to update this book.");
-            */
 
             //sanitize all text fields, if they exist
             book.Title = _htmlSanitizationService.Sanitize(book.Title);
@@ -236,7 +232,6 @@ namespace MyBooks.CatalogService.Controllers
 
             await _context.SaveChangesAsync();
 
-            Console.WriteLine($"✅ Book {id} successfully updated with FileId {request.FileId}");
 
             return NoContent();
         }
@@ -253,17 +248,13 @@ namespace MyBooks.CatalogService.Controllers
             if (book == null) return NotFound();
 
             //verify authenticated user is either admin, editor, or creator
-
-            //uncomment below when auth is added
-            /*
-            var userId = User.Identity.Name;
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             var isAdmin = User.IsInRole("Admin");
             var isEditor = User.IsInRole("Editor");
-            var isOwner = book.CreatedBy == userId;
+            var isOwner = book.CreatedBy == userId.ToString();
 
-            if (!isAdmin && !isEditor && !isOwner) return Forbid("Only an admin, editor, or the book's creator is authorized to update this book.");
-            */
-
+            if (!isAdmin && !isEditor && !isOwner) return Forbid();
+            
             _context.Books.Remove(book);
             await _context.SaveChangesAsync();
             return NoContent();

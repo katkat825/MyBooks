@@ -3,8 +3,28 @@
   "WorkspaceRootPath": "C:\\Users\\creat\\source\\repos\\MyBooks\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{37CCA6AF-A2F4-47CF-BC54-C9F78149D67F}|MyBooks.CatalogService\\MyBooks.CatalogService.csproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.catalogservice\\controllers\\bookcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{37CCA6AF-A2F4-47CF-BC54-C9F78149D67F}|MyBooks.CatalogService\\MyBooks.CatalogService.csproj|solutionrelative:mybooks.catalogservice\\controllers\\bookcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\components\\book-details\\book-details.component.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\components\\book-details\\book-details.component.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\components\\book-form\\book-form.component.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
       "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\components\\book-form\\book-form.component.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\services\\book.service.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\services\\book.service.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.ui\\src\\app\\components\\book-details\\book-details.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{66A63FC2-75C6-5DE1-59F8-BEFBB098DC53}|MyBooks.UI\\MyBooks.UI.esproj|solutionrelative:mybooks.ui\\src\\app\\components\\book-details\\book-details.component.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{37CCA6AF-A2F4-47CF-BC54-C9F78149D67F}|MyBooks.CatalogService\\MyBooks.CatalogService.csproj|c:\\users\\creat\\source\\repos\\mybooks\\mybooks.catalogservice\\controllers\\genrecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{37CCA6AF-A2F4-47CF-BC54-C9F78149D67F}|MyBooks.CatalogService\\MyBooks.CatalogService.csproj|solutionrelative:mybooks.catalogservice\\controllers\\genrecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -19,14 +39,76 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "BookController.cs",
+              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.CatalogService\\Controllers\\BookController.cs",
+              "RelativeDocumentMoniker": "MyBooks.CatalogService\\Controllers\\BookController.cs",
+              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.CatalogService\\Controllers\\BookController.cs",
+              "RelativeToolTip": "MyBooks.CatalogService\\Controllers\\BookController.cs",
+              "ViewState": "AgIAAPIAAAAAAAAAAAAAwP0AAAAzAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-24T18:25:42.879Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "GenreController.cs",
+              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.CatalogService\\Controllers\\GenreController.cs",
+              "RelativeDocumentMoniker": "MyBooks.CatalogService\\Controllers\\GenreController.cs",
+              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.CatalogService\\Controllers\\GenreController.cs",
+              "RelativeToolTip": "MyBooks.CatalogService\\Controllers\\GenreController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAOAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-24T18:12:18.825Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "book-form.component.ts",
               "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\book-form\\book-form.component.ts",
               "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\components\\book-form\\book-form.component.ts",
               "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\book-form\\book-form.component.ts",
               "RelativeToolTip": "MyBooks.UI\\src\\app\\components\\book-form\\book-form.component.ts",
-              "ViewState": "AgIAAGgAAAAAAAAAAAAIwIYAAABgAAAAAAAAAA==",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAQwEEAAAATAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2025-03-24T15:38:28.28Z",
+              "WhenOpened": "2025-03-24T18:10:57.838Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "book.service.ts",
+              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\services\\book.service.ts",
+              "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\services\\book.service.ts",
+              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\services\\book.service.ts",
+              "RelativeToolTip": "MyBooks.UI\\src\\app\\services\\book.service.ts",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAgwEYAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-03-24T18:10:31.924Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "book-details.component.html",
+              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\book-details\\book-details.component.html",
+              "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\components\\book-details\\book-details.component.html",
+              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\book-details\\book-details.component.html",
+              "RelativeToolTip": "MyBooks.UI\\src\\app\\components\\book-details\\book-details.component.html",
+              "ViewState": "AgIAAAcAAAAAAAAAAAAuwCMAAAA+AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2025-03-24T16:12:33.996Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "book-details.component.ts",
+              "DocumentMoniker": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\book-details\\book-details.component.ts",
+              "RelativeDocumentMoniker": "MyBooks.UI\\src\\app\\components\\book-details\\book-details.component.ts",
+              "ToolTip": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.UI\\src\\app\\components\\book-details\\book-details.component.ts",
+              "RelativeToolTip": "MyBooks.UI\\src\\app\\components\\book-details\\book-details.component.ts",
+              "ViewState": "AgIAABIAAAAAAAAAAAAAAEMAAABEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-03-24T16:12:32.154Z",
               "EditorCaption": ""
             }
           ]

@@ -67,7 +67,6 @@ export class BookService {
   getGenres(): Observable<any[]> {
     return this.http.get<any>(`${this.apiUrl}/genres`, { headers: this.getAuthHeaders() }).pipe(
       map(response => {
-        // ✅ Check if $values exists and is an array
         return response && typeof response === 'object' && '$values' in response
           ? response.$values
           : response;

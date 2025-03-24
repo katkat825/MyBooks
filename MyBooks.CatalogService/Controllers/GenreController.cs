@@ -10,7 +10,7 @@ namespace MyBooks.CatalogService.Controllers
 {
     [Route("api/books/genres")]
     [ApiController]
-    [Authorize(Roles = "Admin,Editor")] 
+    [Authorize] 
     public class GenreController : ControllerBase
     {
         private readonly CatalogDbContext _context;
@@ -31,6 +31,7 @@ namespace MyBooks.CatalogService.Controllers
 
         // add a new genre
         [HttpPost]
+        [Authorize(Roles = "Admin,Editor")]
         public async Task<ActionResult<Genre>> AddGenre(Genre genre)
         {
             if (genre == null) return BadRequest("Invalid genre data.");
@@ -57,6 +58,7 @@ namespace MyBooks.CatalogService.Controllers
 
         //update genre
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Editor")]
         public async Task<IActionResult> PutGenre(int id, Genre genre)
         {
             if (id != genre.Id)
@@ -88,6 +90,7 @@ namespace MyBooks.CatalogService.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,Editor")]
         public async Task<IActionResult> DeleteGenre(int id)
         {
             var genre = await _context.Genres

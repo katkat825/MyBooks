@@ -1,17 +1,17 @@
+import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { BookService } from '../../services/book.service';
-import { Router, ActivatedRoute } from '@angular/router';
-import { MatStepperModule } from '@angular/material/stepper';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { HttpClientModule } from '@angular/common/http';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatStepperModule } from '@angular/material/stepper';
+import { ActivatedRoute, Router } from '@angular/router';
+import { BookService } from '../../services/book.service';
+import { UserService } from '../../services/user.service';
 
 
 @Component({
@@ -41,10 +41,12 @@ export class BookFormComponent implements OnInit {
   newSeries: boolean = false;
   fileId?: number;
   isFinalizing: boolean = false;
+  currentUser: any = null;
 
   constructor(
     private fb: FormBuilder,
     private bookService: BookService,
+    private userService: UserService,
     private router: Router,
     private route: ActivatedRoute
   ) { }
@@ -73,8 +75,29 @@ export class BookFormComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       const id = Number(params.get('id'));
       if (id) {
-        this.bookId = id;
-        this.loadBook(this.bookId);
+        this.userService.getProfile().subscribe({
+          next: user => {
+            this.currentUser = user;
+            this.bookService.getBook(id).subscribe({
+              next: book => {
+                if (!book) {
+                  alert('Book not found.');
+                  this.router.navigate(['/']);
+                } else if (
+                  book.createdBy !== this.currentUser.id.toString() &&
+                  !['admin', 'editor'].includes(this.currentUser.role.toLowerCase())
+                ) {
+                  alert('You do not have permission to edit this book.');
+                  this.router.navigate(['/book', id]);
+                } else {
+                  this.bookId = id;
+                  this.loadBook(this.bookId)
+                }
+              }
+            })
+          }
+        })
+        ;
       }
     });
   }
