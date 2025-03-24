@@ -120,7 +120,7 @@ export class BookFormComponent implements OnInit {
 
   loadGenres() {
     this.bookService.getGenres().subscribe({
-      next: (data: any[]) => this.genres = data
+      next: (data: any[]) => this.genres = data.sort((a, b) => a.name.localeCompare(b.name))
     })
   }
 
@@ -132,7 +132,7 @@ export class BookFormComponent implements OnInit {
 
   loadSeries() {
     this.bookService.getSeries().subscribe({
-      next: (data: any[]) => this.seriesList = data
+      next: (data: any[]) => this.seriesList = data.sort((a, b) => a.name.localeCompare(b.name))
     })
   }
 
