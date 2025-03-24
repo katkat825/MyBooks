@@ -79,7 +79,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddSingleton<HtmlSanitizationService>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<FileMetaValidator>();
-
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddDbContext<FileDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("FileMetaConnection")));

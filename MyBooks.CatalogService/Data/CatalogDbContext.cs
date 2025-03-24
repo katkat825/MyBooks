@@ -1,12 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyBooks.CatalogService.Models;
 using MyBooks.Common.BaseClasses;
+using System.Security.Claims;
 
 namespace MyBooks.CatalogService.Data
 {
     public class CatalogDbContext : DbContext
     {
-        public CatalogDbContext(DbContextOptions<CatalogDbContext> options) : base(options) { }
+        private readonly IHttpContextAccessor _contextAccessor;
+        public CatalogDbContext(DbContextOptions<CatalogDbContext> options, IHttpContextAccessor contextAccessor) : base(options) 
+        {
+            _contextAccessor = contextAccessor;
+        }
 
         public DbSet<Book> Books { get; set; }
         public DbSet<Tag> Tags { get; set; }
@@ -75,8 +80,11 @@ namespace MyBooks.CatalogService.Data
 
         public void ApplyAuditInformation()
         {
-            //To-do: update with current user id when authentication service created
-            var currentUser = "system";
+            var currentUser = _contextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(currentUser))
+            {
+                currentUser = "system";
+            }
 
             foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
             {

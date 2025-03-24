@@ -4,7 +4,7 @@
     {
         public string CreatedBy { get; set; } = "System";
         public DateTime CreatedDate { get; set; }
-        public string? LastModifiedBy { get; set; } = "System";
+        public string? LastModifiedBy { get; set; }
         public DateTime? LastModifiedDate { get; set; }
     }
 }

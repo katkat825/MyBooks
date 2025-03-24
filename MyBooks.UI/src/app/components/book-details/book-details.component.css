@@ -9,7 +9,8 @@
   margin-bottom: 50px;
 }
 
-.book-container {
+.book-container,
+.unauthorized-message {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -23,7 +24,8 @@ mat-card-title {
   margin-bottom: 10px;
 }
 
-.book-details-card {
+.book-details-card,
+.unauthorized-card {
   width: 500px;
   padding: 20px;
   border-radius: 10px;

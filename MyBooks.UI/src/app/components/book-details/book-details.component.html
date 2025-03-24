@@ -5,7 +5,14 @@
     </button>
   </div>
 
-  <div class="book-container">
+  <div *ngIf="unauthorized" class="unauthorized-message">
+    <mat-card class="unauthorized-card">
+      <mat-card-title>Error</mat-card-title>
+      <p>This book does not exist or you do not have permission to view this book</p>
+    </mat-card>
+  </div>
+
+  <div *ngIf="!unauthorized" class="book-container">
     <mat-card class="book-details-card">
       <mat-card-title>{{ book?.title }}</mat-card-title>
       <div *ngIf="book" class="book-details-container">

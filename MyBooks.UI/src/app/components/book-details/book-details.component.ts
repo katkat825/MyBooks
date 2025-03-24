@@ -21,6 +21,7 @@ export class BookDetailsComponent implements OnInit {
   readingMode: boolean = false;
   readingUrl: SafeResourceUrl = '';
   readingProgress: number = 0;
+  unauthorized: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -34,9 +35,21 @@ export class BookDetailsComponent implements OnInit {
     if (bookId) {
       this.bookService.getBook(bookId).subscribe({
         next: (data) => {
-          this.book = data;
+          if (!data || Object.keys(data).length === 0) {
+            this.unauthorized = true;
+            this.book = null;
+          } else {
+            this.book = data;
+            this.unauthorized = false;
+          }
         },
-        error: (error) => console.error('Error fetching book details:', error),
+        error: (error) => {
+          console.error('Error fetching book details:', error);
+          if (error.status === 403 || error.status === 401 || error.status === 404) {
+            this.unauthorized = true;
+            this.book = null;
+          }
+        }
       });
     }
   }

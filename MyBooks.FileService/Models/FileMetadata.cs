@@ -10,5 +10,6 @@ namespace MyBooks.FileService.Models
         public string FilePath { get; set; } 
         public long FileSize { get; set; } 
         public int BookId { get; set; } 
+        public bool IsActive { get; set; }
     }
 }

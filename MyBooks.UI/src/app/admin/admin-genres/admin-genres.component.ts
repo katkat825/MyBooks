@@ -36,7 +36,7 @@ export class AdminGenresComponent {
   loadGenres() {
     this.bookService.getGenres().subscribe({
       next: (data) => {
-        this.genres = data;
+        this.genres = data.sort((a, b) => a.name.localeCompare(b.name));
         },
       error: (error) => console.error("Error fetching genres: ", error)
     });

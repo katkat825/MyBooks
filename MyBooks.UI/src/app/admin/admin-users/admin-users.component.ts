@@ -83,7 +83,8 @@ export class AdminUsersComponent {
           ...user,
           ageCategoryName: this.getAgeCategoryName(user.ageCategoryId),
           isInactive: !user.isActive
-        }));
+          }))
+          .sort((a, b) => a.firstName.localeCompare(b.firstName)); 
         },
       error: (error) => console.error('Error fetching users: ', error)
     });

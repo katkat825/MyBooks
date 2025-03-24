@@ -52,16 +52,16 @@ namespace MyBooks.FileService.Controllers
 
             var filePath = Path.Combine(_storagePath, fileName);
 
-            //remove old file if it exists
-            var existingFile = await _context.Files.FirstOrDefaultAsync(f => f.BookId == bookId);
-            if (existingFile != null) 
+            // mark old file metadata as inactive if it exists
+            var existingFile = await _context.Files.FirstOrDefaultAsync(f => f.BookId == bookId && f.IsActive);
+            if (existingFile != null)
             {
                 if (System.IO.File.Exists(existingFile.FilePath))
                 {
                     System.IO.File.Delete(existingFile.FilePath);
                 }
-
-                _context.Files.Remove(existingFile);
+                existingFile.IsActive = false;
+                _context.Files.Update(existingFile);
                 await _context.SaveChangesAsync();
             }
 
@@ -77,7 +77,8 @@ namespace MyBooks.FileService.Controllers
                 FilePath = filePath,
                 ContentType = file.ContentType,
                 FileSize = file.Length,
-                BookId = bookId
+                BookId = bookId,
+                IsActive = true
             };
 
             var validator = new FileMetaValidator();
@@ -128,7 +129,8 @@ namespace MyBooks.FileService.Controllers
             if (System.IO.File.Exists(file.FilePath))
                 System.IO.File.Delete(file.FilePath);
 
-            _context.Files.Remove(file);
+            file.IsActive = false;
+            _context.Files.Update(file);
             await _context.SaveChangesAsync();
 
             return NoContent();

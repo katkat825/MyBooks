@@ -36,7 +36,7 @@ export class AdminSeriesComponent implements OnInit {
 
   loadSeries() {
     this.bookService.getSeries().subscribe({
-      next: (data) => this.series = data,
+      next: (data) => this.series = data.sort((a, b) => a.name.localeCompare(b.name)),
       error: (error) => console.error('Error fetching series:', error)
     });
   }
