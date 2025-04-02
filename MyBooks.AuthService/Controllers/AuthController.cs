@@ -127,7 +127,8 @@ namespace MyBooks.AuthService.Controllers
                 Role = request.Role,
                 AgeCategoryId = request.AgeCategoryId,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                IsActive = true
+                IsActive = true,
+                AcceptedAup = false
             };
 
             _context.Users.Add(user);

@@ -13,6 +13,8 @@ namespace MyBooks.AuthService.Models
         public string Role { get; set; } 
         public int AgeCategoryId { get; set; } // Foreign key from AgeCategories
         public bool IsActive { get; set; }
+        public bool AcceptedAup {  get; set; }
+        public DateTime LastAcceptedAup { get; set; }
     }
 
 }

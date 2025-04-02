@@ -13,6 +13,7 @@ import { LoginComponent } from './components/login/login.component';
 import { AdminUsersComponent } from './admin/admin-users/admin-users.component';
 import { AccountSettingsComponent } from './components/account-settings/account-settings.component';
 import { BookViewerComponent } from './components/book-viewer/book-viewer.component';
+import { AcceptableUsePolicyComponent } from './components/acceptable-use-policy/acceptable-use-policy.component';
 
 @NgModule({
   imports: [
@@ -32,7 +33,8 @@ import { BookViewerComponent } from './components/book-viewer/book-viewer.compon
     LoginComponent,
     AdminUsersComponent,
     AccountSettingsComponent,
-    BookViewerComponent
+    BookViewerComponent,
+    AcceptableUsePolicyComponent
   ]
 })
 export class AppModule { }

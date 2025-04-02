@@ -112,4 +112,17 @@ export class UserService {
       })
     );
   }
+
+  acceptAup(): Observable<any> {
+    const payload = {
+      AcceptedAup: true
+    };
+    return this.updateProfile(payload).pipe(
+      tap(response => console.log("AUP accepted:", response)),
+      catchError(error => {
+        console.error("Error updating AUP:", error);
+        return throwError(error);
+      })
+    );
+  }
 }

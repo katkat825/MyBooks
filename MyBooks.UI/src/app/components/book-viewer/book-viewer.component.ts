@@ -147,6 +147,38 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.rendition.hooks.content.register((contents: any) => {
+      // Determine active theme class from <body>
+      const themeClass = Array.from(document.body.classList).find(cls =>
+        ['dark-mode', 'high-contrast-mode'].includes(cls)
+      );
+
+      // Create a temp element to read resolved styles based on the active theme
+      const temp = document.createElement('div');
+      if (themeClass) temp.classList.add(themeClass);
+      temp.style.display = 'none';
+      document.body.appendChild(temp);
+
+      const computed = getComputedStyle(temp);
+      const textColor = computed.getPropertyValue('--text-color').trim();
+      const bgColor = computed.getPropertyValue('--bg-color').trim();
+      document.body.removeChild(temp); // Clean up
+
+      // Inject styles into EPUB iframe
+      const styleEl = contents.document.createElement('style');
+      styleEl.innerHTML = `
+        body, p, h1, h2, h3, h4, h5, h6, span, a {
+          color: ${textColor} !important;
+          background-color: ${bgColor} !important;
+        }
+        ::selection {
+          background-color: ${textColor}33;
+        }
+      `;
+      contents.document.head.appendChild(styleEl);
+    });
+
+
+    this.rendition.hooks.content.register((contents: any) => {
       contents.document.defaultView.frameElement.setAttribute('sandbox', 'allow-scripts allow-same-origin');
     });
 

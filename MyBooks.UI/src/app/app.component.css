@@ -1,3 +1,9 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -5,6 +11,26 @@
   background-color: var(--surface-bg);
   padding: 15px 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.content {
+    flex-grow: 1;
+}
+
+.footer
+{
+  padding: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-color);
+  background-color: var(--surface-bg);
+  flex-shrink: 0;
+}
+
+.footer a {
+    margin-left: 20px;
+    text-decoration: underline;
+    color: var(--text-color);
 }
 
 .app-title {

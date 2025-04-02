@@ -59,6 +59,16 @@ namespace MyBooks.AuthService.Controllers
                 user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
             }
 
+            if(dto.AcceptedAup && !user.AcceptedAup)
+            {
+                Console.WriteLine("dto.acceptedaup and !user.acceptedaup");
+                user.AcceptedAup = true;
+                user.LastAcceptedAup = DateTime.UtcNow;
+                _context.Entry(user).Property(u => u.AcceptedAup).IsModified = true;
+                _context.Entry(user).Property(u => u.LastAcceptedAup).IsModified = true;
+            }
+
+            Console.WriteLine("user.accepteaup = ", user.AcceptedAup.ToString());
             _context.Entry(user).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
