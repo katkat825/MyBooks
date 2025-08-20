@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\creat\\source\\repos\\MYBooks\\MyBooks.Common\\MyBooks.Common.csproj": {}
+    "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.Common\\MyBooks.Common.csproj": {}
   },
   "projects": {
-    "C:\\Users\\creat\\source\\repos\\MYBooks\\MyBooks.Common\\MyBooks.Common.csproj": {
+    "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.Common\\MyBooks.Common.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\creat\\source\\repos\\MYBooks\\MyBooks.Common\\MyBooks.Common.csproj",
+        "projectUniqueName": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.Common\\MyBooks.Common.csproj",
         "projectName": "MyBooks.Common",
-        "projectPath": "C:\\Users\\creat\\source\\repos\\MYBooks\\MyBooks.Common\\MyBooks.Common.csproj",
+        "projectPath": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.Common\\MyBooks.Common.csproj",
         "packagesPath": "C:\\Users\\creat\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\creat\\source\\repos\\MYBooks\\MyBooks.Common\\obj\\",
+        "outputPath": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.Common\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -31,6 +31,9 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   scrollSub!: Subscription;
   isLoading: boolean = true;
 
+  private currentEpubContents: any;
+  private themeObserver: MutationObserver | null = null;
+
   constructor(
     private route: ActivatedRoute,
     private bookService: BookService
@@ -136,6 +139,38 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.updateProgress(progress);
   }
 
+  private injectThemeIntoEpub(contents: any): void {
+    const themeClass = Array.from(document.body.classList).find(cls =>
+      ['dark-mode', 'high-contrast-mode'].includes(cls));
+    
+    const temp = document.createElement('div');
+    if (themeClass) temp.classList.add(themeClass);
+    temp.style.display = 'none';
+    document.body.appendChild(temp);
+
+    const computed = getComputedStyle(temp);
+    const textColor = computed.getPropertyValue('--text-color').trim();
+    const bgColor = computed.getPropertyValue('--bg-color').trim();
+    document.body.removeChild(temp); // Clean up
+
+    const styleEl = contents.document.createElement('style');
+    styleEl.innerHTML = `
+      body, p, h1, h2, h3, h4, h5, h6, span, a {
+        color: ${textColor} !important;
+        background-color: ${bgColor} !important;
+      }
+      ::selection {
+        background-color: ${textColor}33;
+      }
+    `;
+
+    const oldStyle = contents.document.head.querySelector('style[data-theme]');
+    if(oldStyle) 
+      oldStyle.remove(); // Remove old style if exists
+    styleEl.setAttribute('data-theme', 'injected'); 
+    contents.document.head.appendChild(styleEl);
+  }
+
   loadEpub(fileBlob: Blob): void {
     const blobUrl = URL.createObjectURL(fileBlob);
     this.epubBook = ePub(blobUrl, { openAs: 'epub' });
@@ -146,7 +181,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       allowScriptedContent: true
     });
 
-    this.rendition.hooks.content.register((contents: any) => {
+    /*this.rendition.hooks.content.register((contents: any) => {
       // Determine active theme class from <body>
       const themeClass = Array.from(document.body.classList).find(cls =>
         ['dark-mode', 'high-contrast-mode'].includes(cls)
@@ -175,10 +210,11 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       `;
       contents.document.head.appendChild(styleEl);
-    });
-
+    });*/
 
     this.rendition.hooks.content.register((contents: any) => {
+      this.currentEpubContents = contents;
+      this.injectThemeIntoEpub(contents);
       contents.document.defaultView.frameElement.setAttribute('sandbox', 'allow-scripts allow-same-origin');
     });
 
@@ -212,6 +248,13 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
           } else {
             this.rendition.display();
           }
+
+          this.themeObserver = new MutationObserver(() => {
+            if (this.currentEpubContents) {
+              this.injectThemeIntoEpub(this.currentEpubContents);
+            }
+          });
+          this.themeObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
           this.isLoading = false;
         },

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "KDZOULR/ZAg=",
+  "dgSpecHash": "yJjt1v/W5Io=",
   "success": true,
-  "projectFilePath": "C:\\Users\\creat\\source\\repos\\MYBooks\\MyBooks.CatalogService\\MyBooks.CatalogService.csproj",
+  "projectFilePath": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.CatalogService\\MyBooks.CatalogService.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\creat\\.nuget\\packages\\anglesharp\\0.17.1\\anglesharp.0.17.1.nupkg.sha512",
     "C:\\Users\\creat\\.nuget\\packages\\anglesharp.css\\0.17.0\\anglesharp.css.0.17.0.nupkg.sha512",
