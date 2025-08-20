@@ -1,0 +1,29 @@
+# Build artifacts
+**/bin
+**/obj
+**/out
+
+# VS/IDE files
+.vs
+.vscode
+*.user
+*.suo
+
+# Node modules (Angular)
+**/node_modules
+**/.angular
+**/dist
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Git
+.git
+.gitignore
+
+# Other
+docker-compose.override.yml
