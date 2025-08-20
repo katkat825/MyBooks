@@ -36,6 +36,7 @@ export class AdminUsersComponent {
   ageCategories: any[] = [];
   roles: string[] = ['Admin', 'Editor', 'User'];
   showInactiveUsers = false;
+  currentUserId: number | null = null;
 
   constructor(private userService: UserService, private fb: FormBuilder) { }
 
@@ -48,7 +49,16 @@ export class AdminUsersComponent {
       role: ['', Validators.required],
       ageCategoryId: ['', Validators.required]
     });
-    this.loadAgeCategories();
+
+    this.userService.getProfile().subscribe({
+      next: (profile) => {
+        this.currentUserId = profile.id;
+        this.loadAgeCategories();
+      },
+      error: (err) => {
+        console.error("Error fetching profile: ", err);
+      }
+    })
   }
 
   toggleAddUserForm() {
@@ -63,6 +73,10 @@ export class AdminUsersComponent {
   }
 
   toggleUserStatus(user: any) {
+    if (this.currentUserId && user.id === this.currentUserId) {
+      alert('You cannot deactivate your own account.');
+      return;
+    }
     if (user.isActive) {
       if (confirm('Are you sure you want to deactivate ${user.firstname}?')) {
         this.userService.deactivateUser(user.id).subscribe(() => this.loadUsers());
