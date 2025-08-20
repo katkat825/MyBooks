@@ -8,7 +8,13 @@ namespace MyBooks.CatalogService.Data
     public class CatalogDbContext : DbContext
     {
         private readonly IHttpContextAccessor _contextAccessor;
-        public CatalogDbContext(DbContextOptions<CatalogDbContext> options, IHttpContextAccessor contextAccessor) : base(options) 
+        
+        private string GetCurrentUserId()
+        {
+            var user = _contextAccessor.HttpContext?.User;
+            return user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        }
+        public CatalogDbContext(DbContextOptions<CatalogDbContext> options, IHttpContextAccessor contextAccessor) : base(options)
         {
             _contextAccessor = contextAccessor;
         }
@@ -80,7 +86,7 @@ namespace MyBooks.CatalogService.Data
 
         public void ApplyAuditInformation()
         {
-            var currentUser = _contextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var currentUser = GetCurrentUserId();
             if (string.IsNullOrEmpty(currentUser))
             {
                 currentUser = "system";

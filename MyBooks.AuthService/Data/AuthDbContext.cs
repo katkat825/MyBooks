@@ -1,14 +1,26 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 using MyBooks.AuthService.Models;
 using MyBooks.Common.BaseClasses;
+using Microsoft.IdentityModel.Tokens;
 
 namespace MyBooks.AuthService.Data
 {
     public class AuthDbContext : DbContext
     {
-        public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options) { }
-
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public AuthDbContext(DbContextOptions<AuthDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
+        {
+            _httpContextAccessor = httpContextAccessor;
+        }
         public DbSet<User> Users { get; set; }
+
+        private string GetCurrentUserId()
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+            return user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        }
 
         public override int SaveChanges()
         {
@@ -24,9 +36,7 @@ namespace MyBooks.AuthService.Data
 
         public void ApplyAuditInformation()
         {
-            //To-do: update with current user id when authentication service created
-            var currentUser = "system";
-
+            var currentUser = GetCurrentUserId();
             foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
             {
                 if (entry.State == EntityState.Added)

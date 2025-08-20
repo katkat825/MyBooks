@@ -13,6 +13,12 @@ namespace MyBooks.FileService.Data
             _contextAccessor = contextAccessor;
         }
 
+        private string GetCurrentUserId()
+        {
+            var user = _contextAccessor.HttpContext?.User;
+            return user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        }
+
         public DbSet<FileMetadata> Files { get; set; }
         public DbSet<ReadingProgress> ReadingProgresses { get; set; }
 
@@ -39,7 +45,7 @@ namespace MyBooks.FileService.Data
 
         public void ApplyAuditInformation()
         {
-            var currentUser = _contextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var currentUser = GetCurrentUserId();
             if (string.IsNullOrEmpty(currentUser))
             {
                 currentUser = "system";
