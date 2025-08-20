@@ -1,15 +1,3 @@
-button {
-  background-color: var(--button-bg);
-  color: var(--button-text) !important;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-  button:hover {
-    opacity: 0.9;
-  }
 
 mat-icon {
   vertical-align: middle;
