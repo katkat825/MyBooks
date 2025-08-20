@@ -254,6 +254,13 @@ export class BookFormComponent implements OnInit {
       return;
     }
 
+    if(this.fileId) {
+      const ok = confirm("Uploading a new file will permanently delete the old one. Continue?");
+      if(!ok) {
+        return;
+      }
+    }
+
     const bookTitle = this.bookForm.get('step1')?.get('title')?.value;
     this.isFinalizing = true;  
 
