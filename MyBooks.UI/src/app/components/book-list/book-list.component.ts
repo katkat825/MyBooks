@@ -8,6 +8,7 @@ import { BookService } from '../../services/book.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-book-list',
@@ -15,12 +16,22 @@ import { MatInputModule } from '@angular/material/input';
   templateUrl: './book-list.component.html',
   styleUrl: './book-list.component.css',
   encapsulation: ViewEncapsulation.None,
-  imports: [CommonModule, MatIconModule, MatButtonModule, HttpClientModule, MatFormFieldModule, MatInputModule, FormsModule]
+  imports: [
+    CommonModule, 
+    MatIconModule, 
+    MatButtonModule, 
+    HttpClientModule, 
+    MatFormFieldModule, 
+    MatInputModule, 
+    FormsModule, 
+    MatProgressSpinner
+  ]
 })
 export class BookListComponent {
   books: any[] = [];
   filteredBooks: any[] = [];
   searchQuery: string = '';
+  isFinalizing: boolean = true;
 
   constructor(private bookService: BookService, private router: Router) { }
 
@@ -37,6 +48,7 @@ export class BookListComponent {
       next: (data) => {
         this.books = data.sort((a,b) => a.title.localeCompare(b.title));
         this.filteredBooks = [...this.books];
+        this.isFinalizing = false;
       },
       error: (error) => console.error('Error loading books', error)
     });

@@ -1,3 +1,7 @@
+.container {
+  padding-bottom: calc(var(--footer-h) + 12px);
+}
+
 .book-wrapper {
   position: relative;
 }
@@ -94,3 +98,51 @@
   .book-actions button {
     margin-top: 5px;
   }
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-color);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 600px) {
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .book-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+
+  .book-wrapper mat-form-field {
+    margin-bottom: 0;
+  }
+
+  .book-container {
+    margin-top: 0;
+  }
+
+  #add-book {
+    position: static;
+    right: auto;
+    margin: 10px;
+    justify-content: center;
+  }
+
+  .book {
+    top: 10px;
+  }
+}

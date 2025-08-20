@@ -13,6 +13,7 @@
   --primary: #66cfcf;
   --accent: #c2a0e0;
   --warn:#ef5350;
+  --footer-h: 60px;
 }
 
 /* dark theme */
@@ -49,9 +50,10 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   transition: background 0.3s ease, color 0.3s ease;
-  height: 90%;
+  height: 100%;
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
+  overflow: auto;
 }
 
 mat-form-field {

@@ -70,3 +70,13 @@ mat-menu {
   .mat-menu-item mat-icon {
     margin-right: 8px;
   }
+
+@media (max-width: 600px) {
+  .account-text {
+    display: none;
+  }
+  
+  .app-title {
+    font-size: 1.2rem;
+  }
+}
