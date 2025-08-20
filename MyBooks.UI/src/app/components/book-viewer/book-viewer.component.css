@@ -1,9 +1,29 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
 .viewer-container {
-  border: 1px solid #ccc;
   margin: 20px;
-  height: 90vh;
+  height: 100%;
   position: absolute;
   justify-content: center;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.epub-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 100px;
 }
 
 .spinner-overlay {

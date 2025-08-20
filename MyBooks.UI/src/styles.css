@@ -49,6 +49,9 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   transition: background 0.3s ease, color 0.3s ease;
+  height: 90%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
 mat-form-field {
@@ -121,7 +124,7 @@ button {
   background-color: var(--button-bg);
   color: var(--button-text);
   border: none;
-  padding: 8px 12px;
+  padding: 12px;
   border-radius: 5px;
   cursor: pointer;
 }
@@ -130,13 +133,14 @@ button {
     opacity: 0.9;
   }
 
-html, body {
-  height: 100%;
+  button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
-body {
-  margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+html {
+  height: 100%;
 }
 
 table,
