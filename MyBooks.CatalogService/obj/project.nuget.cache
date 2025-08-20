@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "yJjt1v/W5Io=",
+  "dgSpecHash": "VSrKvidJuIY=",
   "success": true,
   "projectFilePath": "C:\\Users\\creat\\source\\repos\\MyBooks\\MyBooks.CatalogService\\MyBooks.CatalogService.csproj",
   "expectedPackageFiles": [
@@ -9,7 +9,6 @@
     "C:\\Users\\creat\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\creat\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
     "C:\\Users\\creat\\.nuget\\packages\\fluentvalidation\\11.11.0\\fluentvalidation.11.11.0.nupkg.sha512",
-    "C:\\Users\\creat\\.nuget\\packages\\fluentvalidation.aspnetcore\\11.3.0\\fluentvalidation.aspnetcore.11.3.0.nupkg.sha512",
     "C:\\Users\\creat\\.nuget\\packages\\fluentvalidation.dependencyinjectionextensions\\11.11.0\\fluentvalidation.dependencyinjectionextensions.11.11.0.nupkg.sha512",
     "C:\\Users\\creat\\.nuget\\packages\\htmlsanitizer\\9.0.876\\htmlsanitizer.9.0.876.nupkg.sha512",
     "C:\\Users\\creat\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",

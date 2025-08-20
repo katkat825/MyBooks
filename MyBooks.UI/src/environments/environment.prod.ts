@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  authApi: 'http://localhost:5001',
-  catalogApi: 'http://localhost:5002',
-  fileApi: 'http://localhost:5003'
+  apiUrl: 'https://localhost:5001/api', // CatalogService
+  authServiceUrl: 'https://localhost:7254/api', // AuthService
+  fileApiUrl: `https://localhost:7142/api/files` //FileService
 };

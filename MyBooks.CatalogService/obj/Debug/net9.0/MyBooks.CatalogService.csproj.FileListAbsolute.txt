@@ -160,13 +160,6 @@ C:\Users\creat\source\repos\MyBooks\MyBooks.CatalogService\obj\Debug\net9.0\MyBo
 C:\Users\creat\source\repos\MyBooks\MyBooks.CatalogService\obj\Debug\net9.0\ref\MyBooks.CatalogService.dll
 C:\Users\creat\source\repos\MyBooks\MyBooks.CatalogService\bin\Debug\net9.0\FluentValidation.DependencyInjectionExtensions.dll
 C:\Users\creat\source\repos\MYBooks\MyBooks.CatalogService\obj\Debug\net9.0\MyBooks.CatalogService.sourcelink.json
-C:\Users\creat\source\repos\MYBooks\MyBooks.CatalogService\bin\Debug\net9.0\MyBooks.FileService.deps.json
-C:\Users\creat\source\repos\MYBooks\MyBooks.CatalogService\bin\Debug\net9.0\MyBooks.FileService.runtimeconfig.json
-C:\Users\creat\source\repos\MYBooks\MyBooks.CatalogService\bin\Debug\net9.0\MyBooks.FileService.staticwebassets.endpoints.json
-C:\Users\creat\source\repos\MYBooks\MyBooks.CatalogService\bin\Debug\net9.0\MyBooks.FileService.exe
-C:\Users\creat\source\repos\MYBooks\MyBooks.CatalogService\bin\Debug\net9.0\FluentValidation.AspNetCore.dll
-C:\Users\creat\source\repos\MYBooks\MyBooks.CatalogService\bin\Debug\net9.0\MyBooks.FileService.dll
-C:\Users\creat\source\repos\MYBooks\MyBooks.CatalogService\bin\Debug\net9.0\MyBooks.FileService.pdb
 C:\Users\creat\source\repos\MYBooks\MyBooks.CatalogService\bin\Debug\net9.0\Microsoft.Extensions.Caching.Abstractions.dll
 C:\Users\creat\source\repos\MYBooks\MyBooks.CatalogService\bin\Debug\net9.0\Microsoft.Extensions.Caching.Memory.dll
 C:\Users\creat\source\repos\MYBooks\MyBooks.CatalogService\bin\Debug\net9.0\Microsoft.Extensions.Configuration.Abstractions.dll

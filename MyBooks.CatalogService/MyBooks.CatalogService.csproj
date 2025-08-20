@@ -31,7 +31,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MyBooks.Common\MyBooks.Common.csproj" />
-    <ProjectReference Include="..\MyBooks.FileService\MyBooks.FileService.csproj" />
   </ItemGroup>
 
 </Project>

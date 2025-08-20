@@ -45,8 +45,8 @@ services:
 
   web:
     build:
-      context: .
-      dockerfile: MyBooks.UI/Dockerfile
+      context: MyBooks.UI
+      dockerfile: Dockerfile
     depends_on: [auth, catalog, files]
     ports: ["8080:80"]
 
