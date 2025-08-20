@@ -4,7 +4,7 @@ WORKDIR /src
 
 # Copy the whole repo so restore can find all project references
 COPY . .
-RUN dotnet restore ../MyBooks.sln
+RUN dotnet restore ./MyBooks.sln
 
 # Publish only the AuthService project
 RUN dotnet publish ./MyBooks.AuthService/MyBooks.AuthService.csproj -c Release -o /app/publish /p:UseAppHost=false
