@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import { Observable, catchError, throwError, tap, map } from 'rxjs';
+import { Observable, catchError, throwError, tap, map, BehaviorSubject, shareReplay, EMPTY, of } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -9,8 +10,15 @@ import { environment } from '../../environments/environment';
 export class UserService {
   private usersApiUrl = `${environment.authServiceUrl}/users`;
   private accountApiUrl = `${environment.authServiceUrl}/account`;
+  private userSubject = new BehaviorSubject<any>(null);
+  user$ = this.userSubject.asObservable();
 
-  constructor(private http: HttpClient) { }
+  canAccessAdmin$ = this.user$.pipe(
+    map(u => !!u && (u.role === 'Admin' || u.role === 'Editor' || u.role === 'SuperAdmin' || u.role === 'Owner')),
+    shareReplay({ bufferSize: 1, refCount: true })
+  );
+
+  constructor(private http: HttpClient, private router: Router) { }
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
@@ -20,26 +28,53 @@ export class UserService {
     });
   }
 
-  getProfile(): Observable<any> {
-    return this.http.get<any>(`${this.accountApiUrl}/profile`, { headers: this.getAuthHeaders() }).pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          console.error("❌ User is unauthorized. Logging out...");
-          localStorage.removeItem('token'); 
-          window.location.href = '/login'; 
-        }
+  getProfile(): Observable<any | null> {
+    return this.user$;
+  }
+
+  loadProfile(): void {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.userSubject.next(null);
+      return;
+    }
+
+    this.http.get<any>(`${this.accountApiUrl}/profile`, { headers: this.getAuthHeaders() })
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          if (error.status === 401) {
+            // Keep SPA flow: clear and route
+            localStorage.removeItem('token');
+            this.userSubject.next(null);
+            this.router.navigate(['/login']);
+            return EMPTY;
+          }
+          console.error('Profile load error:', error);
+          // Don’t blow up the app; just emit null
+          this.userSubject.next(null);
+          return EMPTY;
+        })
+      )
+      .subscribe(user => this.userSubject.next(user));
+  }
+
+  getUsers(includeSupport = false): Observable<any[]> {
+    return this.http.get<any[]>(this.usersApiUrl, { headers: this.getAuthHeaders() }).pipe(
+      map(users => includeSupport ? users : users.filter(u => !this.isSupportAccount(u))),
+      catchError(error => {
+        console.error("Error fetching users:", error);
         return throwError(() => error);
       })
     );
   }
 
-  getUsers(): Observable<any[]> {
-    return this.http.get<any[]>(this.usersApiUrl, { headers: this.getAuthHeaders() }).pipe(
-      catchError(error => {
-        console.error("Error fetching users:", error);
-        return throwError(error);
-      })
-    );
+  private isSupportAccount(u: any): boolean {
+    if (!u) return false;
+    // Hide by role…
+    if (u.role === 'SuperAdmin') return true;
+    // …and/or by service email convention (adjust if you picked a different prefix)
+    const email = String(u.email || '').toLowerCase();
+    return email.startsWith('svc+') && email.endsWith('@mybookcatalog.com');
   }
 
   getUserById(id: number): Observable<any> {
@@ -103,6 +138,11 @@ export class UserService {
     );
   }
 
+  clearSession(): void {
+    localStorage.removeItem('token');
+    this.userSubject.next(null);
+  }
+
   getAgeCategories(): Observable<any[]> {
     return this.http.get<any>(`${environment.apiUrl}/books/agecategories`, { headers: this.getAuthHeaders() }).pipe(
       map(response => Array.isArray(response) ? response : response?.$values || []),
@@ -124,5 +164,17 @@ export class UserService {
         return throwError(error);
       })
     );
+  }
+
+  ensureProfile$(): Observable<any | null> {
+    const hasToken = !!localStorage.getItem('token');
+    if (!hasToken) {
+      this.userSubject.next(null);
+      return of(null);
+    }
+    if (this.userSubject.value === null) {
+      this.loadProfile();
+    }
+    return this.user$; 
   }
 }

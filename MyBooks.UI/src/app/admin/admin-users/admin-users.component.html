@@ -104,13 +104,22 @@
     <ng-container matColumnDef="role">
       <th mat-header-cell *matHeaderCellDef>Role</th>
       <td mat-cell *matCellDef="let user">
-        <span *ngIf="!(editingUserId === user.id && editingField === 'role')" (click)="startEdit(user.id, 'role')">
+        <!-- if Owner or SuperAdmin, just show, no edit -->
+         <span *ngIf="user.role === 'Owner' || user.role === 'SuperAdmin'"
+              matTooltip="This role cannot be changed."
+              matTooltipPosition="above">
           {{ user.role }}
         </span>
-        <select *ngIf="editingUserId === user.id && editingField === 'role'"
-                (blur)="saveEdit(user, 'role', $event)">
-          <option *ngFor="let role of roles" [value]="role" [selected]="role === user.role">{{ role }}</option>
-        </select>
+        <!-- if not Owner or SuperAdmin, allow edit -->
+        <ng-container *ngIf="!(user.role === 'Owner' || user.role === 'SuperAdmin')">
+          <span *ngIf="!(editingUserId === user.id && editingField === 'role')" (click)="startEdit(user.id, 'role')">
+            {{ user.role }}
+          </span>
+          <select *ngIf="editingUserId === user.id && editingField === 'role'"
+                  (blur)="saveEdit(user, 'role', $event)">
+            <option *ngFor="let role of roles" [value]="role" [selected]="role === user.role">{{ role }}</option>
+          </select>
+        </ng-container>
       </td>
     </ng-container>
 
@@ -132,9 +141,19 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef>Actions</th>
       <td mat-cell *matCellDef="let user">
-        <button mat-button (click)="toggleUserStatus(user)" [disabled]="user.id === currentUserId">
-          {{ user.isActive ? 'Deactivate' : 'Reactivate' }}
-        </button>
+         <span
+          [matTooltip]="user.id === currentUserId 
+                  ? 'You cannot deactivate yourself'
+                  : 'You cannot deactivate the Owner'"
+          [matTooltipDisabled]="!(user.id === currentUserId || user.role === 'Owner' || user.role === 'SuperAdmin')"
+          matTooltipPosition="above">
+
+          <button mat-button 
+                  (click)="toggleUserStatus(user)" 
+                  [disabled]="user.id === currentUserId || user.role === 'Owner' || user.role === 'SuperAdmin'">
+            {{ user.isActive ? 'Deactivate' : 'Reactivate' }}
+          </button>
+        </span>
       </td>
     </ng-container>
 

@@ -28,7 +28,7 @@ export class AppComponent {
   userRole: string = '';
   accessAdminMenu: boolean = false;
 
-  constructor(private renderer: Renderer2, private router: Router, private userService: UserService) { }
+  constructor(private renderer: Renderer2, private router: Router, public userService: UserService) { }
 
   ngOnInit() {
     const savedTheme = localStorage.getItem('theme');
@@ -47,16 +47,7 @@ export class AppComponent {
         this.router.navigate(['/login']);
       } else {
 
-        this.userService.getProfile().subscribe({
-          next: (user) => {
-            this.userRole = user.role;
-
-            this.accessAdminMenu = this.userRole === 'Admin' || this.userRole === 'Editor';
-          },
-          error: (error) => {
-            console.error('error retrieving profile: ', error);
-          }
-        });
+        this.userService.loadProfile();
       }
     }
   }
@@ -85,9 +76,7 @@ export class AppComponent {
   }
 
   logout() {
-    localStorage.removeItem('token');
+    this.userService.clearSession();
     this.router.navigate(['/login']);
-  }
-  
-  
+  } 
 }

@@ -25,7 +25,7 @@ namespace MyBooks.CatalogService.Validators
 
             RuleFor(x => x.Location)
                 .MaximumLength(500).WithMessage("Location cannot exceed 500 characters.")
-                .When(x => !string.IsNullOrEmpty(x.Description));
+                .When(x => !string.IsNullOrEmpty(x.Location));
 
             RuleFor(x => x.GenreId)
                 .GreaterThan(0).WithMessage("Genre is required.");

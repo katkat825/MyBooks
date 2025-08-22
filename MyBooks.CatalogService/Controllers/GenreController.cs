@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBooks.CatalogService.Data;
 using MyBooks.CatalogService.Models;
+using MyBooks.Common.BaseClasses;
 using MyBooks.Common.Services;
 
 namespace MyBooks.CatalogService.Controllers
@@ -31,7 +32,7 @@ namespace MyBooks.CatalogService.Controllers
 
         // add a new genre
         [HttpPost]
-        [Authorize(Roles = "Admin,Editor")]
+        [Authorize(Roles = AppRoles.Editors)]
         public async Task<ActionResult<Genre>> AddGenre(Genre genre)
         {
             if (genre == null) return BadRequest("Invalid genre data.");
@@ -58,7 +59,7 @@ namespace MyBooks.CatalogService.Controllers
 
         //update genre
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin,Editor")]
+        [Authorize(Roles = AppRoles.Editors)]
         public async Task<IActionResult> PutGenre(int id, Genre genre)
         {
             if (id != genre.Id)
@@ -90,7 +91,7 @@ namespace MyBooks.CatalogService.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin,Editor")]
+        [Authorize(Roles = AppRoles.Editors)]
         public async Task<IActionResult> DeleteGenre(int id)
         {
             var genre = await _context.Genres

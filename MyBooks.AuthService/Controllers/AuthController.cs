@@ -6,14 +6,16 @@ using MyBooks.AuthService.Data;
 using MyBooks.AuthService.Dtos;
 using MyBooks.AuthService.Models;
 using MyBooks.Common.Services;
+using MyBooks.Common.BaseClasses;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Linq;
 
 namespace MyBooks.AuthService.Controllers
 {
     [Route("api/users")]
     [ApiController]   
-    [Authorize(Roles = "Admin")] 
+    [Authorize(Roles = AppRoles.Admins)] 
     public class AuthController : Controller
     {
         private readonly AuthDbContext _context;
@@ -65,6 +67,20 @@ namespace MyBooks.AuthService.Controllers
                             ? JsonElementToObject(jsonElement, targetType)
                             : Convert.ChangeType(updates[key], targetType);
 
+                        if (string.Equals(property.Name, nameof(user.Role), StringComparison.OrdinalIgnoreCase))
+                        {
+                            var newRole = newValue?.ToString();
+
+                            bool touchesPrivileged =
+                                user.Role == AppRoles.SuperAdmin || user.Role == AppRoles.Owner ||
+                                newRole == AppRoles.SuperAdmin   || newRole == AppRoles.Owner;
+
+                            if (touchesPrivileged && !User.IsInRole(AppRoles.SuperAdmin))
+                            {
+                                return Forbid("You are not authorized to change this user's role.");
+                            }
+                        }
+
                         property.SetValue(user, newValue);
 
                         _context.Entry(user).Property(property.Name).IsModified = true;
@@ -107,7 +123,6 @@ namespace MyBooks.AuthService.Controllers
             }
         }
 
-
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserDto request)
         {
@@ -118,6 +133,13 @@ namespace MyBooks.AuthService.Controllers
 
             //check if email in use
             if (await _context.Users.AnyAsync(u => u.Email == request.Email))  return BadRequest("Email already in use.");
+
+            var requestedRole = request.Role;
+
+            if(!AppRoles.AllRoles.Contains(requestedRole)) return BadRequest("Invalid role.");
+
+            if(!AppRoles.AssignableRoles.Contains(requestedRole) && !User.IsInRole(AppRoles.SuperAdmin))
+                return Forbid("You are not authorized to assign this role.");
 
             var user = new User
             {
@@ -138,12 +160,15 @@ namespace MyBooks.AuthService.Controllers
         }
 
         [HttpPatch("deactivate/{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = AppRoles.Admins)]
         public async Task<IActionResult> DeactivateUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null)
                 return NotFound("User not found.");
+
+            if (user.Role == AppRoles.SuperAdmin || user.Role == AppRoles.Owner)
+                return Forbid("Cannot deactivate a MyBookCatalog Support user or Owner user.");
 
             user.IsActive = false;
             _context.Entry(user).Property(u => u.IsActive).IsModified = true;
@@ -154,7 +179,7 @@ namespace MyBooks.AuthService.Controllers
         }
 
         [HttpPatch("reactivate/{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = AppRoles.Admins)]
         public async Task<IActionResult> ReactivateUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
@@ -168,6 +193,5 @@ namespace MyBooks.AuthService.Controllers
             Console.WriteLine($"✅ User {id} reactivated.");
             return Ok(new { message = "User reactivated successfully" });
         }
-
     }
 }

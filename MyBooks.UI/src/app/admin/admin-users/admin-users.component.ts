@@ -8,6 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { UserService } from '../../services/user.service';
 
 @Component({
@@ -25,6 +27,8 @@ import { UserService } from '../../services/user.service';
     MatButtonModule,
     MatSelectModule,
     MatCardModule,
+    MatTooltipModule,
+    MatSnackBarModule,
     ReactiveFormsModule]
 })
 export class AdminUsersComponent {
@@ -38,7 +42,11 @@ export class AdminUsersComponent {
   showInactiveUsers = false;
   currentUserId: number | null = null;
 
-  constructor(private userService: UserService, private fb: FormBuilder) { }
+  constructor(
+    private userService: UserService,
+    private fb: FormBuilder,
+    private snackBar: MatSnackBar
+  ) { }
 
   ngOnInit(): void {
     this.userForm = this.fb.group({
@@ -75,6 +83,10 @@ export class AdminUsersComponent {
   toggleUserStatus(user: any) {
     if (this.currentUserId && user.id === this.currentUserId) {
       alert('You cannot deactivate your own account.');
+      return;
+    }
+    if (user.role === 'Owner' || user.role === 'SuperAdmin') {
+      alert('You cannot deactivate the Owner or SuperAdmin account.');
       return;
     }
     if (user.isActive) {
@@ -126,6 +138,7 @@ export class AdminUsersComponent {
       next: () => {
         this.userForm.reset();
         this.showAddUserForm = false;
+        this.showSavedSnack();
         this.loadUsers();
       },
       error: (error) => {
@@ -157,6 +170,7 @@ export class AdminUsersComponent {
         console.log("user patch updated successfully:", response);
         this.editingUserId = null;
         this.editingField = null;
+        this.showSavedSnack();
         this.loadUsers();
       },
       error: (error) => {
@@ -164,5 +178,13 @@ export class AdminUsersComponent {
         alert('Failed to update user.');
       }
     })
+  }
+
+  private showSavedSnack(){
+    this.snackBar.open('Saved', 'Close', {
+      duration: 2000,
+      horizontalPosition: 'right',
+      verticalPosition: 'bottom',
+    });
   }
 }

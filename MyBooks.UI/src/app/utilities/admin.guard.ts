@@ -1,30 +1,28 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { CanActivate, Router, UrlTree } from '@angular/router';
 import { Observable, of } from 'rxjs';
+import { catchError, filter, map, take } from 'rxjs/operators';
 import { UserService } from '../services/user.service';
-import { map, catchError } from 'rxjs/operators';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AdminGuard implements CanActivate {
-  constructor(private userService: UserService, private router: Router) { }
+  constructor(private userService: UserService, private router: Router) {}
 
-  canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): Observable<boolean | UrlTree> {
-    return this.userService.getProfile().pipe(
+  canActivate(): Observable<boolean | UrlTree> {
+    const hasToken = !!localStorage.getItem('token');
+    if (!hasToken) {
+      return of(this.router.createUrlTree(['/login']));
+    }
+
+    return this.userService.ensureProfile$().pipe(
+      filter((u): u is any => u !== null),   // wait until profile is loaded
+      take(1),
       map(user => {
-        if (user.role === 'Admin' || user.role === 'Editor') {
-          return true;
-        } else {
-          return this.router.createUrlTree(['/']);
-        }
+        const role = user.role ?? user.Role ?? '';
+        const allowed = role === 'Admin' || role === 'Editor' || role === 'SuperAdmin' || role === 'Owner';
+        return allowed ? true : this.router.createUrlTree(['/']);
       }),
-      catchError(() => {
-        return of(this.router.createUrlTree(['/login']));
-      })
+      catchError(() => of(this.router.createUrlTree(['/login'])))
     );
   }
 }

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using MyBooks.CatalogService.Data;
 using MyBooks.CatalogService.Models;
 using MyBooks.Common.Services;
+using MyBooks.Common.BaseClasses;
 
 namespace MyBooks.CatalogService.Controllers
 {
@@ -146,11 +147,11 @@ namespace MyBooks.CatalogService.Controllers
 
             //verify authenticated user is either admin, editor, or creator
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            var isAdmin = User.IsInRole("Admin");
-            var isEditor = User.IsInRole("Editor");
-            var isOwner = book.CreatedBy == userId.ToString();
 
-            if (!isAdmin && !isEditor && !isOwner) return Forbid("Only an admin, editor, or the book's creator is authorized to update this book.");
+            var canEdit = AppRoles.EditorsArray.Any(User.IsInRole);
+            var isCreator = book.CreatedBy == userId.ToString();
+
+            if (!canEdit && !isCreator) return Forbid("Only an admin, editor, or the book's creator is authorized to update this book.");
 
             //sanitize all text fields, if they exist
             book.Title = _htmlSanitizationService.Sanitize(book.Title);
@@ -249,12 +250,11 @@ namespace MyBooks.CatalogService.Controllers
 
             //verify authenticated user is either admin, editor, or creator
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            var isAdmin = User.IsInRole("Admin");
-            var isEditor = User.IsInRole("Editor");
-            var isOwner = book.CreatedBy == userId.ToString();
+            var canEdit = AppRoles.EditorsArray.Any(User.IsInRole);
+            var isCreator = book.CreatedBy == userId.ToString();
 
-            if (!isAdmin && !isEditor && !isOwner) return Forbid();
-            
+            if (!canEdit && !isCreator) return Forbid("Only an admin, editor, or the book's creator is authorized to delete this book.");
+
             _context.Books.Remove(book);
             await _context.SaveChangesAsync();
             return NoContent();

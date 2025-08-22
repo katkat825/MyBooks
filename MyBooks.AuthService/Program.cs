@@ -7,6 +7,8 @@ using Microsoft.IdentityModel.Logging;
 using MyBooks.AuthService.Data;
 using MyBooks.AuthService.Models;
 using MyBooks.Common.Services;
+using MyBooks.Common.BaseClasses;
+using MyBooks.Common.Configuration;
 using System.Text;
 using System.Security.Claims;
 
@@ -25,6 +27,8 @@ builder.Services.AddCors(options =>
 
 // Add services to the container.
 builder.Services.AddHttpContextAccessor();
+
+builder.Configuration.AddMyBooksDefaultProviders(builder.Environment);
 
 builder.Services.AddDbContext<AuthDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("AuthConnection")));
@@ -81,6 +85,8 @@ builder.Services.AddAuthorization(options =>
             return isActive == "True";
         });
     });
+    options.AddPolicy("AdminsOnly", p => p.RequireRole(AppRoles.Admin, AppRoles.SuperAdmin));
+    options.AddPolicy("SuperAdminsOnly", p => p.RequireRole(AppRoles.SuperAdmin));
 });
 
 builder.Services.AddControllers();
