@@ -42,14 +42,26 @@
         </mat-form-field>
 
         <div class="inline-group">
-          <mat-form-field class="full-width">
+          <button 
+            mat-icon-button type="button" 
+            (click)="toggleNewSeries()" 
+            aria-label="New series toggle"
+            matTooltip="{{ newSeries ? 'Cancel' : 'Add new series' }}">
+            <mat-icon>{{ newSeries ? 'remove' : 'add' }}</mat-icon>
+          </button>
+          <mat-form-field class="full-width">            
             <mat-label>Series</mat-label>
             <mat-select formControlName="seriesId">
               <mat-option *ngFor="let series of seriesList" [value]="series.id">{{ series.name }}</mat-option>
-            </mat-select>
+            </mat-select>            
           </mat-form-field>
-          <button mat-icon-button type="button" (click)="toggleNewSeries()">
-            <mat-icon>add</mat-icon>
+          <button
+            *ngIf="step2.get('seriesId')?.value != null"
+            mat-icon-button type="button"
+            (click)="removeSeries()"
+            aria-label="Remove series"
+            matTooltip="Remove series">
+            <mat-icon>clear</mat-icon>
           </button>
         </div>
 

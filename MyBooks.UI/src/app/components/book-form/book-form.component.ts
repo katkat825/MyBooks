@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookService } from '../../services/book.service';
 import { UserService } from '../../services/user.service';
@@ -28,6 +29,7 @@ import { UserService } from '../../services/user.service';
     MatSelectModule,
     MatIconModule,
     HttpClientModule,
+    MatTooltipModule,
     MatProgressSpinnerModule
   ]
 })
@@ -62,6 +64,7 @@ export class BookFormComponent implements OnInit {
         author: [''],
         seriesId: [null],
         seriesPosition: [null],
+        seriesName: [''],
         isbn: [''],
         description: ['']
       }),
@@ -159,24 +162,37 @@ export class BookFormComponent implements OnInit {
     })
   }
 
+  removeSeries() {
+    this.step2.patchValue({ seriesId: null, seriesPosition: null });
+  }
+
   toggleNewSeries() {
     this.newSeries = !this.newSeries;
-    this.bookForm.patchValue({ seriesName: '' });
+    this.step2.patchValue({ seriesName: '' });
   }
 
   saveSeries() {
-    const seriesName = this.bookForm.value.seriesName.trim();
+    const seriesName = (this.step2.get('seriesName')?.value ?? '').trim();
+    console.log("Attempting to save series:", seriesName);
 
     if (!seriesName) {
       alert("Series name cannot be empty.");
+      return;
+    }
+
+    const exists = this.seriesList.some(s => s.name?.toLowerCase().trim() === seriesName.toLowerCase());
+    if (exists) {
+      alert('That series already exists.');
+      return;
     }
 
     const newSeries = { name: seriesName };
-
+    
     this.bookService.createSeries(newSeries).subscribe({
       next: (createdSeries) => {
-        this.seriesList.push(createdSeries);
-        this.bookForm.patchValue({ seriesId: createdSeries.id });
+        this.seriesList = [...this.seriesList, createdSeries];
+        this.step2.patchValue({ seriesId: createdSeries.id });
+        this.toggleNewSeries();
       },
       error: (error) => {
         console.error("Error saving series: ", error);
