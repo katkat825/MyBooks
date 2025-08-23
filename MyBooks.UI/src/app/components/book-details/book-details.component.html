@@ -18,10 +18,10 @@
       <div *ngIf="book" class="book-details-container">
         <p><strong>Author:</strong> {{ book.author || 'Unknown' }}</p>
         <p><strong>Series:</strong> {{ book.series?.name || '' }}</p>
-        <p><strong>Series Position:</strong> Book #{{book.seriesPosition ||'N/A'}}</p>
+        <p *ngIf="book.series"><strong>Series Position:</strong> Book # {{book.seriesPosition ||'Unknown'}}</p>
         <p><strong>Genre:</strong> {{ book.genre?.name || 'Unknown' }}</p>
         <p><strong>Age Category:</strong> {{ book.ageCategory?.name || 'Unknown' }}</p>
-        <p><strong>Location:</strong> {{ book.location || 'Unknown' }}</p>
+        <p *ngIf="!book.fileId"><strong>Location:</strong> {{ book.location || 'Unknown' }}</p>
         <p><strong>Description:</strong> {{ book.description || 'Unknown' }}</p>
         <p><strong>ISBN:</strong> {{ book.isbn || 'Unknown' }}</p>
         <div *ngIf="book.fileId">

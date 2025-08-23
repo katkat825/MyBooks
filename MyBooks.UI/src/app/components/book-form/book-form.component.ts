@@ -66,7 +66,8 @@ export class BookFormComponent implements OnInit {
         seriesPosition: [null],
         seriesName: [''],
         isbn: [''],
-        description: ['']
+        description: [''],
+        location: ['']
       }),
       step3: this.fb.group({ file: [null] })
     });
@@ -88,7 +89,7 @@ export class BookFormComponent implements OnInit {
                   this.router.navigate(['/']);
                 } else if (
                   book.createdBy !== this.currentUser.id.toString() &&
-                  !['admin', 'editor'].includes(this.currentUser.role.toLowerCase())
+                  !['admin', 'editor', 'owner', 'superadmin'].includes(this.currentUser.role.toLowerCase())
                 ) {
                   alert('You do not have permission to edit this book.');
                   this.router.navigate(['/book', id]);
