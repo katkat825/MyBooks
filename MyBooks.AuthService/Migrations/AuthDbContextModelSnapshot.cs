@@ -54,6 +54,9 @@ namespace MyBooks.AuthService.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsVisible")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("LastAcceptedAup")
                         .HasColumnType("datetime2");
 
@@ -74,6 +77,9 @@ namespace MyBooks.AuthService.Migrations
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
