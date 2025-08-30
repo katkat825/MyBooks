@@ -32,7 +32,9 @@ namespace MyBooks.CatalogService.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    TenantId = table.Column<int>(type: "int", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -50,6 +52,8 @@ namespace MyBooks.CatalogService.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TenantId = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -58,6 +62,25 @@ namespace MyBooks.CatalogService.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Series", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Tags",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TenantId = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tags", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -77,6 +100,7 @@ namespace MyBooks.CatalogService.Migrations
                     GenreId = table.Column<int>(type: "int", nullable: false),
                     AgeCategoryId = table.Column<int>(type: "int", nullable: false),
                     TagInput = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FileId = table.Column<int>(type: "int", nullable: true),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -105,26 +129,27 @@ namespace MyBooks.CatalogService.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tags",
+                name: "BookTag",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    BookId = table.Column<int>(type: "int", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    BooksId = table.Column<int>(type: "int", nullable: false),
+                    TagsId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tags", x => x.Id);
+                    table.PrimaryKey("PK_BookTag", x => new { x.BooksId, x.TagsId });
                     table.ForeignKey(
-                        name: "FK_Tags_Books_BookId",
-                        column: x => x.BookId,
+                        name: "FK_BookTag_Books_BooksId",
+                        column: x => x.BooksId,
                         principalTable: "Books",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BookTag_Tags_TagsId",
+                        column: x => x.TagsId,
+                        principalTable: "Tags",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
@@ -139,35 +164,35 @@ namespace MyBooks.CatalogService.Migrations
 
             migrationBuilder.InsertData(
                 table: "Genres",
-                columns: new[] { "Id", "CreatedBy", "CreatedDate", "LastModifiedBy", "LastModifiedDate", "Name" },
+                columns: new[] { "Id", "CreatedBy", "CreatedDate", "IsActive", "LastModifiedBy", "LastModifiedDate", "Name", "TenantId" },
                 values: new object[,]
                 {
-                    { 1, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", null, "Science Fiction" },
-                    { 2, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", null, "Fantasy" },
-                    { 3, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", null, "Mystery" },
-                    { 4, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", null, "Romance" },
-                    { 5, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", null, "Horror" }
+                    { 1, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), true, null, null, "Science Fiction", null },
+                    { 2, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), true, null, null, "Fantasy", null },
+                    { 3, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), true, null, null, "Mystery", null },
+                    { 4, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), true, null, null, "Romance", null },
+                    { 5, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), true, null, null, "Horror", null }
                 });
 
             migrationBuilder.InsertData(
                 table: "Tags",
-                columns: new[] { "Id", "BookId", "CreatedBy", "CreatedDate", "LastModifiedBy", "LastModifiedDate", "Name" },
+                columns: new[] { "Id", "CreatedBy", "CreatedDate", "IsActive", "LastModifiedBy", "LastModifiedDate", "Name", "TenantId" },
                 values: new object[,]
                 {
-                    { 1, null, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", null, "spicy" },
-                    { 2, null, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", null, "magic" },
-                    { 3, null, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", null, "detective" },
-                    { 4, null, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", null, "love" },
-                    { 5, null, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", null, "monsters" }
+                    { 1, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), true, null, null, "spicy", 0 },
+                    { 2, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), true, null, null, "magic", 0 },
+                    { 3, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), true, null, null, "detective", 0 },
+                    { 4, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), true, null, null, "love", 0 },
+                    { 5, "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), true, null, null, "monsters", 0 }
                 });
 
             migrationBuilder.InsertData(
                 table: "Books",
-                columns: new[] { "Id", "AgeCategoryId", "Author", "CreatedBy", "CreatedDate", "Description", "GenreId", "ISBN", "LastModifiedBy", "LastModifiedDate", "Location", "PublishedDate", "SeriesId", "SeriesPosition", "TagInput", "Title" },
+                columns: new[] { "Id", "AgeCategoryId", "Author", "CreatedBy", "CreatedDate", "Description", "FileId", "GenreId", "ISBN", "LastModifiedBy", "LastModifiedDate", "Location", "PublishedDate", "SeriesId", "SeriesPosition", "TagInput", "Title" },
                 values: new object[,]
                 {
-                    { 1, 3, "Frank Herbert", "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), "A science fiction novel set in a distant future amidst a huge interstellar empire, where a young nobleman becomes embroiled in a complex struggle for control of the desert planet Arrakis.", 1, null, "System", null, null, null, null, null, null, "Dune" },
-                    { 2, 1, "J.R.R. Tolkien", "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), "A fantasy novel that follows the journey of Bilbo Baggins, a hobbit who is swept into an epic quest to reclaim a treasure guarded by the dragon Smaug.", 2, null, "System", null, null, null, null, null, null, "The Hobbit" }
+                    { 1, 3, "Frank Herbert", "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), "A science fiction novel set in a distant future amidst a huge interstellar empire, where a young nobleman becomes embroiled in a complex struggle for control of the desert planet Arrakis.", null, 1, null, null, null, null, null, null, null, null, "Dune" },
+                    { 2, 1, "J.R.R. Tolkien", "system", new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified), "A fantasy novel that follows the journey of Bilbo Baggins, a hobbit who is swept into an epic quest to reclaim a treasure guarded by the dragon Smaug.", null, 2, null, null, null, null, null, null, null, null, "The Hobbit" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -186,19 +211,22 @@ namespace MyBooks.CatalogService.Migrations
                 column: "SeriesId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tags_BookId",
-                table: "Tags",
-                column: "BookId");
+                name: "IX_BookTag_TagsId",
+                table: "BookTag",
+                column: "TagsId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Tags");
+                name: "BookTag");
 
             migrationBuilder.DropTable(
                 name: "Books");
+
+            migrationBuilder.DropTable(
+                name: "Tags");
 
             migrationBuilder.DropTable(
                 name: "AgeCategories");

@@ -17,7 +17,7 @@ namespace MyBooks.CatalogService.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.2")
+                .HasAnnotation("ProductVersion", "9.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -149,7 +149,6 @@ namespace MyBooks.CatalogService.Migrations
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "A science fiction novel set in a distant future amidst a huge interstellar empire, where a young nobleman becomes embroiled in a complex struggle for control of the desert planet Arrakis.",
                             GenreId = 1,
-                            LastModifiedBy = "System",
                             Title = "Dune"
                         },
                         new
@@ -161,7 +160,6 @@ namespace MyBooks.CatalogService.Migrations
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "A fantasy novel that follows the journey of Bilbo Baggins, a hobbit who is swept into an epic quest to reclaim a treasure guarded by the dragon Smaug.",
                             GenreId = 2,
-                            LastModifiedBy = "System",
                             Title = "The Hobbit"
                         });
                 });
@@ -181,6 +179,9 @@ namespace MyBooks.CatalogService.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -190,6 +191,9 @@ namespace MyBooks.CatalogService.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TenantId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -201,7 +205,7 @@ namespace MyBooks.CatalogService.Migrations
                             Id = 1,
                             CreatedBy = "system",
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            LastModifiedBy = "System",
+                            IsActive = true,
                             Name = "Science Fiction"
                         },
                         new
@@ -209,7 +213,7 @@ namespace MyBooks.CatalogService.Migrations
                             Id = 2,
                             CreatedBy = "system",
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            LastModifiedBy = "System",
+                            IsActive = true,
                             Name = "Fantasy"
                         },
                         new
@@ -217,7 +221,7 @@ namespace MyBooks.CatalogService.Migrations
                             Id = 3,
                             CreatedBy = "system",
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            LastModifiedBy = "System",
+                            IsActive = true,
                             Name = "Mystery"
                         },
                         new
@@ -225,7 +229,7 @@ namespace MyBooks.CatalogService.Migrations
                             Id = 4,
                             CreatedBy = "system",
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            LastModifiedBy = "System",
+                            IsActive = true,
                             Name = "Romance"
                         },
                         new
@@ -233,7 +237,7 @@ namespace MyBooks.CatalogService.Migrations
                             Id = 5,
                             CreatedBy = "system",
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            LastModifiedBy = "System",
+                            IsActive = true,
                             Name = "Horror"
                         });
                 });
@@ -253,6 +257,9 @@ namespace MyBooks.CatalogService.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -262,6 +269,9 @@ namespace MyBooks.CatalogService.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -283,6 +293,9 @@ namespace MyBooks.CatalogService.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -292,6 +305,9 @@ namespace MyBooks.CatalogService.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -303,40 +319,45 @@ namespace MyBooks.CatalogService.Migrations
                             Id = 1,
                             CreatedBy = "system",
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            LastModifiedBy = "System",
-                            Name = "spicy"
+                            IsActive = true,
+                            Name = "spicy",
+                            TenantId = 0
                         },
                         new
                         {
                             Id = 2,
                             CreatedBy = "system",
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            LastModifiedBy = "System",
-                            Name = "magic"
+                            IsActive = true,
+                            Name = "magic",
+                            TenantId = 0
                         },
                         new
                         {
                             Id = 3,
                             CreatedBy = "system",
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            LastModifiedBy = "System",
-                            Name = "detective"
+                            IsActive = true,
+                            Name = "detective",
+                            TenantId = 0
                         },
                         new
                         {
                             Id = 4,
                             CreatedBy = "system",
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            LastModifiedBy = "System",
-                            Name = "love"
+                            IsActive = true,
+                            Name = "love",
+                            TenantId = 0
                         },
                         new
                         {
                             Id = 5,
                             CreatedBy = "system",
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            LastModifiedBy = "System",
-                            Name = "monsters"
+                            IsActive = true,
+                            Name = "monsters",
+                            TenantId = 0
                         });
                 });
 
