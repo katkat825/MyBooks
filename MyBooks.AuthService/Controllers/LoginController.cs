@@ -26,9 +26,10 @@ namespace MyBooks.AuthService.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginDto request)
         {
+            var email = request.Email.ToLower().Trim();
             var user = await _context.Users
-                .Where(u => u.Email.ToLower().Trim() == request.Email.ToLower().Trim())
-                .FirstOrDefaultAsync();
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(u => u.Email.ToLower().Trim() == email);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
                 return Unauthorized("Invalid username or password.");
@@ -51,7 +52,8 @@ namespace MyBooks.AuthService.Controllers
                 new Claim("role", user.Role),
                 new Claim("AgeCategoryId", user.AgeCategoryId.ToString()),
                 new Claim("IsActive", user.IsActive.ToString()),
-                new Claim("AcceptedAup", user.AcceptedAup.ToString())
+                new Claim("AcceptedAup", user.AcceptedAup.ToString()),
+                new Claim("TenantId", user.TenantId.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));

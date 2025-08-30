@@ -22,6 +22,20 @@ namespace MyBooks.AuthService.Data
             return user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         }
 
+        private int GetCurrentTenantId()
+        {
+            var tenantId = _httpContextAccessor.HttpContext?.User?.FindFirst("TenantId")?.Value;
+            return int.TryParse(tenantId, out var id) ? id : 0;
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<User>()
+                .HasQueryFilter(u => u.TenantId == GetCurrentTenantId());
+        }
+
         public override int SaveChanges()
         {
             ApplyAuditInformation();
@@ -36,7 +50,20 @@ namespace MyBooks.AuthService.Data
 
         public void ApplyAuditInformation()
         {
+            if(_httpContextAccessor.HttpContext == null)
+                return;
+                
             var currentUser = GetCurrentUserId();
+            var currentTenant = GetCurrentTenantId();
+
+            // apply tenant ID
+            foreach (var entry in ChangeTracker.Entries()
+                .Where(e => e.State == EntityState.Added && e.Entity.GetType().GetProperty("TenantId") != null))
+            {
+                entry.Entity.GetType().GetProperty("TenantId")?.SetValue(entry.Entity, currentTenant);
+            }
+
+            // apply audit information
             foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
             {
                 if (entry.State == EntityState.Added)
