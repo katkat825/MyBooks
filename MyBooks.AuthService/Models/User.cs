@@ -16,10 +16,10 @@ namespace MyBooks.AuthService.Models
 
         public int AgeCategoryId { get; set; } // Foreign key from AgeCategories
 
-        public bool IsActive { get; set; }
-        public bool IsVisible { get; set; }
+        public bool IsActive { get; set; } = true;
+        public bool IsVisible { get; set; } = true;
 
-        public bool AcceptedAup { get; set; }
+        public bool AcceptedAup { get; set; } = false; // Acceptable Use Policy
         public DateTime LastAcceptedAup { get; set; }
     }
 

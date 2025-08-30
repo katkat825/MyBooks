@@ -1,11 +1,12 @@
-﻿using FluentValidation;
+﻿using System.Data;
+using FluentValidation;
 using MyBooks.FileService.Models;
 
 namespace MyBooks.FileService.Validators
 {
     public class FileMetaValidator : AbstractValidator<FileMetadata>
     {
-        public FileMetaValidator() 
+        public FileMetaValidator()
         {
             RuleFor(f => f.FileName)
                 .NotEmpty().WithMessage("File name is required.")

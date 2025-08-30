@@ -20,6 +20,13 @@ namespace MyBooks.FileService.Data
             return user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         }
 
+        private int GetCurrentTenantId()
+        {
+            var tenantId = _contextAccessor.HttpContext?.User?.FindFirst("TenantId")?.Value;
+            Console.WriteLine($"Current Tenant ID: {tenantId}");
+            return int.TryParse(tenantId, out var id) ? id : 0;
+        }
+
         public DbSet<FileMetadata> Files { get; set; }
         public DbSet<ReadingProgress> ReadingProgresses { get; set; }
 
@@ -27,7 +34,7 @@ namespace MyBooks.FileService.Data
         {
             // Indexing for faster queries
             modelBuilder.Entity<FileMetadata>()
-                .HasQueryFilter(f => f.IsActive)
+                .HasQueryFilter(f => f.IsActive && f.TenantId == GetCurrentTenantId())
                 .HasIndex(f => f.BookId);
 
             modelBuilder.Entity<ReadingProgress>()
@@ -36,23 +43,32 @@ namespace MyBooks.FileService.Data
 
         public override int SaveChanges()
         {
-            EnforceSecurityRules();
             ApplyAuditInformation();
+            EnforceSecurityRules();
+            
             return base.SaveChanges();
         }
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            EnforceSecurityRules();
             ApplyAuditInformation();
+            EnforceSecurityRules();    
+                    
             return await base.SaveChangesAsync(cancellationToken);
         }
 
         public void ApplyAuditInformation()
         {
+            if(_contextAccessor.HttpContext == null)
+                return;
+
             var currentUser = GetCurrentUserId();
-            if (string.IsNullOrEmpty(currentUser))
+            var currentTenant = GetCurrentTenantId();
+
+            // apply tenant ID
+            foreach (var entry in ChangeTracker.Entries()
+                .Where(e => e.State == EntityState.Added && e.Entity.GetType().GetProperty("TenantId") != null))
             {
-                currentUser = "system";
+                entry.Entity.GetType().GetProperty("TenantId")?.SetValue(entry.Entity, currentTenant);
             }
 
             foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
@@ -73,7 +89,8 @@ namespace MyBooks.FileService.Data
         public void EnforceSecurityRules()
         {
             var ipAddress = _contextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
-            
+            Console.WriteLine($"Current IP Address: {ipAddress}");
+
             foreach (var entry in ChangeTracker.Entries<FileMetadata>())
             {
                 if (entry.State == EntityState.Added)
@@ -101,7 +118,7 @@ namespace MyBooks.FileService.Data
                         {
                             prop.IsModified = false;
                         }
-                    }                    
+                    }
                 }
             }
         }
