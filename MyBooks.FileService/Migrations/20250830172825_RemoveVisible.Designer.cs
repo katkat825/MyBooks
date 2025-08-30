@@ -12,8 +12,8 @@ using MyBooks.FileService.Data;
 namespace MyBooks.FileService.Migrations
 {
     [DbContext(typeof(FileDbContext))]
-    [Migration("20250323152840_ReadingProgressesCreate")]
-    partial class ReadingProgressesCreate
+    [Migration("20250830172825_RemoveVisible")]
+    partial class RemoveVisible
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -58,11 +58,21 @@ namespace MyBooks.FileService.Migrations
                     b.Property<long>("FileSize")
                         .HasColumnType("bigint");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UploadedByIp")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -88,10 +98,15 @@ namespace MyBooks.FileService.Migrations
                     b.Property<double>("ProgressPercent")
                         .HasColumnType("float");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FileId", "UserId");
 
                     b.ToTable("ReadingProgresses");
                 });

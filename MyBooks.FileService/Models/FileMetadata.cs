@@ -14,7 +14,6 @@ namespace MyBooks.FileService.Models
         public int BookId { get; set; }
         
         public bool IsActive { get; set; } = true;
-        public bool IsVisible { get; set; } = true;
         
         public string UploadedByIp { get; set; }
     }

@@ -64,6 +64,13 @@ namespace MyBooks.FileService.Migrations
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UploadedByIp")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BookId");
@@ -87,6 +94,9 @@ namespace MyBooks.FileService.Migrations
 
                     b.Property<double>("ProgressPercent")
                         .HasColumnType("float");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");

@@ -17,11 +17,15 @@ namespace MyBooks.FileService.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    TenantId = table.Column<int>(type: "int", nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ContentType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FilePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FileSize = table.Column<long>(type: "bigint", nullable: false),
                     BookId = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    IsVisible = table.Column<bool>(type: "bit", nullable: false),
+                    UploadedByIp = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -32,10 +36,32 @@ namespace MyBooks.FileService.Migrations
                     table.PrimaryKey("PK_Files", x => x.Id);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "ReadingProgresses",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TenantId = table.Column<int>(type: "int", nullable: false),
+                    FileId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    ProgressPercent = table.Column<double>(type: "float", nullable: false),
+                    LastUpdated = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReadingProgresses", x => x.Id);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Files_BookId",
                 table: "Files",
                 column: "BookId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ReadingProgresses_FileId_UserId",
+                table: "ReadingProgresses",
+                columns: new[] { "FileId", "UserId" });
         }
 
         /// <inheritdoc />
@@ -43,6 +69,9 @@ namespace MyBooks.FileService.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Files");
+
+            migrationBuilder.DropTable(
+                name: "ReadingProgresses");
         }
     }
 }
