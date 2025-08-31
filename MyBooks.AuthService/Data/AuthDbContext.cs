@@ -9,22 +9,22 @@ namespace MyBooks.AuthService.Data
 {
     public class AuthDbContext : DbContext
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHttpContextAccessor _contextAccessor;
         public AuthDbContext(DbContextOptions<AuthDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
         {
-            _httpContextAccessor = httpContextAccessor;
+            _contextAccessor = httpContextAccessor;
         }
         public DbSet<User> Users { get; set; }
 
         private string GetCurrentUserId()
         {
-            var user = _httpContextAccessor.HttpContext?.User;
+            var user = _contextAccessor.HttpContext?.User;
             return user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         }
 
         private int GetCurrentTenantId()
         {
-            var tenantId = _httpContextAccessor.HttpContext?.User?.FindFirst("TenantId")?.Value;
+            var tenantId = _contextAccessor.HttpContext?.User?.FindFirst("TenantId")?.Value;
             return int.TryParse(tenantId, out var id) ? id : 0;
         }
 
@@ -50,7 +50,7 @@ namespace MyBooks.AuthService.Data
 
         public void ApplyAuditInformation()
         {
-            if(_httpContextAccessor.HttpContext == null)
+            if(_contextAccessor.HttpContext == null)
                 return;
                 
             var currentUser = GetCurrentUserId();

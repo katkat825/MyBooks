@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyBooks.CatalogService.Data;
 
@@ -11,9 +12,11 @@ using MyBooks.CatalogService.Data;
 namespace MyBooks.CatalogService.Migrations
 {
     [DbContext(typeof(CatalogDbContext))]
-    partial class CatalogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250831191901_AddTenantIdBook")]
+    partial class AddTenantIdBook
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -115,9 +118,6 @@ namespace MyBooks.CatalogService.Migrations
 
                     b.Property<string>("Location")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("MasterBookId")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("PublishedDate")
                         .HasColumnType("datetime2");
@@ -260,72 +260,6 @@ namespace MyBooks.CatalogService.Migrations
                         });
                 });
 
-            modelBuilder.Entity("MyBooks.CatalogService.Models.MasterBook", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AgeCategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Author")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("GenreId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ISBN")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("LastModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("PublishedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("SeriesId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SeriesPosition")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TagInput")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AgeCategoryId");
-
-                    b.HasIndex("GenreId");
-
-                    b.HasIndex("SeriesId");
-
-                    b.ToTable("MasterBooks");
-                });
-
             modelBuilder.Entity("MyBooks.CatalogService.Models.Series", b =>
                 {
                     b.Property<int>("Id")
@@ -386,9 +320,6 @@ namespace MyBooks.CatalogService.Migrations
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("MasterBookId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -397,8 +328,6 @@ namespace MyBooks.CatalogService.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("MasterBookId");
 
                     b.ToTable("Tags");
 
@@ -490,38 +419,6 @@ namespace MyBooks.CatalogService.Migrations
                     b.Navigation("Series");
                 });
 
-            modelBuilder.Entity("MyBooks.CatalogService.Models.MasterBook", b =>
-                {
-                    b.HasOne("MyBooks.CatalogService.Models.AgeCategory", "AgeCategory")
-                        .WithMany()
-                        .HasForeignKey("AgeCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MyBooks.CatalogService.Models.Genre", "Genre")
-                        .WithMany()
-                        .HasForeignKey("GenreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MyBooks.CatalogService.Models.Series", "Series")
-                        .WithMany()
-                        .HasForeignKey("SeriesId");
-
-                    b.Navigation("AgeCategory");
-
-                    b.Navigation("Genre");
-
-                    b.Navigation("Series");
-                });
-
-            modelBuilder.Entity("MyBooks.CatalogService.Models.Tag", b =>
-                {
-                    b.HasOne("MyBooks.CatalogService.Models.MasterBook", null)
-                        .WithMany("Tags")
-                        .HasForeignKey("MasterBookId");
-                });
-
             modelBuilder.Entity("MyBooks.CatalogService.Models.AgeCategory", b =>
                 {
                     b.Navigation("Books");
@@ -530,11 +427,6 @@ namespace MyBooks.CatalogService.Migrations
             modelBuilder.Entity("MyBooks.CatalogService.Models.Genre", b =>
                 {
                     b.Navigation("Books");
-                });
-
-            modelBuilder.Entity("MyBooks.CatalogService.Models.MasterBook", b =>
-                {
-                    b.Navigation("Tags");
                 });
 
             modelBuilder.Entity("MyBooks.CatalogService.Models.Series", b =>
