@@ -11,6 +11,7 @@ public static class AppRoles
     // helpers for common combos
     public const string Admins = SuperAdmin + "," + Owner + "," + Admin;
     public const string Editors = Admins + "," + Editor;
+    public const string OwnerPlus = Owner + "," + SuperAdmin;
 
     public static readonly string[] AdminsArray = { SuperAdmin, Owner, Admin };
     public static readonly string[] EditorsArray = { SuperAdmin, Owner, Admin, Editor };

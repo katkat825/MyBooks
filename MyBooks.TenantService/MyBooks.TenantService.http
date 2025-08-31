@@ -1,0 +1,6 @@
+@MyBooks.TenantService_HostAddress = http://localhost:5174
+
+GET {{MyBooks.TenantService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
