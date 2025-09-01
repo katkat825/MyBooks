@@ -156,57 +156,5 @@ namespace MyBooks.FileService.Controllers
                 return NotFound("File not found.");
             return Ok(file);
         }
-
-        //get reading progress for inline reading
-        [HttpGet("progress/{fileId}")]
-        public async Task<IActionResult> GetReadingProgress(int fileId)
-        {
-            var userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrWhiteSpace(userClaim) || !int.TryParse(userClaim, out int userId))
-                return Unauthorized("User not identified");
-
-            var progress = await _context.ReadingProgresses
-                .FirstOrDefaultAsync(r => r.FileId == fileId && r.UserId == userId);
-
-            if(progress == null)
-                return Ok(new {ProgressPercent = 0});
-
-            return Ok(progress);
-        }
-
-        //save reading progress for inline reading
-        [HttpPost("progress/{fileId}")]
-        public async Task<IActionResult> UpdateReadingProgress(int fileId, [FromBody] ReadingProgressUpdateDto dto)
-        { 
-            var userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrWhiteSpace(userClaim) || !int.TryParse(userClaim, out int userId))
-                return Unauthorized("User not identified.");
-
-            if (dto.ProgressPercent < 0 || dto.ProgressPercent > 100)
-                return BadRequest("ProgressPercent must be between 0 and 100.");
-
-            var progress = await _context.ReadingProgresses
-                .FirstOrDefaultAsync(r => r.FileId == fileId && r.UserId == userId);
-
-            if (progress == null)
-            {
-                progress = new Models.ReadingProgress
-                {
-                    FileId = fileId,
-                    UserId = userId,
-                    ProgressPercent = dto.ProgressPercent,
-                    LastUpdated = DateTime.UtcNow
-                };
-                _context.ReadingProgresses.Add(progress);
-            }
-            else
-            {
-                progress.ProgressPercent = dto.ProgressPercent;
-                progress.LastUpdated = DateTime.UtcNow;
-                _context.ReadingProgresses.Update(progress);
-            }
-            await _context.SaveChangesAsync();
-            return Ok(progress);
-        }
     }
 }
