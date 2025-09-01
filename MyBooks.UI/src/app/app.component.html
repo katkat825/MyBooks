@@ -1,12 +1,11 @@
 <mat-toolbar class="navbar" color="primary">
   <mat-toolbar-row>
-    <a href="/" class="app-title">My Books</a>
+    <a href="/" class="app-title">My Book Catalog</a>
     <span class="spacer"></span>
 
     <ng-container *ngIf="isAuthenticated()">
-      <span class="account-text">My Account</span>
       <button mat-button [matMenuTriggerFor]="accountMenu" class="user-menu-button">
-        <mat-icon>person_pin</mat-icon>
+        <mat-icon>more_vert</mat-icon>
       </button>    
 
       <mat-menu #accountMenu="matMenu" xPosition="before" yPosition="below">

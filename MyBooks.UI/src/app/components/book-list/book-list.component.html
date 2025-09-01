@@ -18,6 +18,9 @@
   <div class="book-container">
     <div class="book" *ngFor="let book of filteredBooks">      
       <div class="book-cover" (click)="viewBookDetails(book)">
+        <span class="read-icon-wrapper" (click)="openBookViewer(book, $event)" *ngIf="book.fileId">
+          <mat-icon class="read-icon">menu_book</mat-icon>
+        </span>
         <h5 class="book-title">{{ book.title }}</h5>
         <h6 class="book-author">{{ book.author || "Unknown Author"}}</h6>
         <div class="book-spine"></div>

@@ -6,27 +6,6 @@
     {{ addingSeries ? 'Cancel' : 'Add Series' }}
   </button>
 
-
-  <table mat-table [dataSource]="series" class="mat-elevation-z8">
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef>Name</th>
-      <td mat-cell *matCellDef="let series">
-        {{ series.name }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef>Actions</th>
-      <td mat-cell *matCellDef="let series">
-        <button mat-icon-button id="edit-button" (click)="startEdit(series)"><mat-icon>edit</mat-icon></button>
-        <button mat-icon-button style="background-color: var(--warn);" id="delete-button" (click)="deleteSeries(series.id)"><mat-icon>delete</mat-icon></button>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="['name', 'actions']"></tr>
-    <tr mat-row *matRowDef="let row; columns: ['name', 'actions'];"></tr>
-  </table>
-
   <div *ngIf="addingSeries" class="create-form">
     <h3>Add New Series</h3>
     <form [formGroup]="createForm">
@@ -54,4 +33,24 @@
       </div>
     </form>
   </div>
+
+  <table mat-table [dataSource]="series" class="mat-elevation-z8">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let series">
+        {{ series.name }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let series">
+        <button mat-icon-button id="edit-button" (click)="startEdit(series)"><mat-icon>edit</mat-icon></button>
+        <button mat-icon-button style="background-color: var(--warn);" id="delete-button" (click)="deleteSeries(series.id)"><mat-icon>delete</mat-icon></button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="['name', 'actions']"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['name', 'actions'];"></tr>
+  </table>
 </div>

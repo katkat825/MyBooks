@@ -68,4 +68,9 @@ export class BookListComponent {
   addBook() {
     this.router.navigate(['/create']);
   }
+
+  openBookViewer(book: any, event: MouseEvent) {
+    event.stopPropagation();
+    this.router.navigate(['/book-viewer', book.fileId]);
+  }
 }

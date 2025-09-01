@@ -44,12 +44,20 @@ namespace MyBooks.CatalogService.Controllers
                 .Where(g => g.Name.ToLower() == genre.Name.ToLower())
                 .FirstOrDefaultAsync();
 
-            if (existingGenre != null) 
-                return Conflict($"A genre with the name {genre.Name} already exists.");
+            if (existingGenre != null)
+            {
+                if(!existingGenre.IsActive)
+                {
+                    //reactivate existing genre
+                    existingGenre.IsActive = true;
 
-            //add createdby info
-            genre.CreatedBy = User.Identity.Name;
-            genre.CreatedDate = DateTime.UtcNow;
+                    _context.Genres.Update(existingGenre);
+
+                    await _context.SaveChangesAsync();
+                    return Ok(existingGenre);
+                }
+                return Conflict($"A genre with the name {genre.Name} already exists.");
+            }
 
             _context.Genres.Add(genre);
             await _context.SaveChangesAsync();

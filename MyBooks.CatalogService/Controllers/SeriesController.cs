@@ -21,14 +21,14 @@ namespace MyBooks.CatalogService.Controllers
             _sanitizationService = htmlSanitizationService;
         }
 
-        // 🔹 GET: Fetch all series
+        // get all series
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Series>>> GetAllSeries()
         {
             return await _context.Series.ToListAsync();
         }
 
-        // 🔹 GET: Fetch a single series by ID
+        // fetch a single series by ID
         [HttpGet("{id}")]
         public async Task<ActionResult<Series>> GetSeries(int id)
         {
@@ -42,7 +42,7 @@ namespace MyBooks.CatalogService.Controllers
             return Ok(series);
         }
 
-        // 🔹 POST: Create a new series
+        // create a new series
         [HttpPost]
         public async Task<ActionResult<Series>> CreateSeries(Series series)
         {
@@ -56,7 +56,20 @@ namespace MyBooks.CatalogService.Controllers
                 .Where(s => s.Name.ToLower() == series.Name.ToLower())
                 .FirstOrDefaultAsync();
 
-            if (existingSeries != null) return Conflict($"A series with the name '{series.Name}' already exists.");
+            if (existingSeries != null)
+            {
+                if(!existingSeries.IsActive)
+                {
+                    //reactivate existing series
+                    existingSeries.IsActive = true;
+
+                    _context.Series.Update(existingSeries);
+
+                    await _context.SaveChangesAsync();
+                    return Ok(existingSeries);
+                }
+                return Conflict($"A series with the name '{series.Name}' already exists.");
+            }
 
             _context.Series.Add(series);
             await _context.SaveChangesAsync();
@@ -64,7 +77,7 @@ namespace MyBooks.CatalogService.Controllers
             return CreatedAtAction(nameof(GetSeries), new { id = series.Id }, series);
         }
 
-        // 🔹 PUT: Update an existing series
+        // update an existing series
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateSeries(int id, Series updatedSeries)
         {
@@ -93,7 +106,7 @@ namespace MyBooks.CatalogService.Controllers
             return NoContent();
         }
 
-        // 🔹 GET: Get all books in a series
+        // get all books in a series
         [HttpGet("{id}/books")]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooksInSeries(int id)
         {
