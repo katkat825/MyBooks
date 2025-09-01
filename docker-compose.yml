@@ -53,11 +53,19 @@ services:
     depends_on: [db]
     ports: ["5004:8080"]
 
+  emails:
+    build:
+      context: .
+      dockerfile: MyBooks.EmailService/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+    ports: ["5005:8080"]
+
   web:
     build:
       context: MyBooks.UI
       dockerfile: Dockerfile
-    depends_on: [auth, catalog, files]
+    depends_on: [auth, catalog, files, tenants, emails]
     ports: ["8080:80"]
 
 volumes:
