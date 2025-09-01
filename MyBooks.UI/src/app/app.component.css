@@ -53,6 +53,10 @@
   size: large !important;
 }
 
+.logo {
+  padding: 8px;
+}
+
 mat-icon {
   font-size: large !important;
   color: var(--text-color);
