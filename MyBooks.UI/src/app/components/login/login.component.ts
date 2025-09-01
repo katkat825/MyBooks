@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { TenantContext, TenantContextService } from '../../services/tenant-context.service';
 
 @Component({
   selector: 'app-login',
@@ -24,7 +25,7 @@ export class LoginComponent {
   loginForm: FormGroup;
   errorMessage: string = '';
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private router: Router) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private router: Router, private tenantContext: TenantContextService) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
@@ -36,7 +37,14 @@ export class LoginComponent {
       return;
     }
 
-    this.http.post<any>('https://localhost:7254/login', this.loginForm.value).subscribe({
+    const subdomain = this.tenantContext.getSubdomain();
+
+    const payload = {
+      ...this.loginForm.value,
+      subdomain
+    };
+
+    this.http.post<any>('https://localhost:7254/login', payload).subscribe({
       next: (response) => {
         localStorage.setItem('token', response.token);
         this.router.navigate(['/']); 

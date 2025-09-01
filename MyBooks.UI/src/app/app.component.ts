@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { UserService } from './services/user.service';
 import { isTokenExpired } from './utilities/auth-utilities';
+import { TenantContextService } from './services/tenant-context.service';
 
 @Component({
   selector: 'app-root',
@@ -28,28 +29,41 @@ export class AppComponent {
   userRole: string = '';
   accessAdminMenu: boolean = false;
 
-  constructor(private renderer: Renderer2, private router: Router, public userService: UserService) { }
+  constructor(private renderer: Renderer2, private router: Router, public userService: UserService, public tenantContext: TenantContextService) { }
 
   ngOnInit() {
-    const savedTheme = localStorage.getItem('theme');
-    this.setTheme(savedTheme || 'light');
+    this.tenantContext.loadTenantContext().subscribe({
+      next: ctx => {
+        console.log('tenant context loaded', ctx);
+        if(!ctx.isActive) {
+          // this.router.navigate(['/inactive']);
+          return;
+        }     
 
-    const token = localStorage.getItem('token');
+      const savedTheme = localStorage.getItem('theme');
+      this.setTheme(savedTheme || 'light');
 
-    if (!token) {
-      this.router.navigate(['/login']);
-    }
+      const token = localStorage.getItem('token');
 
-    if (token) { 
+      if (!token) {
+        this.router.navigate(['/login']);
+        return;
+      }
+
       if (isTokenExpired(token)) {
         console.warn('token expired. redirecting');
         localStorage.removeItem('token');
         this.router.navigate(['/login']);
-      } else {
-
-        this.userService.loadProfile();
+        return;
+      } 
+      
+      this.userService.loadProfile();
+    },
+      error: err => {
+        console.error('Error loading tenant context', err);
+        // this.router.navigate(['/error']);
       }
-    }
+    });
   }
 
   setTheme(theme: string) {

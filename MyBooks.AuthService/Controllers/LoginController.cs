@@ -16,20 +16,36 @@ namespace MyBooks.AuthService.Controllers
     {
         private readonly AuthDbContext _context;
         private readonly IConfiguration _config;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public LoginController(AuthDbContext context, IConfiguration config)
+        public LoginController(AuthDbContext context, IConfiguration config, IHttpClientFactory httpClientFactory)
         {
             _context = context;
             _config = config;
+            _httpClientFactory = httpClientFactory;
         }
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginDto request)
         {
+            var httpClient = _httpClientFactory.CreateClient();
+            var tenantResponse = await httpClient.GetAsync($"https://localhost:5005/api/tenants/by-subdomain/{request.Subdomain}");
+
+            if (!tenantResponse.IsSuccessStatusCode)
+                return BadRequest("Invalid subdomain.");
+
+            var tenant = await tenantResponse.Content.ReadFromJsonAsync<TenantLookupDto>();
+
+            if (tenant == null)
+                return BadRequest("Invalid subdomain.");
+            
+            if (!tenant.IsActive)
+                return Unauthorized("This subdomain is deactivated. Please contact support.");
+
             var email = request.Email.ToLower().Trim();
             var user = await _context.Users
                 .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(u => u.Email.ToLower().Trim() == email);
+                .FirstOrDefaultAsync(u => u.Email.ToLower().Trim() == email && u.TenantId == tenant.Id);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
                 return Unauthorized("Invalid username or password.");
@@ -40,9 +56,13 @@ namespace MyBooks.AuthService.Controllers
                 return Unauthorized("Your account has been deactivated.");
             }
 
+            if (user.TenantId != tenant.Id)
+                return NotFound("User not found for this subdomain.");
+
             var token = GenerateJwtToken(user);
             return Ok(new { Token = token });
         }
+
         public string GenerateJwtToken(User user)
         {
             var claims = new List<Claim>
