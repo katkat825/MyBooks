@@ -17,10 +17,13 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalHost", policy =>
     {
-        policy.SetIsOriginAllowedToAllowWildcardSubdomains()
-            .WithOrigins("http://localhost:62194")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+        policy.SetIsOriginAllowed(origin =>
+        {
+            if (origin == null) return false;
+            return origin.Contains("localhost");
+        })
+        .AllowAnyHeader()
+        .AllowAnyMethod();
     });
 });
 

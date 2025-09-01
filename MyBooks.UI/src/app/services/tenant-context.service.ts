@@ -26,14 +26,14 @@ export class TenantContextService {
     const host = window.location.host;
     const parts = host.split(".");
 
-    if (parts.length < 3) {
+    /*if (parts.length < 3) {
       return null;
-    }
+    }*/
 
     const subdomain = parts[0];
-    if(subdomain.toLowerCase() === 'www') {
+    /*if(subdomain.toLowerCase() === 'www') {
         return null;
-    }
+    }*/
 
     return subdomain;
   }
@@ -44,7 +44,7 @@ export class TenantContextService {
       throw new Error("Subdomain not found");
     }
 
-    const request$ = this.http.get<TenantContext>(`/api/tenants/by-subdomain/${subdomain}`);
+    const request$ = this.http.get<TenantContext>(`/api/tenant/by-subdomain/${subdomain}`);
 
     request$.subscribe({
       next: (context) => this.tenantContext$.next(context),

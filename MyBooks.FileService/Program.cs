@@ -30,13 +30,15 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalHost", policy =>
     {
-        policy.WithOrigins("http://localhost:62194")
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+        policy.SetIsOriginAllowed(origin =>
+        {
+            if (origin == null) return false;
+            return origin.Contains("localhost");
+        })
+        .AllowAnyHeader()
+        .AllowAnyMethod();
     });
 });
-
 builder.Services.AddHttpContextAccessor();
 
 // Add services to the container.

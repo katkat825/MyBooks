@@ -29,7 +29,7 @@ namespace MyBooks.AuthService.Controllers
         public async Task<IActionResult> Login(LoginDto request)
         {
             var httpClient = _httpClientFactory.CreateClient();
-            var tenantResponse = await httpClient.GetAsync($"https://localhost:5005/api/tenants/by-subdomain/{request.Subdomain}");
+            var tenantResponse = await httpClient.GetAsync($"https://localhost:5005/api/tenant/by-subdomain/{request.Subdomain}");
 
             if (!tenantResponse.IsSuccessStatusCode)
                 return BadRequest("Invalid subdomain.");
