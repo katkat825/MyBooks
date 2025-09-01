@@ -28,6 +28,7 @@ export class AppComponent {
   isLightTheme = true;
   userRole: string = '';
   accessAdminMenu: boolean = false;
+  currentUrl = window.location.href;
 
   constructor(private renderer: Renderer2, private router: Router, public userService: UserService, public tenantContext: TenantContextService) { }
 

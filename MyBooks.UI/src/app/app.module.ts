@@ -14,6 +14,7 @@ import { AdminUsersComponent } from './admin/admin-users/admin-users.component';
 import { AccountSettingsComponent } from './components/account-settings/account-settings.component';
 import { BookViewerComponent } from './components/book-viewer/book-viewer.component';
 import { AcceptableUsePolicyComponent } from './components/acceptable-use-policy/acceptable-use-policy.component';
+import { ReportAbuseComponent } from './components/report-abuse/report-abuse.component';
 
 @NgModule({
   imports: [
@@ -34,7 +35,8 @@ import { AcceptableUsePolicyComponent } from './components/acceptable-use-policy
     AdminUsersComponent,
     AccountSettingsComponent,
     BookViewerComponent,
-    AcceptableUsePolicyComponent
+    AcceptableUsePolicyComponent,
+    ReportAbuseComponent
   ]
 })
 export class AppModule { }

@@ -1,0 +1,34 @@
+<div class="container mt-4">
+  <!-- Spinner overlay -->
+  <div class="overlay" *ngIf="isSubmitting">
+    <mat-spinner class="mat-spinner"></mat-spinner>
+    <p>Submitting your report...</p>
+  </div>
+
+  <!-- Card wrapper -->
+  <div class="card p-4">
+    <h2 class="card-title">Report Abuse</h2>
+    <p class="card-subtitle">Use this form to report inappropriate or abusive content.</p>
+
+    <form *ngIf="!isSubmitting" [formGroup]="form" (ngSubmit)="submitReport()">
+      <input type="hidden" formControlName="pageUrl" />
+
+      <mat-form-field class="full-width description-field">
+        <mat-label>Description</mat-label>
+        <textarea matInput formControlName="description" rows="8"></textarea>
+        <mat-error *ngIf="form.get('description')?.invalid">
+          Description is required.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="full-width">
+        <mat-label>Contact Email (optional)</mat-label>
+        <input matInput type="email" formControlName="contactEmail" />
+      </mat-form-field>
+
+      <button mat-raised-button type="submit" [disabled]="isSubmitting">
+        Submit Report
+      </button>
+    </form>
+  </div>
+</div>

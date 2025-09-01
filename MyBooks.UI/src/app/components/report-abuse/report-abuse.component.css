@@ -1,0 +1,26 @@
+.full-width {
+  width: 100%;
+}
+
+.description-field textarea {
+  min-height: 150px;  /* taller */
+  font-size: 1rem;    /* slightly bigger text */
+}
+
+.description-field {
+  width: 100%;        /* full container width */
+}
+
+.card {
+    width: 75%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+@media (max-width: 600px) {
+    .card {
+        width: 80%;
+        border-radius: 0;
+    }    
+}
