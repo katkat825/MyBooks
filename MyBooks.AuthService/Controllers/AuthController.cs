@@ -14,8 +14,8 @@ using System.Linq;
 namespace MyBooks.AuthService.Controllers
 {
     [Route("api/users")]
-    [ApiController]   
-    [Authorize(Roles = AppRoles.Admins)] 
+    [ApiController]
+    [Authorize(Roles = AppRoles.Admins)]
     public class AuthController : Controller
     {
         private readonly AuthDbContext _context;
@@ -27,9 +27,9 @@ namespace MyBooks.AuthService.Controllers
             _sanitizationService = sanitizationService;
         }
 
-        [HttpGet]        
+        [HttpGet]
         public async Task<IActionResult> GetUsers()
-        {                            
+        {
             var users = await _context.Users.ToListAsync();
             return Ok(users);
         }
@@ -73,7 +73,7 @@ namespace MyBooks.AuthService.Controllers
 
                             bool touchesPrivileged =
                                 user.Role == AppRoles.SuperAdmin || user.Role == AppRoles.Owner ||
-                                newRole == AppRoles.SuperAdmin   || newRole == AppRoles.Owner;
+                                newRole == AppRoles.SuperAdmin || newRole == AppRoles.Owner;
 
                             if (touchesPrivileged && !User.IsInRole(AppRoles.SuperAdmin))
                             {
@@ -132,13 +132,13 @@ namespace MyBooks.AuthService.Controllers
             request.Email = _sanitizationService.Sanitize(request.Email, true);
 
             //check if email in use
-            if (await _context.Users.AnyAsync(u => u.Email == request.Email))  return BadRequest("Email already in use.");
+            if (await _context.Users.AnyAsync(u => u.Email == request.Email)) return BadRequest("Email already in use.");
 
             var requestedRole = request.Role;
 
-            if(!AppRoles.AllRoles.Contains(requestedRole)) return BadRequest("Invalid role.");
+            if (!AppRoles.AllRoles.Contains(requestedRole)) return BadRequest("Invalid role.");
 
-            if(!AppRoles.AssignableRoles.Contains(requestedRole) && !User.IsInRole(AppRoles.SuperAdmin))
+            if (!AppRoles.AssignableRoles.Contains(requestedRole) && !User.IsInRole(AppRoles.SuperAdmin))
                 return Forbid("You are not authorized to assign this role.");
 
             var user = new User
@@ -192,6 +192,26 @@ namespace MyBooks.AuthService.Controllers
 
             Console.WriteLine($"✅ User {id} reactivated.");
             return Ok(new { message = "User reactivated successfully" });
+        }
+
+        [HttpPatch("delete/{id}")]
+        [Authorize(Roles = AppRoles.Admins)]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                return NotFound("User not found.");
+
+            if (user.Role == AppRoles.SuperAdmin || user.Role == AppRoles.Owner)
+                return Forbid("Cannot delete a MyBookCatalog Support user or Owner user.");
+
+            user.IsVisible = false;
+            _context.Entry(user).Property(u => u.IsVisible).IsModified = true;
+
+            await _context.SaveChangesAsync();
+
+            Console.WriteLine($"User {id} deleted.");
+            return Ok(new { message = "User deleted successfully" });
         }
     }
 }

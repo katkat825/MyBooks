@@ -90,13 +90,37 @@ export class AdminUsersComponent {
       return;
     }
     if (user.isActive) {
-      if (confirm('Are you sure you want to deactivate ${user.firstname}?')) {
+      if (confirm(`Are you sure you want to deactivate ${user.firstName}?`)) {
         this.userService.deactivateUser(user.id).subscribe(() => this.loadUsers());
       }
     } else {
-      if (confirm('Are you sure you want to reactivate ${user.firstname}?')) {
+      if (confirm(`Are you sure you want to reactivate ${user.firstName}?`)) {
         this.userService.reactivateUser(user.id).subscribe(() => this.loadUsers());
       }
+    }
+  }
+
+  deleteUser(user: any) {
+    if (this.currentUserId && user.id === this.currentUserId) {
+      alert('You cannot delete your own account.');
+      return;
+    }
+    if (user.role === 'Owner' || user.role === 'SuperAdmin') {
+      alert('You cannot delete the Owner or SuperAdmin account.');
+      return;
+    }
+
+    if (confirm(`Are you sure you want to delete ${user.firstName}?`)) {
+      this.userService.deleteUser(user.id).subscribe({
+        next: () => {
+          this.showSavedSnack();
+          this.loadUsers();
+        },
+        error: (err) => {
+          console.error("Error deleting user: ", err);
+          alert("Failed to delete user.");
+        }
+      });
     }
   }
 

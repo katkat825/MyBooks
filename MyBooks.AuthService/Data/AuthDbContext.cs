@@ -33,7 +33,7 @@ namespace MyBooks.AuthService.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<User>()
-                .HasQueryFilter(u => u.TenantId == GetCurrentTenantId());
+                .HasQueryFilter(u => u.TenantId == GetCurrentTenantId() && u.IsVisible);
         }
 
         public override int SaveChanges()
@@ -63,20 +63,30 @@ namespace MyBooks.AuthService.Data
                 entry.Entity.GetType().GetProperty("TenantId")?.SetValue(entry.Entity, currentTenant);
             }
 
-            // apply audit information
-            foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
+            // soft-delete only
+            foreach (var entry in ChangeTracker.Entries<User>())
             {
-                if (entry.State == EntityState.Added)
+                if (entry.State == EntityState.Deleted)
                 {
-                    entry.Entity.CreatedDate = DateTime.UtcNow;
-                    entry.Entity.CreatedBy = currentUser;
-                }
-                if (entry.State == EntityState.Modified)
-                {
-                    entry.Entity.LastModifiedDate = DateTime.UtcNow;
-                    entry.Entity.LastModifiedBy = currentUser;
+                    entry.State = EntityState.Modified;
+                    entry.Entity.IsVisible = false;
                 }
             }
+
+            // apply audit information
+                foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
+                {
+                    if (entry.State == EntityState.Added)
+                    {
+                        entry.Entity.CreatedDate = DateTime.UtcNow;
+                        entry.Entity.CreatedBy = currentUser;
+                    }
+                    if (entry.State == EntityState.Modified)
+                    {
+                        entry.Entity.LastModifiedDate = DateTime.UtcNow;
+                        entry.Entity.LastModifiedBy = currentUser;
+                    }
+                }
         }
     }
 }

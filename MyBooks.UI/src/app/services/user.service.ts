@@ -128,6 +128,17 @@ export class UserService {
     );
   }
 
+  // soft-delete only
+  deleteUser(id: number): Observable<any> {
+    return this.http.patch<any>(`${this.usersApiUrl}/delete/${id}`, {}, { headers: this.getAuthHeaders() }).pipe(
+      tap(() => console.log(`✅ Successfully deleted user ID: ${id}`)),
+      catchError(error => {
+        console.error("❌ Error deleting user:", error);
+        return throwError(() => new Error("Failed to delete user."));
+      })
+    );
+  }
+
   updateProfile(dto: any): Observable<any> {
     return this.http.patch<any>(`${environment.authServiceUrl}/account/profile`, dto, { headers: this.getAuthHeaders() }).pipe(
       tap(response => console.log("Profile updated:", response)),

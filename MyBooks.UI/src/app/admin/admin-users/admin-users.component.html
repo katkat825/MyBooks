@@ -153,6 +153,10 @@
                   [disabled]="user.id === currentUserId || user.role === 'Owner' || user.role === 'SuperAdmin'">
             {{ user.isActive ? 'Deactivate' : 'Reactivate' }}
           </button>
+          <button mat-button class="warn-btn" 
+            *ngIf="!user.isActive"
+            (click)="deleteUser(user)" 
+            [disabled]="user.id === currentUserId || user.role === 'Owner' || user.role === 'SuperAdmin'">Delete</button>
         </span>
       </td>
     </ng-container>

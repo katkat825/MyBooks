@@ -18,6 +18,10 @@ button:disabled {
   pointer-events: none;
 }
 
+.warn-btn {
+  background-color: var(--warn) !important;
+}
+
 h2,
 mat-card-title
 {
