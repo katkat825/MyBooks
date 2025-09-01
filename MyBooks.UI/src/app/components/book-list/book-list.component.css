@@ -70,13 +70,17 @@
   cursor: pointer;
 }
 
-.read-icon {
+.read-icon, .restricted-icon {
   position: absolute;
   top: 8px;
   right: 8px;
   font-size: 22px;
   color: var(--title-color);
   pointer-events: none;  /* allow clicks to pass through to wrapper */
+}
+
+.restricted-icon {
+  color: var(--warn);
 }
 
 .book-title {

@@ -14,17 +14,23 @@
 
   <div *ngIf="!unauthorized" class="book-container">
     <mat-card class="book-details-card">
-      <mat-card-title>{{ book?.title }}</mat-card-title>
+      <mat-card-title>
+        <mat-icon *ngIf="book.isRestricted">block</mat-icon>
+        {{ book?.title }}
+      </mat-card-title>
       <div *ngIf="book" class="book-details-container">
         <p><strong>Author:</strong> {{ book.author || 'Unknown' }}</p>
         <p><strong>Series:</strong> {{ book.series?.name || '' }}</p>
         <p *ngIf="book.series"><strong>Series Position:</strong> Book # {{book.seriesPosition ||'Unknown'}}</p>
         <p><strong>Genre:</strong> {{ book.genre?.name || 'Unknown' }}</p>
         <p><strong>Age Category:</strong> {{ book.ageCategory?.name || 'Unknown' }}</p>
-        <p *ngIf="!book.fileId"><strong>Location:</strong> {{ book.location || 'Unknown' }}</p>
-        <p><strong>Description:</strong> {{ book.description || 'Unknown' }}</p>
+        <p *ngIf="!book.fileId && !book.isRestricted"><strong>Location:</strong> {{ book.location || 'Unknown' }}</p>
+        <p *ngIf="!book.isRestricted"><strong>Description:</strong> {{ book.description || 'Unknown' }}</p>
         <p><strong>ISBN:</strong> {{ book.isbn || 'Unknown' }}</p>
-        <div *ngIf="book.fileId">
+        <p *ngIf="book.isRestricted" class="restricted-status">
+          <strong>Status:</strong> This book is currently under investigation and cannot be accessed, deleted, or modified
+        </p>
+        <div *ngIf="book.fileId && !book.isRestricted">
           <p><strong>Book File: </strong>
           <button mat-button (click)="downloadBookFile(book.fileId)">Download</button></p>
           <button mat-button [routerLink]="['/book-viewer', book.fileId]">
@@ -33,7 +39,7 @@
         </div>
       </div>
     </mat-card>
-    <div class="button-group" *ngIf="hasEditDeletePermission()">
+    <div class="button-group" *ngIf="hasEditDeletePermission() && !book.isRestricted">
       <button mat-raised-button id="edit-book" (click)="editBook(book)">Edit</button>
       <button mat-raised-button id="danger-button" (click)="deleteBook(book)">Delete</button>
     </div>

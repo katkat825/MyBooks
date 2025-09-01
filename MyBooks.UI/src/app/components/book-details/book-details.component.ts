@@ -73,6 +73,13 @@ export class BookDetailsComponent implements OnInit {
   }
 
   deleteBook(book: any) {
+    if (book.isRestricted)
+      {
+        alert('This book is currently under investigation and cannot be modified.');
+        this.router.navigate(['/book', book.id]);
+        return;
+      }
+
     if (confirm("Are you sure you want to delete this book?")) {
       const id = book.id;
 
@@ -99,6 +106,12 @@ export class BookDetailsComponent implements OnInit {
   }
 
   downloadBookFile(fileId: number) {
+    if (this.book.isRestricted)
+      {
+        alert('This book is currently under investigation and cannot be downloaded.');
+        this.router.navigate(['/book', this.book.id]);
+        return;
+      }
     this.bookService.downloadFile(fileId).subscribe({
       next: (fileBlob) => {
         const blobUrl = window.URL.createObjectURL(fileBlob);

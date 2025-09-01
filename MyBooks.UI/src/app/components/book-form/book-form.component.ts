@@ -87,6 +87,10 @@ export class BookFormComponent implements OnInit {
                 if (!book) {
                   alert('Book not found.');
                   this.router.navigate(['/']);
+                } else if (book.isRestricted)
+                {
+                  alert('This book is currently under investigation and cannot be modified.');
+                  this.router.navigate(['/book', id]);
                 } else if (
                   book.createdBy !== this.currentUser.id.toString() &&
                   !['admin', 'editor', 'owner', 'superadmin'].includes(this.currentUser.role.toLowerCase())

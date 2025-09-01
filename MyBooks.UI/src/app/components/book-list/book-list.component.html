@@ -18,8 +18,18 @@
   <div class="book-container">
     <div class="book" *ngFor="let book of filteredBooks">      
       <div class="book-cover" (click)="viewBookDetails(book)">
-        <span class="read-icon-wrapper" (click)="openBookViewer(book, $event)" *ngIf="book.fileId">
+        <span 
+            class="read-icon-wrapper" 
+            (click)="openBookViewer(book, $event)" 
+            *ngIf="book.fileId && !book.isRestricted"
+            matTooltip="Read this book">
           <mat-icon class="read-icon">menu_book</mat-icon>
+        </span>
+        <span 
+            class="read-icon-wrapper"
+            *ngIf="book.isRestricted"
+            matTooltip="This book is under investigation and cannot be accessed">
+          <mat-icon class="restricted-icon">block</mat-icon>
         </span>
         <h5 class="book-title">{{ book.title }}</h5>
         <h6 class="book-author">{{ book.author || "Unknown Author"}}</h6>

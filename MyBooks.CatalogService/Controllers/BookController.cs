@@ -145,6 +145,11 @@ namespace MyBooks.CatalogService.Controllers
 
             var existingBook = await _context.Books.Include(b => b.Genre).FirstOrDefaultAsync(b => b.Id == id);
 
+            if (existingBook == null) return NotFound();
+
+            if (existingBook.IsRestricted)
+                return Forbid($"Book '{existingBook.Title}' is restricted and cannot be modified.");
+
             //verify authenticated user is either admin, editor, or creator
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
@@ -223,10 +228,13 @@ namespace MyBooks.CatalogService.Controllers
                 return NotFound("Book not found.");
             }
 
+            if (book.IsRestricted)
+                return Forbid($"Book '{book.Title}' is restricted and its file cannot be changed.");
+
             if (request.FileId <= 0)
-            {
-                return BadRequest("Invalid FileId.");
-            }
+                {
+                    return BadRequest("Invalid FileId.");
+                }
 
             book.FileId = request.FileId;
             _context.Entry(book).State = EntityState.Modified;
@@ -248,8 +256,11 @@ namespace MyBooks.CatalogService.Controllers
             var book = await _context.Books.FindAsync(id);
             if (book == null) return NotFound();
 
+            if (book.IsRestricted)
+                return Forbid($"Book '{book.Title}' is restricted and cannot be deleted.");
+
             //verify authenticated user is either admin, editor, or creator
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             var canEdit = AppRoles.EditorsArray.Any(User.IsInRole);
             var isCreator = book.CreatedBy == userId.ToString();
 

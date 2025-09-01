@@ -121,16 +121,26 @@ namespace MyBooks.CatalogService.Data
                     throw new InvalidOperationException($"{entityType.Name} cannot be deleted or modified.");
                 }
 
-                // soft delete
-                if (entry.State == EntityState.Deleted)
+                // prevent any modification of restricted books 
+                if (entityType == typeof(Book))
                 {
-                    var activeProperty = entry.Entity.GetType().GetProperty("IsActive");
-                    if (activeProperty != null && activeProperty.PropertyType == typeof(bool))
+                    var book = (Book)entry.Entity;
+                    if (book.IsRestricted)
                     {
-                        entry.State = EntityState.Modified;
-                        activeProperty?.SetValue(entry.Entity, false);
+                        throw new InvalidOperationException($"Book '{book.Title}' is restricted and cannot be modified or deleted.");
                     }
                 }
+
+                // soft delete
+                    if (entry.State == EntityState.Deleted)
+                    {
+                        var activeProperty = entry.Entity.GetType().GetProperty("IsActive");
+                        if (activeProperty != null && activeProperty.PropertyType == typeof(bool))
+                        {
+                            entry.State = EntityState.Modified;
+                            activeProperty?.SetValue(entry.Entity, false);
+                        }
+                    }
             }
         }
 

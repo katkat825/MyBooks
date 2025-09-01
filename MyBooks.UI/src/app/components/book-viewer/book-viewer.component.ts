@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy, viewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BookService } from '../../services/book.service';
 import { Subscription, fromEvent } from 'rxjs';
 import { debounce, debounceTime } from 'rxjs/operators';
@@ -36,7 +36,8 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private bookService: BookService
+    private bookService: BookService,
+    private router: Router
   ) { }  
 
   ngOnInit(): void {
@@ -44,22 +45,42 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.bookService.getFileMetadata(this.fileId).subscribe({
       next: (metadata) => {
-        if (metadata && metadata.contentType) {
-          if (metadata.contentType === 'application/pdf') {
-            this.fileType = 'pdf';
-          } else if (metadata.contentType === 'application/epub+zip') {
-            this.fileType = 'epub';
-          } else {
-            console.warn('Unsupported ContentType, defaulting to pdf');
-            this.fileType = 'pdf';
-          }
+        if (!metadata) {
+          alert('File not found.');
+          this.router.navigate(['/']);
+          return;
         }
-        this.loadFile();
+
+        // ✅ Check if book is restricted
+        this.bookService.getBook(metadata.bookId).subscribe({
+          next: (book) => {
+            if (book.isRestricted) {
+              alert('This book is currently under investigation and cannot be viewed.');
+              this.router.navigate(['/book', metadata.bookId]);
+              return;
+            }
+
+            // Safe to continue with fileType logic
+            if (metadata.contentType === 'application/pdf') {
+              this.fileType = 'pdf';
+            } else if (metadata.contentType === 'application/epub+zip') {
+              this.fileType = 'epub';
+            } else {
+              console.warn('Unsupported ContentType, defaulting to pdf');
+              this.fileType = 'pdf';
+            }
+
+            this.loadFile();
+          },
+          error: (err) => {
+            console.error('Error fetching book details', err);
+            this.router.navigate(['/']);
+          }
+        });
       },
       error: (err) => {
         console.error('Error fetching file metadata', err);
-        this.fileType = 'pdf';
-        this.loadFile();
+        this.router.navigate(['/']);
       }
     });
   }

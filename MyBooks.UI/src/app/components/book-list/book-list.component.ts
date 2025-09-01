@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-book-list',
@@ -24,7 +25,8 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     MatFormFieldModule, 
     MatInputModule, 
     FormsModule, 
-    MatProgressSpinner
+    MatProgressSpinner,
+    MatTooltipModule
   ]
 })
 export class BookListComponent {

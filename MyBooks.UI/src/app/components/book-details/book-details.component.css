@@ -65,3 +65,13 @@ mat-card-title {
 button {
   margin-right: 10px;
 }
+
+.restricted-status {
+  background-color: var(--warn);
+  color: var(--button-text);
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-top: 1rem;
+  display: inline-block;
+}
