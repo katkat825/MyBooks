@@ -32,6 +32,11 @@ namespace MyBooks.FileService.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.HasDefaultSchema("file");
+            modelBuilder.Entity<FileMetadata>().ToTable("FilesMetaData");
+            modelBuilder.Entity<ReadingProgress>().ToTable("ReadingProgress");
+
             // Indexing for faster queries
             modelBuilder.Entity<FileMetadata>()
                 .HasQueryFilter(f => f.IsActive && f.TenantId == GetCurrentTenantId())

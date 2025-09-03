@@ -3,24 +3,22 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyBooks.CatalogService.Data;
 
 #nullable disable
 
-namespace MyBooks.CatalogService.Migrations
+namespace MyBooks.CatalogService.Data.Migrations
 {
     [DbContext(typeof(CatalogDbContext))]
-    [Migration("20250901202425_AddIsRestricted")]
-    partial class AddIsRestricted
+    partial class CatalogDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.3")
+                .HasDefaultSchema("catalog")
+                .HasAnnotation("ProductVersion", "9.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -37,7 +35,7 @@ namespace MyBooks.CatalogService.Migrations
 
                     b.HasIndex("TagsId");
 
-                    b.ToTable("BookTag");
+                    b.ToTable("BookTag", "catalog");
                 });
 
             modelBuilder.Entity("MyBooks.CatalogService.Models.AgeCategory", b =>
@@ -54,7 +52,7 @@ namespace MyBooks.CatalogService.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AgeCategories");
+                    b.ToTable("AgeCategories", "catalog");
 
                     b.HasData(
                         new
@@ -152,7 +150,7 @@ namespace MyBooks.CatalogService.Migrations
 
                     b.HasIndex("SeriesId");
 
-                    b.ToTable("Books");
+                    b.ToTable("Books", "catalog");
 
                     b.HasData(
                         new
@@ -218,7 +216,7 @@ namespace MyBooks.CatalogService.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Genres");
+                    b.ToTable("Genres", "catalog");
 
                     b.HasData(
                         new
@@ -331,7 +329,7 @@ namespace MyBooks.CatalogService.Migrations
 
                     b.HasIndex("SeriesId");
 
-                    b.ToTable("MasterBooks");
+                    b.ToTable("MasterBooks", "catalog");
                 });
 
             modelBuilder.Entity("MyBooks.CatalogService.Models.Series", b =>
@@ -367,7 +365,7 @@ namespace MyBooks.CatalogService.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Series");
+                    b.ToTable("Series", "catalog");
                 });
 
             modelBuilder.Entity("MyBooks.CatalogService.Models.Tag", b =>
@@ -408,7 +406,7 @@ namespace MyBooks.CatalogService.Migrations
 
                     b.HasIndex("MasterBookId");
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tags", "catalog");
 
                     b.HasData(
                         new

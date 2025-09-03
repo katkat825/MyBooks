@@ -5,16 +5,20 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace MyBooks.TenantService.Migrations
+namespace MyBooks.TenantService.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitCentralDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "tenant");
+
             migrationBuilder.CreateTable(
                 name: "BillingPlans",
+                schema: "tenant",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -22,10 +26,7 @@ namespace MyBooks.TenantService.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     MonthlyPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     AnnualPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
-                    MaxUsers = table.Column<int>(type: "int", nullable: false),
                     MaxStorageMb = table.Column<int>(type: "int", nullable: false),
-                    AllowStorage = table.Column<bool>(type: "bit", nullable: false),
-                    AllowExternalIntegrations = table.Column<bool>(type: "bit", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -39,15 +40,18 @@ namespace MyBooks.TenantService.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Tenants",
+                schema: "tenant",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Subdomain = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Subdomain = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     BillingPlanId = table.Column<int>(type: "int", nullable: false),
                     OwnerUserId = table.Column<int>(type: "int", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    DiscountPercent = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    CreditBalance = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -59,39 +63,48 @@ namespace MyBooks.TenantService.Migrations
                     table.ForeignKey(
                         name: "FK_Tenants_BillingPlans_BillingPlanId",
                         column: x => x.BillingPlanId,
+                        principalSchema: "tenant",
                         principalTable: "BillingPlans",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
+                schema: "tenant",
                 table: "BillingPlans",
-                columns: new[] { "Id", "AllowExternalIntegrations", "AllowStorage", "AnnualPrice", "CreatedBy", "CreatedDate", "IsActive", "LastModifiedBy", "LastModifiedDate", "MaxStorageMb", "MaxUsers", "MonthlyPrice", "Name" },
-                values: new object[] { 1, true, true, 0m, "System", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, null, null, 0, 0, 0m, "Dev Testing" });
-
-            migrationBuilder.InsertData(
-                table: "Tenants",
-                columns: new[] { "Id", "BillingPlanId", "CreatedBy", "CreatedDate", "IsActive", "LastModifiedBy", "LastModifiedDate", "Name", "OwnerUserId", "Subdomain" },
+                columns: new[] { "Id", "AnnualPrice", "CreatedBy", "CreatedDate", "IsActive", "LastModifiedBy", "LastModifiedDate", "MaxStorageMb", "MonthlyPrice", "Name" },
                 values: new object[,]
                 {
-                    { 1, 1, "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, null, null, "Tenant One", 3, "tenant1" },
-                    { 2, 1, "System", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, null, null, "Tenant Two", 4, "tenant2" }
+                    { 1, 0m, "System", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, null, null, 1024, 0m, "Free" },
+                    { 2, 40m, "System", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, null, null, 5120, 4m, "Basic" },
+                    { 3, 80m, "System", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, null, null, 15360, 8m, "Standard" },
+                    { 4, 150m, "System", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), true, null, null, 51200, 15m, "Premium" }
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tenants_BillingPlanId",
+                schema: "tenant",
                 table: "Tenants",
                 column: "BillingPlanId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tenants_Subdomain",
+                schema: "tenant",
+                table: "Tenants",
+                column: "Subdomain",
+                unique: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Tenants");
+                name: "Tenants",
+                schema: "tenant");
 
             migrationBuilder.DropTable(
-                name: "BillingPlans");
+                name: "BillingPlans",
+                schema: "tenant");
         }
     }
 }

@@ -12,7 +12,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("TenantConnection");
 
 builder.Services.AddCors(options =>
 {
@@ -29,7 +28,10 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddDbContext<TenantDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("Default"),
+        sql => sql.MigrationsHistoryTable("__EFMigrationsHistory", "tenant")
+    ));
 
 builder.Services.AddSingleton<HtmlSanitizationService>();
 

@@ -9,18 +9,19 @@ using MyBooks.CatalogService.Data;
 
 #nullable disable
 
-namespace MyBooks.CatalogService.Migrations
+namespace MyBooks.CatalogService.Data.Migrations
 {
     [DbContext(typeof(CatalogDbContext))]
-    [Migration("20250830162632_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250903113419_InitCentralDb")]
+    partial class InitCentralDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.3")
+                .HasDefaultSchema("catalog")
+                .HasAnnotation("ProductVersion", "9.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -37,7 +38,7 @@ namespace MyBooks.CatalogService.Migrations
 
                     b.HasIndex("TagsId");
 
-                    b.ToTable("BookTag");
+                    b.ToTable("BookTag", "catalog");
                 });
 
             modelBuilder.Entity("MyBooks.CatalogService.Models.AgeCategory", b =>
@@ -54,7 +55,7 @@ namespace MyBooks.CatalogService.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AgeCategories");
+                    b.ToTable("AgeCategories", "catalog");
 
                     b.HasData(
                         new
@@ -107,6 +108,12 @@ namespace MyBooks.CatalogService.Migrations
                     b.Property<string>("ISBN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRestricted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -115,6 +122,9 @@ namespace MyBooks.CatalogService.Migrations
 
                     b.Property<string>("Location")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("MasterBookId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("PublishedDate")
                         .HasColumnType("datetime2");
@@ -128,6 +138,9 @@ namespace MyBooks.CatalogService.Migrations
                     b.Property<string>("TagInput")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -140,7 +153,7 @@ namespace MyBooks.CatalogService.Migrations
 
                     b.HasIndex("SeriesId");
 
-                    b.ToTable("Books");
+                    b.ToTable("Books", "catalog");
 
                     b.HasData(
                         new
@@ -152,6 +165,9 @@ namespace MyBooks.CatalogService.Migrations
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "A science fiction novel set in a distant future amidst a huge interstellar empire, where a young nobleman becomes embroiled in a complex struggle for control of the desert planet Arrakis.",
                             GenreId = 1,
+                            IsActive = true,
+                            IsRestricted = false,
+                            TenantId = 1,
                             Title = "Dune"
                         },
                         new
@@ -163,6 +179,9 @@ namespace MyBooks.CatalogService.Migrations
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "A fantasy novel that follows the journey of Bilbo Baggins, a hobbit who is swept into an epic quest to reclaim a treasure guarded by the dragon Smaug.",
                             GenreId = 2,
+                            IsActive = true,
+                            IsRestricted = false,
+                            TenantId = 1,
                             Title = "The Hobbit"
                         });
                 });
@@ -200,7 +219,7 @@ namespace MyBooks.CatalogService.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Genres");
+                    b.ToTable("Genres", "catalog");
 
                     b.HasData(
                         new
@@ -209,7 +228,8 @@ namespace MyBooks.CatalogService.Migrations
                             CreatedBy = "system",
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsActive = true,
-                            Name = "Science Fiction"
+                            Name = "Science Fiction",
+                            TenantId = 1
                         },
                         new
                         {
@@ -217,7 +237,8 @@ namespace MyBooks.CatalogService.Migrations
                             CreatedBy = "system",
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsActive = true,
-                            Name = "Fantasy"
+                            Name = "Fantasy",
+                            TenantId = 1
                         },
                         new
                         {
@@ -225,7 +246,8 @@ namespace MyBooks.CatalogService.Migrations
                             CreatedBy = "system",
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsActive = true,
-                            Name = "Mystery"
+                            Name = "Mystery",
+                            TenantId = 1
                         },
                         new
                         {
@@ -233,7 +255,8 @@ namespace MyBooks.CatalogService.Migrations
                             CreatedBy = "system",
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsActive = true,
-                            Name = "Romance"
+                            Name = "Romance",
+                            TenantId = 1
                         },
                         new
                         {
@@ -241,8 +264,75 @@ namespace MyBooks.CatalogService.Migrations
                             CreatedBy = "system",
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsActive = true,
-                            Name = "Horror"
+                            Name = "Horror",
+                            TenantId = 1
                         });
+                });
+
+            modelBuilder.Entity("MyBooks.CatalogService.Models.MasterBook", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AgeCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Author")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("GenreId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ISBN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("PublishedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("SeriesId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SeriesPosition")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TagInput")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgeCategoryId");
+
+                    b.HasIndex("GenreId");
+
+                    b.HasIndex("SeriesId");
+
+                    b.ToTable("MasterBooks", "catalog");
                 });
 
             modelBuilder.Entity("MyBooks.CatalogService.Models.Series", b =>
@@ -278,7 +368,7 @@ namespace MyBooks.CatalogService.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Series");
+                    b.ToTable("Series", "catalog");
                 });
 
             modelBuilder.Entity("MyBooks.CatalogService.Models.Tag", b =>
@@ -305,6 +395,9 @@ namespace MyBooks.CatalogService.Migrations
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("MasterBookId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -314,7 +407,9 @@ namespace MyBooks.CatalogService.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tags");
+                    b.HasIndex("MasterBookId");
+
+                    b.ToTable("Tags", "catalog");
 
                     b.HasData(
                         new
@@ -324,7 +419,7 @@ namespace MyBooks.CatalogService.Migrations
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsActive = true,
                             Name = "spicy",
-                            TenantId = 0
+                            TenantId = 1
                         },
                         new
                         {
@@ -333,7 +428,7 @@ namespace MyBooks.CatalogService.Migrations
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsActive = true,
                             Name = "magic",
-                            TenantId = 0
+                            TenantId = 1
                         },
                         new
                         {
@@ -342,7 +437,7 @@ namespace MyBooks.CatalogService.Migrations
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsActive = true,
                             Name = "detective",
-                            TenantId = 0
+                            TenantId = 1
                         },
                         new
                         {
@@ -351,7 +446,7 @@ namespace MyBooks.CatalogService.Migrations
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsActive = true,
                             Name = "love",
-                            TenantId = 0
+                            TenantId = 1
                         },
                         new
                         {
@@ -360,7 +455,7 @@ namespace MyBooks.CatalogService.Migrations
                             CreatedDate = new DateTime(2025, 2, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsActive = true,
                             Name = "monsters",
-                            TenantId = 0
+                            TenantId = 1
                         });
                 });
 
@@ -404,6 +499,38 @@ namespace MyBooks.CatalogService.Migrations
                     b.Navigation("Series");
                 });
 
+            modelBuilder.Entity("MyBooks.CatalogService.Models.MasterBook", b =>
+                {
+                    b.HasOne("MyBooks.CatalogService.Models.AgeCategory", "AgeCategory")
+                        .WithMany()
+                        .HasForeignKey("AgeCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyBooks.CatalogService.Models.Genre", "Genre")
+                        .WithMany()
+                        .HasForeignKey("GenreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyBooks.CatalogService.Models.Series", "Series")
+                        .WithMany()
+                        .HasForeignKey("SeriesId");
+
+                    b.Navigation("AgeCategory");
+
+                    b.Navigation("Genre");
+
+                    b.Navigation("Series");
+                });
+
+            modelBuilder.Entity("MyBooks.CatalogService.Models.Tag", b =>
+                {
+                    b.HasOne("MyBooks.CatalogService.Models.MasterBook", null)
+                        .WithMany("Tags")
+                        .HasForeignKey("MasterBookId");
+                });
+
             modelBuilder.Entity("MyBooks.CatalogService.Models.AgeCategory", b =>
                 {
                     b.Navigation("Books");
@@ -412,6 +539,11 @@ namespace MyBooks.CatalogService.Migrations
             modelBuilder.Entity("MyBooks.CatalogService.Models.Genre", b =>
                 {
                     b.Navigation("Books");
+                });
+
+            modelBuilder.Entity("MyBooks.CatalogService.Models.MasterBook", b =>
+                {
+                    b.Navigation("Tags");
                 });
 
             modelBuilder.Entity("MyBooks.CatalogService.Models.Series", b =>

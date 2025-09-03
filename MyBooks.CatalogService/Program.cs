@@ -80,7 +80,11 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddDbContext<CatalogDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("CatalogConnection")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("Default"),
+        sql => sql.MigrationsHistoryTable("_EFMigrationsHistory", "catalog")
+));
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 builder.Services.AddHttpClient();

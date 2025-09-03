@@ -34,7 +34,10 @@ builder.Services.AddHttpContextAccessor();
 builder.Configuration.AddMyBooksDefaultProviders(builder.Environment);
 
 builder.Services.AddDbContext<AuthDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("AuthConnection")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("Default"),
+        sql => sql.MigrationsHistoryTable("__EFMigrationsHistory", "auth")
+));
 
 //add security services from Common
 builder.Services.AddSingleton<HtmlSanitizationService>();

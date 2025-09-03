@@ -3,23 +3,21 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyBooks.TenantService.Data;
 
 #nullable disable
 
-namespace MyBooks.TenantService.Migrations
+namespace MyBooks.TenantService.Data.Migrations
 {
     [DbContext(typeof(TenantDbContext))]
-    [Migration("20250903102028_FurtherSimplified")]
-    partial class FurtherSimplified
+    partial class TenantDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("tenant")
                 .HasAnnotation("ProductVersion", "9.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
@@ -66,7 +64,53 @@ namespace MyBooks.TenantService.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BillingPlans");
+                    b.ToTable("BillingPlans", "tenant");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AnnualPrice = 0m,
+                            CreatedBy = "System",
+                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsActive = true,
+                            MaxStorageMb = 1024,
+                            MonthlyPrice = 0m,
+                            Name = "Free"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AnnualPrice = 40m,
+                            CreatedBy = "System",
+                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsActive = true,
+                            MaxStorageMb = 5120,
+                            MonthlyPrice = 4m,
+                            Name = "Basic"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            AnnualPrice = 80m,
+                            CreatedBy = "System",
+                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsActive = true,
+                            MaxStorageMb = 15360,
+                            MonthlyPrice = 8m,
+                            Name = "Standard"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            AnnualPrice = 150m,
+                            CreatedBy = "System",
+                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsActive = true,
+                            MaxStorageMb = 51200,
+                            MonthlyPrice = 15m,
+                            Name = "Premium"
+                        });
                 });
 
             modelBuilder.Entity("MyBooks.TenantService.Models.Tenant", b =>
@@ -86,6 +130,12 @@ namespace MyBooks.TenantService.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("CreditBalance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("DiscountPercent")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -114,7 +164,7 @@ namespace MyBooks.TenantService.Migrations
                     b.HasIndex("Subdomain")
                         .IsUnique();
 
-                    b.ToTable("Tenants");
+                    b.ToTable("Tenants", "tenant");
                 });
 
             modelBuilder.Entity("MyBooks.TenantService.Models.Tenant", b =>

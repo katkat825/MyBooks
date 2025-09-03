@@ -3,24 +3,22 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyBooks.FileService.Data;
 
 #nullable disable
 
-namespace MyBooks.FileService.Migrations
+namespace MyBooks.FileService.Data.Migrations
 {
     [DbContext(typeof(FileDbContext))]
-    [Migration("20250830172641_InitialCreate")]
-    partial class InitialCreate
+    partial class FileDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.3")
+                .HasDefaultSchema("file")
+                .HasAnnotation("ProductVersion", "9.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -61,9 +59,6 @@ namespace MyBooks.FileService.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsVisible")
-                        .HasColumnType("bit");
-
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -81,7 +76,7 @@ namespace MyBooks.FileService.Migrations
 
                     b.HasIndex("BookId");
 
-                    b.ToTable("Files");
+                    b.ToTable("FilesMetaData", "file");
                 });
 
             modelBuilder.Entity("MyBooks.FileService.Models.ReadingProgress", b =>
@@ -111,7 +106,7 @@ namespace MyBooks.FileService.Migrations
 
                     b.HasIndex("FileId", "UserId");
 
-                    b.ToTable("ReadingProgresses");
+                    b.ToTable("ReadingProgress", "file");
                 });
 #pragma warning restore 612, 618
         }

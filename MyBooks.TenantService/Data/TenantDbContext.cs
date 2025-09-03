@@ -28,6 +28,9 @@ namespace MyBooks.TenantService.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.HasDefaultSchema("tenant");
+            modelBuilder.Entity<BillingPlan>().ToTable("BillingPlans");
+            modelBuilder.Entity<Tenant>().ToTable("Tenants");
 
             modelBuilder.Entity<BillingPlan>(entity =>
             {

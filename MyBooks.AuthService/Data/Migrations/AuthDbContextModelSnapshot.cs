@@ -8,7 +8,7 @@ using MyBooks.AuthService.Data;
 
 #nullable disable
 
-namespace MyBooks.AuthService.Migrations
+namespace MyBooks.AuthService.Data.Migrations
 {
     [DbContext(typeof(AuthDbContext))]
     partial class AuthDbContextModelSnapshot : ModelSnapshot
@@ -17,7 +17,8 @@ namespace MyBooks.AuthService.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.3")
+                .HasDefaultSchema("auth")
+                .HasAnnotation("ProductVersion", "9.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -83,7 +84,7 @@ namespace MyBooks.AuthService.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", "auth");
                 });
 #pragma warning restore 612, 618
         }

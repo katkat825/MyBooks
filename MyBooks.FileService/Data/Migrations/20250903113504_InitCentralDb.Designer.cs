@@ -9,18 +9,19 @@ using MyBooks.FileService.Data;
 
 #nullable disable
 
-namespace MyBooks.FileService.Migrations
+namespace MyBooks.FileService.Data.Migrations
 {
     [DbContext(typeof(FileDbContext))]
-    [Migration("20250830172825_RemoveVisible")]
-    partial class RemoveVisible
+    [Migration("20250903113504_InitCentralDb")]
+    partial class InitCentralDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.3")
+                .HasDefaultSchema("file")
+                .HasAnnotation("ProductVersion", "9.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -78,7 +79,7 @@ namespace MyBooks.FileService.Migrations
 
                     b.HasIndex("BookId");
 
-                    b.ToTable("Files");
+                    b.ToTable("FilesMetaData", "file");
                 });
 
             modelBuilder.Entity("MyBooks.FileService.Models.ReadingProgress", b =>
@@ -108,7 +109,7 @@ namespace MyBooks.FileService.Migrations
 
                     b.HasIndex("FileId", "UserId");
 
-                    b.ToTable("ReadingProgresses");
+                    b.ToTable("ReadingProgress", "file");
                 });
 #pragma warning restore 612, 618
         }

@@ -31,6 +31,8 @@ namespace MyBooks.AuthService.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.HasDefaultSchema("auth");
+            modelBuilder.Entity<User>().ToTable("Users");
 
             modelBuilder.Entity<User>()
                 .HasQueryFilter(u => u.TenantId == GetCurrentTenantId() && u.IsVisible);

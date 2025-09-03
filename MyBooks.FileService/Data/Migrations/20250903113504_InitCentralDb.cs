@@ -3,16 +3,20 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace MyBooks.FileService.Migrations
+namespace MyBooks.FileService.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitCentralDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "file");
+
             migrationBuilder.CreateTable(
-                name: "Files",
+                name: "FilesMetaData",
+                schema: "file",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -24,7 +28,6 @@ namespace MyBooks.FileService.Migrations
                     FileSize = table.Column<long>(type: "bigint", nullable: false),
                     BookId = table.Column<int>(type: "int", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    IsVisible = table.Column<bool>(type: "bit", nullable: false),
                     UploadedByIp = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -33,11 +36,12 @@ namespace MyBooks.FileService.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Files", x => x.Id);
+                    table.PrimaryKey("PK_FilesMetaData", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "ReadingProgresses",
+                name: "ReadingProgress",
+                schema: "file",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -50,17 +54,19 @@ namespace MyBooks.FileService.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReadingProgresses", x => x.Id);
+                    table.PrimaryKey("PK_ReadingProgress", x => x.Id);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Files_BookId",
-                table: "Files",
+                name: "IX_FilesMetaData_BookId",
+                schema: "file",
+                table: "FilesMetaData",
                 column: "BookId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ReadingProgresses_FileId_UserId",
-                table: "ReadingProgresses",
+                name: "IX_ReadingProgress_FileId_UserId",
+                schema: "file",
+                table: "ReadingProgress",
                 columns: new[] { "FileId", "UserId" });
         }
 
@@ -68,10 +74,12 @@ namespace MyBooks.FileService.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Files");
+                name: "FilesMetaData",
+                schema: "file");
 
             migrationBuilder.DropTable(
-                name: "ReadingProgresses");
+                name: "ReadingProgress",
+                schema: "file");
         }
     }
 }

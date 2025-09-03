@@ -35,6 +35,15 @@ namespace MyBooks.CatalogService.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.HasDefaultSchema("catalog");
+            modelBuilder.Entity<AgeCategory>().ToTable("AgeCategories");
+            modelBuilder.Entity<Book>().ToTable("Books");
+            modelBuilder.Entity<Genre>().ToTable("Genres");
+            modelBuilder.Entity<MasterBook>().ToTable("MasterBooks");
+            modelBuilder.Entity<Series>().ToTable("Series");
+            modelBuilder.Entity<Tag>().ToTable("Tags");
+
             modelBuilder.Entity<AgeCategory>().HasData(
                 new AgeCategory { Id = 1, Name = "Children" },
                 new AgeCategory { Id = 2, Name = "Young Adult" },

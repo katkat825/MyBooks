@@ -86,7 +86,10 @@ builder.Services.AddValidatorsFromAssemblyContaining<FileMetaValidator>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddDbContext<FileDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("FileMetaConnection")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("Default"),
+        sql => sql.MigrationsHistoryTable("__EFMigrationsHistory", "file")
+));
 
 var app = builder.Build();
 
