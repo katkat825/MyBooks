@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyBooks.TenantService.Data;
 
@@ -11,9 +12,11 @@ using MyBooks.TenantService.Data;
 namespace MyBooks.TenantService.Migrations
 {
     [DbContext(typeof(TenantDbContext))]
-    partial class TenantDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250903092553_SimplifyBillingPlanModel")]
+    partial class SimplifyBillingPlanModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,6 +32,12 @@ namespace MyBooks.TenantService.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AllowExternalIntegrations")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("AllowStorage")
+                        .HasColumnType("bit");
 
                     b.Property<decimal?>("AnnualPrice")
                         .HasPrecision(18, 2)
@@ -53,6 +62,9 @@ namespace MyBooks.TenantService.Migrations
                     b.Property<int>("MaxStorageMb")
                         .HasColumnType("int");
 
+                    b.Property<int>("MaxUsers")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("MonthlyPrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -69,46 +81,16 @@ namespace MyBooks.TenantService.Migrations
                         new
                         {
                             Id = 1,
+                            AllowExternalIntegrations = true,
+                            AllowStorage = true,
                             AnnualPrice = 0m,
                             CreatedBy = "System",
                             CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsActive = true,
-                            MaxStorageMb = 1024,
+                            MaxStorageMb = 0,
+                            MaxUsers = 0,
                             MonthlyPrice = 0m,
-                            Name = "Free"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            AnnualPrice = 40m,
-                            CreatedBy = "System",
-                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsActive = true,
-                            MaxStorageMb = 5120,
-                            MonthlyPrice = 4m,
-                            Name = "Basic"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            AnnualPrice = 80m,
-                            CreatedBy = "System",
-                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsActive = true,
-                            MaxStorageMb = 15360,
-                            MonthlyPrice = 8m,
-                            Name = "Standard"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            AnnualPrice = 150m,
-                            CreatedBy = "System",
-                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsActive = true,
-                            MaxStorageMb = 51200,
-                            MonthlyPrice = 15m,
-                            Name = "Premium"
+                            Name = "Dev Testing"
                         });
                 });
 
@@ -129,12 +111,6 @@ namespace MyBooks.TenantService.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<decimal?>("CreditBalance")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("DiscountPercent")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -164,6 +140,30 @@ namespace MyBooks.TenantService.Migrations
                         .IsUnique();
 
                     b.ToTable("Tenants");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            BillingPlanId = 1,
+                            CreatedBy = "System",
+                            CreatedDate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsActive = true,
+                            Name = "Tenant One",
+                            OwnerUserId = 3,
+                            Subdomain = "tenant1"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            BillingPlanId = 1,
+                            CreatedBy = "System",
+                            CreatedDate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsActive = true,
+                            Name = "Tenant Two",
+                            OwnerUserId = 4,
+                            Subdomain = "tenant2"
+                        });
                 });
 
             modelBuilder.Entity("MyBooks.TenantService.Models.Tenant", b =>

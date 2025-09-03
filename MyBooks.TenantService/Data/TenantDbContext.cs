@@ -35,51 +35,11 @@ namespace MyBooks.TenantService.Data
                 entity.Property(p => p.AnnualPrice).HasPrecision(18, 2);
             });
 
+            modelBuilder.Entity<BillingPlan>().HasData(BillingPlanSeeder.GetSeedPlans());
+
             modelBuilder.Entity<Tenant>()
                 .HasIndex(t => t.Subdomain)
                 .IsUnique();
-
-            modelBuilder.Entity<BillingPlan>()
-                .HasData(
-                    new BillingPlan
-                    {
-                        Id = 1,
-                        Name = "Dev Testing",
-                        MonthlyPrice = 0,
-                        AnnualPrice = 0,
-                        MaxUsers = 0,
-                        MaxStorageMb = 0,
-                        AllowExternalIntegrations = true,
-                        AllowStorage = true,
-                        IsActive = true
-                    }
-                );
-
-            modelBuilder.Entity<Tenant>()
-                .HasData(
-                    new Tenant
-                    {
-                        Id = 1,
-                        Name = "Tenant One",
-                        Subdomain = "tenant1",
-                        BillingPlanId = 1,
-                        OwnerUserId = 3,
-                        IsActive = true,
-                        CreatedDate = new DateTime(2025, 01, 01),
-                        CreatedBy = "System"
-                    },
-                    new Tenant
-                    {
-                        Id = 2,
-                        Name = "Tenant Two",
-                        Subdomain = "tenant2",
-                        BillingPlanId = 1,
-                        OwnerUserId = 4,
-                        IsActive = true,
-                        CreatedDate = new DateTime(2025, 01, 01),
-                        CreatedBy = "System"
-                    }
-                );
         }
 
         public override int SaveChanges()

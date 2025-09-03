@@ -74,10 +74,7 @@ namespace MyBooks.TenantService.Controllers
                 Name = tenant.Name,
                 Subdomain = tenant.Subdomain,
                 IsActive = tenant.IsActive,
-                AllowExternalIntegrations = tenant.BillingPlan.AllowExternalIntegrations,
-                AllowStorage = tenant.BillingPlan.AllowStorage,
-                MaxStorageMb = tenant.BillingPlan.MaxStorageMb,
-                MaxUsers = tenant.BillingPlan.MaxUsers
+                MaxStorageMb = tenant.BillingPlan.MaxStorageMb
             };
         }
 
