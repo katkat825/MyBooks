@@ -38,7 +38,25 @@ namespace MyBooks.TenantService.Data
                 entity.Property(p => p.AnnualPrice).HasPrecision(18, 2);
             });
 
+            modelBuilder.Entity<Tenant>(e =>
+            {
+                e.Property(p => p.CreditBalance).HasPrecision(18, 2);     // money-like
+                e.Property(p => p.DiscountPercent).HasPrecision(5, 2);    // e.g., 0–100.00
+            });
+
             modelBuilder.Entity<BillingPlan>().HasData(BillingPlanSeeder.GetSeedPlans());
+
+            modelBuilder.Entity<Tenant>().HasData(new Tenant
+                {
+                    Id = 1,                // EF will insert this, even if the column is identity
+                    Name = "Dev Tenant",
+                    Subdomain = "dev",
+                    BillingPlanId = 1,     // your pre-seeded plan
+                    OwnerUserId = 1,       // placeholder, will match seeded admin
+                    IsActive = true,
+                    DiscountPercent = null,
+                    CreditBalance = 0m,
+                });
 
             modelBuilder.Entity<Tenant>()
                 .HasIndex(t => t.Subdomain)
