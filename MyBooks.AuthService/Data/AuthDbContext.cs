@@ -50,13 +50,44 @@ namespace MyBooks.AuthService.Data
             return await base.SaveChangesAsync(cancellationToken);
         }
 
+        public async Task<int> SaveChangesAsSystemAsync(CancellationToken cancellationToken = default)
+        {
+            // verify audit info set by controller
+            foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    if (string.IsNullOrWhiteSpace(entry.Entity.CreatedBy) || entry.Entity.CreatedDate == default)
+                    {
+                        throw new InvalidOperationException("System save requires CreatedBy and CreatedDate to be set.");
+                    }
+                }    
+                
+                if (entry.State == EntityState.Modified)
+                {
+                    if (string.IsNullOrWhiteSpace(entry.Entity.LastModifiedBy) || entry.Entity.LastModifiedDate == default)
+                    {
+                        throw new InvalidOperationException("System save requires LastModifiedBy and LastModifiedDate to be set.");
+                    }
+                }            
+            }
+            
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
         public void ApplyAuditInformation()
         {
-            if(_contextAccessor.HttpContext == null)
-                return;
-                
+            if (_contextAccessor.HttpContext == null)
+                throw new InvalidOperationException("SaveChanges requires a valid Context Accessor.");
+
             var currentUser = GetCurrentUserId();
             var currentTenant = GetCurrentTenantId();
+
+            if (string.IsNullOrWhiteSpace(currentUser))
+                throw new InvalidOperationException("SaveChanges requires valid authenticated user.");
+
+            if (currentTenant == 0)
+                    throw new InvalidOperationException("SaveChanges requires valid tenant.");
 
             // apply tenant ID
             foreach (var entry in ChangeTracker.Entries()
@@ -76,19 +107,19 @@ namespace MyBooks.AuthService.Data
             }
 
             // apply audit information
-                foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
+            foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
+            {
+                if (entry.State == EntityState.Added)
                 {
-                    if (entry.State == EntityState.Added)
-                    {
-                        entry.Entity.CreatedDate = DateTime.UtcNow;
-                        entry.Entity.CreatedBy = currentUser;
-                    }
-                    if (entry.State == EntityState.Modified)
-                    {
-                        entry.Entity.LastModifiedDate = DateTime.UtcNow;
-                        entry.Entity.LastModifiedBy = currentUser;
-                    }
+                    entry.Entity.CreatedDate = DateTime.UtcNow;
+                    entry.Entity.CreatedBy = currentUser;
                 }
+                if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.LastModifiedDate = DateTime.UtcNow;
+                    entry.Entity.LastModifiedBy = currentUser;
+                }
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace MyBooks.AuthService.Dtos
+﻿namespace MyBooks.Common.Dtos
 {
     public class UserDto
     {

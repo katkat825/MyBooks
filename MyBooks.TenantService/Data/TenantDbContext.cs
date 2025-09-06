@@ -48,11 +48,11 @@ namespace MyBooks.TenantService.Data
 
             modelBuilder.Entity<Tenant>().HasData(new Tenant
                 {
-                    Id = 1,                // EF will insert this, even if the column is identity
+                    Id = 1,            
                     Name = "Dev Tenant",
                     Subdomain = "dev",
-                    BillingPlanId = 1,     // your pre-seeded plan
-                    OwnerUserId = 1,       // placeholder, will match seeded admin
+                    BillingPlanId = 1,     
+                    OwnerUserId = 1,    
                     IsActive = true,
                     DiscountPercent = null,
                     CreditBalance = 0m,
@@ -74,6 +74,31 @@ namespace MyBooks.TenantService.Data
         {
             SoftDelete();
             ApplyAuditInformation();
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<int> SaveChangesAsSystemAsync(CancellationToken cancellationToken = default)
+        {
+            // verify audit info set by controller
+            foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    if (string.IsNullOrWhiteSpace(entry.Entity.CreatedBy) || entry.Entity.CreatedDate == default)
+                    {
+                        throw new InvalidOperationException("System save requires CreatedBy and CreatedDate to be set.");
+                    }
+                }
+
+                if (entry.State == EntityState.Modified)
+                {
+                    if (string.IsNullOrWhiteSpace(entry.Entity.LastModifiedBy) || entry.Entity.LastModifiedDate == default)
+                    {
+                        throw new InvalidOperationException("System save requires LastModifiedBy and LastModifiedDate to be set.");
+                    }
+                }
+            }
+
             return await base.SaveChangesAsync(cancellationToken);
         }
 

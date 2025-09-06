@@ -7,6 +7,7 @@ using MyBooks.AuthService.Dtos;
 using MyBooks.AuthService.Models;
 using MyBooks.Common.Services;
 using MyBooks.Common.BaseClasses;
+using MyBooks.Common.Dtos;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Linq;

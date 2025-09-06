@@ -6,7 +6,7 @@ namespace MyBooks.AuthService.Models
     public class User : AuditableEntity
     {
         public int Id { get; set; }
-        public int TenantId { get; set; }
+        public int? TenantId { get; set; }
 
         public string FirstName { get; set; }
         public string LastName { get; set; }

@@ -4,7 +4,7 @@ namespace MyBooks.TenantService.Dtos
     {
         public string Name { get; set; }
         public string Subdomain { get; set; }
-        public int BillingPlanId { get; set; }
+        public int BillingPlanId { get; set; } = 1;
         public int OwnerUserId { get; set; }
     }
 }
