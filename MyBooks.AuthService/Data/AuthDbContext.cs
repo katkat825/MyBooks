@@ -61,15 +61,7 @@ namespace MyBooks.AuthService.Data
                     {
                         throw new InvalidOperationException("System save requires CreatedBy and CreatedDate to be set.");
                     }
-                }    
-                
-                if (entry.State == EntityState.Modified)
-                {
-                    if (string.IsNullOrWhiteSpace(entry.Entity.LastModifiedBy) || entry.Entity.LastModifiedDate == default)
-                    {
-                        throw new InvalidOperationException("System save requires LastModifiedBy and LastModifiedDate to be set.");
-                    }
-                }            
+                }             
             }
             
             return await base.SaveChangesAsync(cancellationToken);
@@ -78,7 +70,7 @@ namespace MyBooks.AuthService.Data
         public void ApplyAuditInformation()
         {
             if (_contextAccessor.HttpContext == null)
-                throw new InvalidOperationException("SaveChanges requires a valid Context Accessor.");
+                return;
 
             var currentUser = GetCurrentUserId();
             var currentTenant = GetCurrentTenantId();
@@ -87,7 +79,7 @@ namespace MyBooks.AuthService.Data
                 throw new InvalidOperationException("SaveChanges requires valid authenticated user.");
 
             if (currentTenant == 0)
-                    throw new InvalidOperationException("SaveChanges requires valid tenant.");
+                throw new InvalidOperationException("SaveChanges requires valid tenant.");
 
             // apply tenant ID
             foreach (var entry in ChangeTracker.Entries()

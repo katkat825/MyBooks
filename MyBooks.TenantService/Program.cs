@@ -10,6 +10,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using MyBooks.TenantService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,6 +81,10 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<AuthClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Services:Auth"] ?? "https://localhost:7254"); 
+});
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();

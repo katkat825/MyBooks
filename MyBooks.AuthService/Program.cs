@@ -124,31 +124,4 @@ app.UseEndpoints(endpoints =>
 
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var dbContext = services.GetRequiredService<AuthDbContext>();
-
-    dbContext.Database.Migrate();
-
-    var adminEmail = "admin@wtf.com";
-    var adminExists = dbContext.Users.Any(u => u.Email == adminEmail);
-
-    if(!adminExists)
-    {
-        var adminUser = new User
-        {
-            FirstName = "Admin",
-            LastName = "User",
-            Email = adminEmail,
-            Role = "Admin",
-            AgeCategoryId = 3,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!")
-        };
-
-        dbContext.Users.Add(adminUser);
-        dbContext.SaveChanges();
-    }
-}
-
 app.Run();

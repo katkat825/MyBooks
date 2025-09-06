@@ -4,10 +4,9 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface SignupRequest {
-  tenantName: string;
   subdomain: string;
-  ownerEmail: string;
-  ownerPassword: string;
+  Email: string;
+  Password: string;
   firstName: string;
   lastName: string;
 }
@@ -23,11 +22,15 @@ export interface SignupResponse {
 })
 
 export class SignupService {
-  private apiUrl = `#{environment.tenantApiUrl}/signup`;
+  private apiUrl = `${environment.tenantApiUrl}/signup`;
 
   constructor(private http: HttpClient) {}
 
   createTenant(request: SignupRequest): Observable<SignupResponse> {
     return this.http.post<SignupResponse>(this.apiUrl, request);
+  }  
+
+  checkSubdomainAvailability(subdomain:string) {
+    return this.http.get<{available: boolean}>(`${environment.tenantApiUrl}/tenant/check-subdomain/${subdomain}`);
   }
 }

@@ -1,10 +1,10 @@
-<div style="position: relative;">
+<div style="position: relative;" class="form-container">
   <div class="overlay" *ngIf="isSubmitting">
     <mat-spinner class="mat-spinner"></mat-spinner>
     <p>Please wait while we get things set up for you...</p>
   </div>
   
-  <form [formGroup]="form" (ngSubmit)="submit()">
+  <form [formGroup]="form" (ngSubmit)="submit()" class="card">
     <h3>Create Your Account</h3>
 
     <mat-form-field class="full-width">
@@ -19,13 +19,13 @@
 
     <mat-form-field class="full-width">
         <mat-label>Email Address</mat-label>
-        <input matInput type="email" formControlName="ownerEmail" required>
+        <input matInput type="email" formControlName="email" required>
     </mat-form-field>
 
     <mat-form-field class="full-width">
         <mat-label>Password</mat-label>
-        <input matInput type="password" formControlName="ownerPassword" required>
-        <mat-error *ngIf="form.get('ownerPassword')?.hasError('minlength')">
+        <input matInput type="password" formControlName="password" required>
+        <mat-error *ngIf="form.get('password')?.hasError('minlength')">
             Minimum of 6 characters required.
         </mat-error>
     </mat-form-field>

@@ -47,21 +47,56 @@ public class InternalUsersController : ControllerBase
         _context.Users.Add(user);
         await _context.SaveChangesAsSystemAsync();
 
-        return Ok(new { userId = user.Id, created = true });
+        return Ok(new CreatedUserResponseDto
+        {
+            UserId = user.Id,
+            Created = true
+        });
     }
 
     [HttpPost("assign-tenant")]
     public async Task<IActionResult> AssignTenant(AssignTenantDto request)
     {
-        var user = await _context.Users.FindAsync(request.UserId);
+        Console.WriteLine("========== ASSIGN TENANT START ==========");
+        Console.WriteLine($"Request received: UserId={request.UserId}, TenantId={request.TenantId}");
 
-        if (user == null) return NotFound();
-        if (user.TenantId != null) return BadRequest($"User already assigned to tenant: {user.TenantId}");
+        var user = await _context.Users
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(u => u.Id == request.UserId);
+
+        if (user == null)
+        {
+            Console.WriteLine($"DEBUG: No user found for UserId={request.UserId}");
+            Console.WriteLine("========== ASSIGN TENANT END ==========");
+            return NotFound(new { message = $"User {request.UserId} not found" });
+        }
+
+        Console.WriteLine($"DEBUG: Found user {user.Id}, current TenantId={user.TenantId}");
+
+        if (user.TenantId != null)
+        {
+            Console.WriteLine($"DEBUG: User {user.Id} already has TenantId={user.TenantId}");
+            Console.WriteLine("========== ASSIGN TENANT END ==========");
+            return BadRequest(new { message = $"User already assigned to tenant: {user.TenantId}" });
+        }
 
         user.TenantId = request.TenantId;
-        _context.Update(user);
-        await _context.SaveChangesAsSystemAsync();
+         _context.Entry(user).Property(u => u.TenantId).IsModified = true;
 
+        Console.WriteLine($"DEBUG: Attempting to assign TenantId={request.TenantId} to UserId={user.Id}");
+
+        try
+        {
+            await _context.SaveChangesAsSystemAsync();
+            Console.WriteLine($"DEBUG: SUCCESS — User {user.Id} now assigned TenantId {user.TenantId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"ERROR: Failed saving TenantId assignment. Exception: {ex}");
+            throw; // keep the stack trace for diagnostics
+        }
+
+        Console.WriteLine("========== ASSIGN TENANT END ==========");
         return NoContent();
     }
 }

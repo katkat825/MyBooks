@@ -61,8 +61,4 @@ export class TenantContextService {
   currentTenant(): TenantContext | null {
     return this.tenantContext$.value;
   }
-
-  checkSubdomainAvailability(subdomain:string) {
-    return this.http.get<{available: boolean}>(`/api/tenant/check-subdomain/${subdomain}`);
-  }
 }

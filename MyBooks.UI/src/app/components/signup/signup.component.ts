@@ -1,18 +1,29 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SignupRequest, SignupResponse, SignupService } from '../../services/signup.service';
-import { TenantContextService } from '../../services/tenant-context.service';
 import { AbstractControl, AsyncValidatorFn } from '@angular/forms';
 import { map, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-signup',
-  standalone: false,
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    NgIf
+  ],
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.css'],
-  imports: [MatProgressSpinnerModule]
 })
 export class SignupComponent {
   isSubmitting = false;
@@ -21,14 +32,13 @@ export class SignupComponent {
   
   constructor(
     private fb: FormBuilder, 
-    private signupService: SignupService,
-    private tenantContextService: TenantContextService) {}
+    private signupService: SignupService) {}
 
   ngOnInit(): void {
     this.form = this.fb.group({
       subdomain: ['', [Validators.required, Validators.pattern('^[a-zA-Z0-9-]+$')], [this.subdomainAvailableValidator()]],
-      ownerEmail: ['', [Validators.required, Validators.email]],
-      ownerPassword: ['', [Validators.required, Validators.minLength(6)]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required]
     });
@@ -39,7 +49,7 @@ export class SignupComponent {
       if (!control.value)
         return of(null);
 
-      return this.tenantContextService.checkSubdomainAvailability(control.value).pipe(
+      return this.signupService.checkSubdomainAvailability(control.value).pipe(
         map(res => (res.available ? null : {subdomainTaken: true})),
         catchError(() => of(null)) // avoid blocking form if API errors
       )
