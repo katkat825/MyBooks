@@ -1,0 +1,49 @@
+<div style="position: relative;">
+  <div class="overlay" *ngIf="isSubmitting">
+    <mat-spinner class="mat-spinner"></mat-spinner>
+    <p>Please wait while we get things set up for you...</p>
+  </div>
+  
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <h3>Create Your Account</h3>
+
+    <mat-form-field class="full-width">
+        <mat-label>First Name</mat-label>
+        <input matInput type="text" formControlName="firstName" required>
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+        <mat-label>Last Name</mat-label>
+        <input matInput type="text" formControlName="lastName" required>
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+        <mat-label>Email Address</mat-label>
+        <input matInput type="email" formControlName="ownerEmail" required>
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" formControlName="ownerPassword" required>
+        <mat-error *ngIf="form.get('ownerPassword')?.hasError('minlength')">
+            Minimum of 6 characters required.
+        </mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+        <mat-label>Subdomain</mat-label>
+        <input matInput formControlName="subdomain" required>
+        <span matSuffix>.mybookcatalog.com</span>
+        <mat-error *ngIf="form.get('subdomain')?.hasError('pattern')">
+            Only letters, numbers, and hyphens allowed.
+        </mat-error>
+        <mat-error *ngIf="form.get('subdomain')?.hasError('subdomainTaken')">
+            Sorry, that subdomain is already taken.
+        </mat-error>
+    </mat-form-field>
+
+    <button mat-button id="create-account" type="submit" [disabled]="form.invalid || isSubmitting">Create</button>
+
+    <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  </form>
+</div>

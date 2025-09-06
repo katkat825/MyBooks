@@ -57,6 +57,14 @@ namespace MyBooks.TenantService.Controllers
             };
         }
 
+        [HttpGet("check-subdomain/{subdomain}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<object>> CheckSubdomainAvailability(string subdomain)
+        {
+            var exists = await _context.Tenants.AnyAsync(t => t.Subdomain == subdomain);
+            return Ok(new { available = !exists });
+        }
+
         [HttpGet("by-subdomain/{subdomain}")]
         [AllowAnonymous] // useful for login flow
         public async Task<ActionResult<TenantReadDto>> GetTenantBySubdomain(string subdomain)
