@@ -10,6 +10,7 @@ import { AcceptableUsePolicyComponent } from './components/acceptable-use-policy
 import { AdminGuard } from './utilities/admin.guard';
 import { AupGuard } from './utilities/aup.guard';
 import { ReportAbuseComponent } from './components/report-abuse/report-abuse.component';
+import { SignupComponent } from './components/signup/signup.component';
 
 export const routes: Routes = [
   { path: '', component: BookListComponent, canActivate: [AupGuard] },
@@ -21,5 +22,6 @@ export const routes: Routes = [
   { path: 'account', component: AccountSettingsComponent },
   { path: 'book-viewer/:fileId', component: BookViewerComponent, canActivate: [AupGuard] },
   { path: 'aup', component: AcceptableUsePolicyComponent},
-  { path: 'report-abuse', component: ReportAbuseComponent}
+  { path: 'report-abuse', component: ReportAbuseComponent},
+  { path: 'signup', component: SignupComponent}
 ];
