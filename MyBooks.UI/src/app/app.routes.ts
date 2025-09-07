@@ -11,16 +11,17 @@ import { AdminGuard } from './utilities/admin.guard';
 import { AupGuard } from './utilities/aup.guard';
 import { ReportAbuseComponent } from './components/report-abuse/report-abuse.component';
 import { SignupComponent } from './components/signup/signup.component';
+import { AuthGuard } from './utilities/auth.guard';
 
 export const routes: Routes = [
-  { path: '', component: BookListComponent, canActivate: [AupGuard] },
+  { path: '', component: BookListComponent, canActivate: [AupGuard, AuthGuard] },
   { path: 'login', component: LoginComponent},
-  { path: 'create', component: BookFormComponent, canActivate: [AupGuard] },
-  { path: 'create/:id', component: BookFormComponent, canActivate: [AupGuard] },
-  { path: 'book/:id', component: BookDetailsComponent, canActivate: [AupGuard] },
-  { path: 'admin', component: AdminComponent, canActivate: [AdminGuard, AupGuard] },
+  { path: 'create', component: BookFormComponent, canActivate: [AupGuard, AuthGuard] },
+  { path: 'create/:id', component: BookFormComponent, canActivate: [AupGuard, AuthGuard] },
+  { path: 'book/:id', component: BookDetailsComponent, canActivate: [AupGuard, AuthGuard] },
+  { path: 'admin', component: AdminComponent, canActivate: [AdminGuard, AupGuard, AuthGuard] },
   { path: 'account', component: AccountSettingsComponent },
-  { path: 'book-viewer/:fileId', component: BookViewerComponent, canActivate: [AupGuard] },
+  { path: 'book-viewer/:fileId', component: BookViewerComponent, canActivate: [AupGuard, AuthGuard] },
   { path: 'aup', component: AcceptableUsePolicyComponent},
   { path: 'report-abuse', component: ReportAbuseComponent},
   { path: 'signup', component: SignupComponent}
