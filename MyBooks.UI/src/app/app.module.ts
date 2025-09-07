@@ -16,6 +16,7 @@ import { BookViewerComponent } from './components/book-viewer/book-viewer.compon
 import { AcceptableUsePolicyComponent } from './components/acceptable-use-policy/acceptable-use-policy.component';
 import { ReportAbuseComponent } from './components/report-abuse/report-abuse.component';
 import { SignupComponent } from './components/signup/signup.component';
+import { AcountComponent } from './owner/acount/acount.component';
 
 @NgModule({
   imports: [
@@ -38,7 +39,8 @@ import { SignupComponent } from './components/signup/signup.component';
     BookViewerComponent,
     AcceptableUsePolicyComponent,
     ReportAbuseComponent,
-    SignupComponent
+    SignupComponent,
+    AcountComponent
   ]
 })
 export class AppModule { }
