@@ -10,13 +10,13 @@ import { HttpClientModule } from '@angular/common/http';
 import { AdminComponent } from './admin/admin.component';
 import { AdminGenresComponent } from './admin/admin-genres/admin-genres.component';
 import { LoginComponent } from './components/login/login.component';
-import { AdminUsersComponent } from './admin/admin-users/admin-users.component';
+import { AdminUsersComponent } from './owner/account/admin-users/account-users.component';
 import { AccountSettingsComponent } from './components/account-settings/account-settings.component';
 import { BookViewerComponent } from './components/book-viewer/book-viewer.component';
 import { AcceptableUsePolicyComponent } from './components/acceptable-use-policy/acceptable-use-policy.component';
 import { ReportAbuseComponent } from './components/report-abuse/report-abuse.component';
 import { SignupComponent } from './components/signup/signup.component';
-import { AcountComponent } from './owner/acount/acount.component';
+import { AcountComponent } from './owner/account/account.component';
 
 @NgModule({
   imports: [

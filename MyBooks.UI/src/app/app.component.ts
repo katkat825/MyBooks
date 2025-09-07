@@ -26,7 +26,7 @@ export class AppComponent {
   isContrastTheme = false;
   isLightTheme = true;
   userRole: string = '';
-  accessAdminMenu: boolean = false;
+  //accessAdminMenu: boolean = false;
   currentUrl = window.location.href;
 
   constructor(private renderer: Renderer2, private router: Router, public userService: UserService) { }

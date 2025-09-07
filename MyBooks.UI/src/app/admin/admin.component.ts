@@ -4,7 +4,6 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { Router, RouterModule } from '@angular/router';
 import { AdminGenresComponent } from './admin-genres/admin-genres.component';
 import { AdminSeriesComponent } from './admin-series/admin-series.component';
-import { AdminUsersComponent } from './admin-users/admin-users.component';
 
 @Component({
   selector: 'app-admin',
@@ -16,8 +15,7 @@ import { AdminUsersComponent } from './admin-users/admin-users.component';
     MatTabsModule,
     CommonModule,
     AdminSeriesComponent,
-    AdminGenresComponent,
-    AdminUsersComponent
+    AdminGenresComponent
   ]
 })
 
@@ -32,9 +30,5 @@ export class AdminComponent {
 
   navigateToGenres() {
     this.router.navigate(['/admin/genres']);
-  }
-
-  navigateToUsers() {
-    this.router.navigate(['/admin/users']);
   }
 }

@@ -18,6 +18,11 @@ export class UserService {
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
+  canAccessOwner$ = this.user$.pipe(
+    map(u => !!u && (u.role === 'SuperAdmin' || u.role === 'Owner')),
+    shareReplay({ bufferSize: 1, refCount: true})
+  );
+
   constructor(private http: HttpClient, private router: Router) { }
 
   private getAuthHeaders(): HttpHeaders {

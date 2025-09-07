@@ -5,37 +5,40 @@
     <span class="spacer"></span>
 
     <ng-container *ngIf="isAuthenticated()">
-      <button mat-button [matMenuTriggerFor]="accountMenu" class="user-menu-button">
+      <button mat-button id="account-menu" [matMenuTriggerFor]="accountMenu" class="user-menu-button">
         <mat-icon>more_vert</mat-icon>
       </button>    
 
       <mat-menu #accountMenu="matMenu" xPosition="before" yPosition="below">
-        <button mat-menu-item [matMenuTriggerFor]="themeMenu">
+        <button id="theme-menu" mat-menu-item [matMenuTriggerFor]="themeMenu">
           <mat-icon>brightness_6</mat-icon> Theme
         </button>
-        <button mat-menu-item [routerLink]="'/account'">
-          <mat-icon>settings</mat-icon> My Profile
+        <button id="my-profile" mat-menu-item [routerLink]="'/profile'">
+          <mat-icon>person</mat-icon> My Profile
         </button>
-        <button mat-menu-item *ngIf="userService.canAccessAdmin$ | async" [routerLink]="'/admin'">
+        <button mat-menu-item id="admin-menu" *ngIf="userService.canAccessAdmin$ | async" [routerLink]="'/admin'">
           <mat-icon>admin_panel_settings</mat-icon> Admin
         </button>
+        <button mat-menu-item id="account-menu" *ngIf="userService.canAccessOwner$ | async" [routerLink]="'/account'">
+          <mat-icon>settings</mat-icon> Account Settings
+        </button>
 
-        <button mat-menu-item *ngIf="!isAuthenticated()" [routerLink]="'/login'">
+        <button mat-menu-item id="login-btn" *ngIf="!isAuthenticated()" [routerLink]="'/login'">
           <mat-icon>login</mat-icon> Login
         </button>
-        <button mat-menu-item *ngIf="isAuthenticated()" (click)="logout()">
+        <button mat-menu-item id="logout-btn" *ngIf="isAuthenticated()" (click)="logout()">
           <mat-icon>exit_to_app</mat-icon> Logout
         </button>
       </mat-menu>
 
       <mat-menu #themeMenu="matMenu">
-        <button mat-menu-item (click)="setTheme('light')">
+        <button id="light-theme" mat-menu-item (click)="setTheme('light')">
           <mat-icon *ngIf="isLightTheme">check</mat-icon> Light
         </button>
-        <button mat-menu-item (click)="setTheme('dark')">
+        <button id="dark-theme"  mat-menu-item (click)="setTheme('dark')">
           <mat-icon *ngIf="isDarkTheme">check</mat-icon> Dark
         </button>
-        <button mat-menu-item (click)="setTheme('contrast')">
+        <button id="contrast-theme" mat-menu-item (click)="setTheme('contrast')">
           <mat-icon *ngIf="isContrastTheme">check</mat-icon> High-Contrast
         </button>
       </mat-menu>
@@ -50,5 +53,5 @@
 <footer class="footer">
   <span>&copy; 2025 My Books</span>
   <a routerLink="/aup">Acceptable Use Policy</a>
-  <a routerLink="/report-abuse" [queryParams]="{ url: currentUrl }">Report Abuse</a>
+  <a id="report-abuse-btn" routerLink="/report-abuse" [queryParams]="{ url: currentUrl }">Report Abuse</a>
 </footer>

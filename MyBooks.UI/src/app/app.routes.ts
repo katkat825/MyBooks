@@ -13,7 +13,7 @@ import { OwnerGuard } from './utilities/owner.guard';
 import { ReportAbuseComponent } from './components/report-abuse/report-abuse.component';
 import { SignupComponent } from './components/signup/signup.component';
 import { AuthGuard } from './utilities/auth.guard';
-import { AcountComponent } from './owner/acount/acount.component';
+import { AcountComponent } from './owner/account/account.component';
 
 export const routes: Routes = [
   { path: '', component: BookListComponent, canActivate: [AupGuard, AuthGuard] },
@@ -22,7 +22,7 @@ export const routes: Routes = [
   { path: 'create/:id', component: BookFormComponent, canActivate: [AupGuard, AuthGuard] },
   { path: 'book/:id', component: BookDetailsComponent, canActivate: [AupGuard, AuthGuard] },
   { path: 'admin', component: AdminComponent, canActivate: [AdminGuard, AupGuard, AuthGuard] },
-  { path: 'account', component: AccountSettingsComponent },
+  { path: 'profile', component: AccountSettingsComponent },
   { path: 'book-viewer/:fileId', component: BookViewerComponent, canActivate: [AupGuard, AuthGuard] },
   { path: 'aup', component: AcceptableUsePolicyComponent},
   { path: 'report-abuse', component: ReportAbuseComponent},

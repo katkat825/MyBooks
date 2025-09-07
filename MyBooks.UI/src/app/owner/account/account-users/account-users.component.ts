@@ -10,13 +10,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { UserService } from '../../services/user.service';
+import { UserService } from '../../../services/user.service';
 
 @Component({
-  selector: 'app-admin-users',
+  selector: 'app-account-users',
   standalone: true,
-  templateUrl: './admin-users.component.html',
-  styleUrls: ['./admin-users.component.css'],
+  templateUrl: './account-users.component.html',
+  styleUrls: ['./account-users.component.css'],
   imports: [
     FormsModule,
     MatFormFieldModule,
@@ -31,7 +31,7 @@ import { UserService } from '../../services/user.service';
     MatSnackBarModule,
     ReactiveFormsModule]
 })
-export class AdminUsersComponent {
+export class AccountUsersComponent {
   users: any[] = [];
   userForm!: FormGroup;
   showAddUserForm = false;
