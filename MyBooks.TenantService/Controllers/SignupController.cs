@@ -33,16 +33,6 @@ public class SignupController : ControllerBase
         request.FirstName = _sanitizationService.Sanitize(request.FirstName);
         request.LastName = _sanitizationService.Sanitize(request.LastName);
         request.Email = _sanitizationService.Sanitize(request.Email, true);
-        request.Subdomain = _sanitizationService.Sanitize(request.Subdomain.ToLowerInvariant());
-        request.TenantName = _sanitizationService.Sanitize(request.TenantName);
-
-        // verify subdomain available
-        var exists = await _context.Tenants.AnyAsync(t => t.Subdomain.ToLower() == request.Subdomain);
-        if (exists)
-            return Conflict(new { message = $"Subdomain '{request.Subdomain}' is already in use." });
-        var reserved = new[] { "www", "api", "admin" };
-        if (reserved.Contains(request.Subdomain.ToLowerInvariant()))
-            return BadRequest(new { message = $"Subdomain '{request.Subdomain}' is not allowed." });
 
         // create user with no tenantid
         var user = new UserDto
@@ -58,13 +48,9 @@ public class SignupController : ControllerBase
 
         var userId = await _auth.CreateUserAsync(user);
 
-        Console.WriteLine($"DEBUG: Created user {userId}");
-
         // create tenant
         var tenant = new Tenant
         {
-            Name = request.TenantName,
-            Subdomain = request.Subdomain,
             BillingPlanId = request.BillingPlanId,
             OwnerUserId = userId,
             IsActive = true,
@@ -82,14 +68,10 @@ public class SignupController : ControllerBase
             TenantId = tenant.Id
         });
 
-        var devUrl = $"http://{tenant.Subdomain}.localhost:62194";
-        var portalUrl = $"https://{tenant.Subdomain}.mybookcatalog.com";
-
         return Ok(new SignupResponseDto
         {
             TenantId = tenant.Id,
-            OwnerUserId = userId,
-            PortalUrl = devUrl
+            OwnerUserId = userId
         });
     }
 }

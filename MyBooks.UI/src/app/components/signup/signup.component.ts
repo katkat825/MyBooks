@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NgIf } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-signup',
@@ -32,28 +33,16 @@ export class SignupComponent {
   
   constructor(
     private fb: FormBuilder, 
-    private signupService: SignupService) {}
+    private signupService: SignupService,
+    private router: Router) {}
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      subdomain: ['', [Validators.required, Validators.pattern('^[a-zA-Z0-9-]+$')], [this.subdomainAvailableValidator()]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required]
     });
-  }
-
-  subdomainAvailableValidator(): AsyncValidatorFn {
-    return (control: AbstractControl) => {
-      if (!control.value)
-        return of(null);
-
-      return this.signupService.checkSubdomainAvailability(control.value).pipe(
-        map(res => (res.available ? null : {subdomainTaken: true})),
-        catchError(() => of(null)) // avoid blocking form if API errors
-      )
-    }
   }
 
   submit(){
@@ -66,7 +55,9 @@ export class SignupComponent {
 
     this.signupService.createTenant(payload).subscribe({
       next: (resp: SignupResponse) => {
-        window.location.href = resp.portalUrl;
+        this.isSubmitting = false;
+        this.errorMessage = null;
+        this.router.navigate(['/login']);
       },
       error: (err) => {
         this.errorMessage = err.error?.message ?? 'Signup failed';

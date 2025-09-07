@@ -5,8 +5,6 @@ namespace MyBooks.TenantService.Models
     public class Tenant : AuditableEntity
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string Subdomain { get; set; }
 
         public int BillingPlanId { get; set; }
         public BillingPlan BillingPlan { get; set; }
@@ -16,6 +14,5 @@ namespace MyBooks.TenantService.Models
 
         public decimal? DiscountPercent { get; set; } 
         public decimal? CreditBalance { get; set; }
-
     }
 }

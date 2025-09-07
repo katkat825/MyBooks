@@ -28,36 +28,30 @@ namespace MyBooks.AuthService.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginDto request)
         {
-            var httpClient = _httpClientFactory.CreateClient();
-            var tenantResponse = await httpClient.GetAsync($"https://localhost:5005/api/tenant/by-subdomain/{request.Subdomain}");
-
-            if (!tenantResponse.IsSuccessStatusCode)
-                return BadRequest("Invalid subdomain.");
-
-            var tenant = await tenantResponse.Content.ReadFromJsonAsync<TenantLookupDto>();
-
-            if (tenant == null)
-                return BadRequest("Invalid subdomain.");
-            
-            if (!tenant.IsActive)
-                return Unauthorized("This subdomain is deactivated. Please contact support.");
-
             var email = request.Email.ToLower().Trim();
             var user = await _context.Users
                 .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(u => u.Email.ToLower().Trim() == email && u.TenantId == tenant.Id);
+                .FirstOrDefaultAsync(u => u.Email.ToLower().Trim() == email);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
                 return Unauthorized("Invalid username or password.");
 
-            if(!user.IsActive)
-            {
-                Console.WriteLine($"Login attempt for deactivated user: {user.Email}");
+            if (!user.IsActive)
                 return Unauthorized("Your account has been deactivated.");
-            }
 
-            if (user.TenantId != tenant.Id)
-                return NotFound("User not found for this subdomain.");
+            if (user.TenantId == null || user.TenantId == 0)
+                return Unauthorized("User is not assigned to an account.");
+
+            var httpClient = _httpClientFactory.CreateClient();
+            var tenantResponse = await httpClient.GetAsync(
+                $"https://localhost:5005/api/tenant/by-id/{user.TenantId}");
+
+            if (!tenantResponse.IsSuccessStatusCode)
+                return Unauthorized("Account lookup failed.");
+
+            var tenant = await tenantResponse.Content.ReadFromJsonAsync<TenantLookupDto>();
+            if (tenant == null || !tenant.IsActive)
+                return Unauthorized("Account is deactivated.");
 
             var token = GenerateJwtToken(user);
             return Ok(new { Token = token });

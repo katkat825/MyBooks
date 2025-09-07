@@ -29,8 +29,4 @@ export class SignupService {
   createTenant(request: SignupRequest): Observable<SignupResponse> {
     return this.http.post<SignupResponse>(this.apiUrl, request);
   }  
-
-  checkSubdomainAvailability(subdomain:string) {
-    return this.http.get<{available: boolean}>(`${environment.tenantApiUrl}/tenant/check-subdomain/${subdomain}`);
-  }
 }

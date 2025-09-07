@@ -30,18 +30,6 @@
         </mat-error>
     </mat-form-field>
 
-    <mat-form-field class="full-width">
-        <mat-label>Subdomain</mat-label>
-        <input matInput formControlName="subdomain" required>
-        <span matSuffix>.mybookcatalog.com</span>
-        <mat-error *ngIf="form.get('subdomain')?.hasError('pattern')">
-            Only letters, numbers, and hyphens allowed.
-        </mat-error>
-        <mat-error *ngIf="form.get('subdomain')?.hasError('subdomainTaken')">
-            Sorry, that subdomain is already taken.
-        </mat-error>
-    </mat-form-field>
-
     <button mat-button id="create-account" type="submit" [disabled]="form.invalid || isSubmitting">Create</button>
 
     <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>

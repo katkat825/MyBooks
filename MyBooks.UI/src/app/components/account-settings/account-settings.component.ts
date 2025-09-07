@@ -75,7 +75,7 @@ export class AccountSettingsComponent implements OnInit {
     }
 
     this.userService.updateProfile(dto).subscribe({
-      next: (response) => {
+      next: () => {
         this.loading = false;
         this.snackBar.open('Profile updated successfully', 'Close', { duration: 3000 });
       },

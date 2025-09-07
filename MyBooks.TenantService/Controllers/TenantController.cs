@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBooks.Common.BaseClasses;
+using MyBooks.Common.Helpers;
 using MyBooks.TenantService.Data;
 using MyBooks.TenantService.Dtos;
 using MyBooks.TenantService.Models;
@@ -44,34 +45,25 @@ namespace MyBooks.TenantService.Controllers
                 return NotFound();
             }
 
-            var userTenantId = User.FindFirst("TenantId")?.Value;
-            if (userTenantId == null || tenant.Id.ToString() != userTenantId)
+            var claims = User.ToJwtClaimsDto();
+            if (tenant.Id != claims.TenantId)
             {
                 return Forbid();
             }
 
             return new TenantUpdateDto
             {
-                Name = tenant.Name,
                 BillingPlanId = tenant.BillingPlanId
             };
         }
 
-        [HttpGet("check-subdomain/{subdomain}")]
-        [AllowAnonymous]
-        public async Task<ActionResult<object>> CheckSubdomainAvailability(string subdomain)
-        {
-            var exists = await _context.Tenants.AnyAsync(t => t.Subdomain == subdomain);
-            return Ok(new { available = !exists });
-        }
-
-        [HttpGet("by-subdomain/{subdomain}")]
+        [HttpGet("by-id/{id}")]
         [AllowAnonymous] // useful for login flow
-        public async Task<ActionResult<TenantReadDto>> GetTenantBySubdomain(string subdomain)
+        public async Task<ActionResult<TenantReadDto>> GetTenantById(int id)
         {
             var tenant = await _context.Tenants
                 .Include(t => t.BillingPlan)
-                .FirstOrDefaultAsync(t => t.Subdomain == subdomain);
+                .FirstOrDefaultAsync(t => t.Id == id);
 
             if (tenant == null)
                 return NotFound();
@@ -79,8 +71,6 @@ namespace MyBooks.TenantService.Controllers
             return new TenantReadDto
             {
                 Id = tenant.Id,
-                Name = tenant.Name,
-                Subdomain = tenant.Subdomain,
                 IsActive = tenant.IsActive,
                 MaxStorageMb = tenant.BillingPlan.MaxStorageMb
             };
@@ -92,8 +82,6 @@ namespace MyBooks.TenantService.Controllers
         {
             var tenant = new Tenant
             {
-                Name = tenantDto.Name,
-                Subdomain = tenantDto.Subdomain,
                 BillingPlanId = tenantDto.BillingPlanId,
                 OwnerUserId = tenantDto.OwnerUserId,
                 IsActive = true
@@ -115,13 +103,12 @@ namespace MyBooks.TenantService.Controllers
                 return NotFound();
             }
 
-            var userTenantId = User.FindFirst("TenantId")?.Value;
-            if (userTenantId == null || tenant.Id.ToString() != userTenantId)
+            var claims = User.ToJwtClaimsDto();
+            if (tenant.Id != claims.TenantId)
             {
                 return Forbid();
             }
-
-            tenant.Name = tenantDto.Name;
+            
             tenant.BillingPlanId = tenantDto.BillingPlanId;
 
             await _context.SaveChangesAsync();
@@ -140,8 +127,8 @@ namespace MyBooks.TenantService.Controllers
                 return NotFound();
             }
 
-            var userTenantId = User.FindFirst("TenantId")?.Value;
-            if (userTenantId == null || tenant.Id.ToString() != userTenantId)
+            var claims = User.ToJwtClaimsDto();
+            if (tenant.Id != claims.TenantId)
             {
                 return Forbid();
             }

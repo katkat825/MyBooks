@@ -46,21 +46,8 @@ namespace MyBooks.TenantService.Data
 
             modelBuilder.Entity<BillingPlan>().HasData(BillingPlanSeeder.GetSeedPlans());
 
-            modelBuilder.Entity<Tenant>().HasData(new Tenant
-                {
-                    Id = 1,            
-                    Name = "Dev Tenant",
-                    Subdomain = "dev",
-                    BillingPlanId = 1,     
-                    OwnerUserId = 1,    
-                    IsActive = true,
-                    DiscountPercent = null,
-                    CreditBalance = 0m,
-                });
-
-            modelBuilder.Entity<Tenant>()
-                .HasIndex(t => t.Subdomain)
-                .IsUnique();
+            modelBuilder.Entity<Tenant>().HasQueryFilter(t => t.IsActive == true);
+            modelBuilder.Entity<BillingPlan>().HasQueryFilter(b => b.IsActive == true);
         }
 
         public override int SaveChanges()
