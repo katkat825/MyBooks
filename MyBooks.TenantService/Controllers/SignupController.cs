@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
@@ -12,6 +13,7 @@ namespace MyBooks.TenantService.Controllers;
 
 [ApiController]
 [Route("api/signup")]
+[Authorize(Roles = AppRoles.SuperAdmin)]
 public class SignupController : ControllerBase
 {
     private readonly TenantDbContext _context;
