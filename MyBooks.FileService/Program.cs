@@ -5,6 +5,7 @@ using MyBooks.FileService.Data;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using MyBooks.FileService.Validators;
+using MyBooks.FileService.Services;
 using Microsoft.AspNetCore.Identity;
 using MyBooks.Common.Services;
 using Microsoft.AspNetCore.Http.Features;
@@ -81,6 +82,8 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddOpenApi();
 builder.Services.AddSingleton<HtmlSanitizationService>();
+builder.Services.AddSingleton<GoogleDriveClient>();
+
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<FileMetaValidator>();
 builder.Services.AddHttpContextAccessor();
@@ -112,8 +115,6 @@ app.UseEndpoints(endpoints =>
 });
 
 app.UseHttpsRedirection();
-
-
 
 app.MapControllers();
 

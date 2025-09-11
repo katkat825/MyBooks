@@ -20,7 +20,7 @@ namespace MyBooks.FileService.Data
             return user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         }
 
-        private int GetCurrentTenantId()
+        public int GetCurrentTenantId()
         {
             var tenantId = _contextAccessor.HttpContext?.User?.FindFirst("TenantId")?.Value;
             Console.WriteLine($"Current Tenant ID: {tenantId}");
@@ -29,6 +29,7 @@ namespace MyBooks.FileService.Data
 
         public DbSet<FileMetadata> Files { get; set; }
         public DbSet<ReadingProgress> ReadingProgresses { get; set; }
+        public DbSet<GoogleIntegration> GoogleIntegrations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -44,6 +45,17 @@ namespace MyBooks.FileService.Data
 
             modelBuilder.Entity<ReadingProgress>()
                 .HasIndex(r => new { r.FileId, r.UserId });
+
+            modelBuilder.Entity<GoogleIntegration>().ToTable("GoogleIntegrations");
+
+            modelBuilder.Entity<GoogleIntegration>()
+                .HasQueryFilter(g => g.IsActive && g.TenantId == GetCurrentTenantId());
+
+            modelBuilder.Entity<FileMetadata>()
+                .HasOne(f => f.GoogleIntegration)
+                .WithMany() // not tracking files from the integration side
+                .HasForeignKey(f => f.GoogleIntegrationId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
         public override int SaveChanges()

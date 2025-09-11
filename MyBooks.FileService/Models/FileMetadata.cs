@@ -7,6 +7,10 @@ namespace MyBooks.FileService.Models
         public int Id { get; set; }
         public int TenantId { get; set; }
 
+        public int GoogleIntegrationId { get; set; }
+        public GoogleIntegration? GoogleIntegration { get; set; }
+
+
         public string FileName { get; set; }
         public string ContentType { get; set; } = "application/octet-stream";
         public string FilePath { get; set; }
