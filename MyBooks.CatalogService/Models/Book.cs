@@ -32,11 +32,7 @@ namespace MyBooks.CatalogService.Models
         public string? TagInput { get; set; }
         public ICollection<Tag>? Tags { get; set; }
 
-        public int? FileId { get; set; } //not used for mvp
-
-        public int? IntegrationId { get; set; }
-        public StorageProvider Provider { get; set; } = StorageProvider.Unknown;
-        public string? ExternalFileId { get; set; }
+        public int? FileId { get; set; }
         public int? MasterBookId { get; set; }
     }
 }
