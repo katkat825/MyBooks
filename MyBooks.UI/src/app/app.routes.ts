@@ -14,6 +14,7 @@ import { ReportAbuseComponent } from './components/report-abuse/report-abuse.com
 import { SignupComponent } from './components/signup/signup.component';
 import { AuthGuard } from './utilities/auth.guard';
 import { AcountComponent } from './owner/account/account.component';
+import { RemovedGuard } from './utilities/removed.guard';
 
 export const routes: Routes = [
   { path: '', component: BookListComponent, canActivate: [AupGuard, AuthGuard] },
@@ -26,6 +27,6 @@ export const routes: Routes = [
   { path: 'book-viewer/:fileId', component: BookViewerComponent, canActivate: [AupGuard, AuthGuard] },
   { path: 'aup', component: AcceptableUsePolicyComponent},
   { path: 'report-abuse', component: ReportAbuseComponent},
-  { path: 'signup', component: SignupComponent},
+  { path: 'signup', component: SignupComponent, canActivate: [RemovedGuard]},
   { path: 'account', component: AcountComponent, canActivate: [OwnerGuard] },
 ];
