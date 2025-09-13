@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-login',
@@ -17,12 +18,14 @@ import { CommonModule } from '@angular/common';
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
-    CommonModule
+    CommonModule,
+    MatProgressSpinner
   ]
 })
 export class LoginComponent {
   loginForm: FormGroup;
   errorMessage: string = '';
+  isLoading: boolean = false;
 
   constructor(private fb: FormBuilder, private http: HttpClient, private router: Router) {
     this.loginForm = this.fb.group({
@@ -36,14 +39,15 @@ export class LoginComponent {
       return;
     }
 
-    const payload = {
-      ...this.loginForm.value
-    };
+    this.isLoading = true;
+
+    const payload = { ...this.loginForm.value };
 
     this.http.post<any>('https://localhost:7254/login', payload).subscribe({
       next: (response) => {
         localStorage.setItem('token', response.token);
         this.router.navigate(['/']); 
+        this.isLoading = false;
       },
       error: () => {
         this.errorMessage = 'Invalid email or password.';
