@@ -3,13 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBooks.FileService.Data;
 using MyBooks.FileService.Models;
+using MyBooks.FileService.Services;
 using MyBooks.Common.BaseClasses;
+using System.Formats.Asn1;
 
 namespace MyBooks.FileService.Controllers
 {
     [ApiController]
     [Route("api/google-integrations")]
-    [Authorize(Roles = AppRoles.Admins)]
+    [Authorize(Roles = AppRoles.OwnerPlus)]
     public class GoogleIntegrationController : ControllerBase
     {
         private readonly FileDbContext _context;
@@ -135,6 +137,68 @@ namespace MyBooks.FileService.Controllers
                 .Where(g => g.TenantId == tenantId && g.IsActive)
                 .ToListAsync();
             return Ok(list);
+        }
+
+        [HttpGet("folders")]
+        public async Task<IActionResult> GetFolders([FromQuery] string? parentId = "root")
+        {
+            var tenantId = _context.GetCurrentTenantId();
+            var integration = await _context.GoogleIntegrations
+                .FirstOrDefaultAsync(g => g.TenantId == tenantId && g.IsActive);
+            if (integration == null)
+                return BadRequest("Google Drive not configured for this account.");
+
+            // get access to google drive
+            var accessToken = await new GoogleDriveClient(_config, _httpClientFactory.CreateClient())
+                .RefreshAccessTokenAsync(integration.RefreshToken);
+
+            var service = new Google.Apis.Drive.v3.DriveService(
+                new Google.Apis.Services.BaseClientService.Initializer
+                {
+                    HttpClientInitializer = Google.Apis.Auth.OAuth2.GoogleCredential.FromAccessToken(accessToken),
+                    ApplicationName = "MyBooks FileService"
+                });
+
+            // get subfolders under the given parentId
+            var request = service.Files.List();
+            request.Q = $"'{parentId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
+            request.Fields = "files(id, name)";
+            request.PageSize = 100;
+
+            var result = await request.ExecuteAsync();
+
+            var folders = result.Files.Select(f => new
+            {
+                Id = f.Id,
+                Name = f.Name
+            }).ToList();
+
+            return Ok(folders);
+        }
+
+        [HttpPut("{id}/folders")]
+        public async Task<IActionResult> UpdateFolders(int id, [FromBody] List<string> folderIds)
+        {
+            var tenantId = _context.GetCurrentTenantId();
+            var userId = _context.GetCurrentUserId();
+
+            var integration = await _context.GoogleIntegrations
+                .FirstOrDefaultAsync(g => g.Id == id && g.TenantId == tenantId && g.IsActive);
+
+            if (integration == null)
+                return NotFound("Integration not found.");
+
+            // update folder list
+            integration.DriveFolderIds = folderIds ?? new List<string>();
+
+            _context.GoogleIntegrations.Update(integration);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                IntegrationId = integration.Id,
+                FolderIds = integration.DriveFolderIds
+            });
         }
 
         // optional: deactivate

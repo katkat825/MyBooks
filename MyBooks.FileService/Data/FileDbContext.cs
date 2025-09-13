@@ -59,6 +59,13 @@ namespace MyBooks.FileService.Data
             modelBuilder.Entity<GoogleIntegration>()
                 .HasQueryFilter(g => g.IsActive && g.TenantId == GetCurrentTenantId());
 
+            modelBuilder.Entity<GoogleIntegration>()
+                .Property(g => g.DriveFolderIds)
+                .HasConversion(
+                    d => d == null ? null : string.Join(',', d),
+                    d => string.IsNullOrEmpty(d) ? new List<string>() : d.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+                );
+
             modelBuilder.Entity<FileMetadata>()
                 .HasOne(f => f.GoogleIntegration)
                 .WithMany() // not tracking files from the integration side

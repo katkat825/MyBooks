@@ -9,7 +9,7 @@ namespace MyBooks.FileService.Models
 
         public int? GoogleIntegrationId { get; set; }
         public GoogleIntegration? GoogleIntegration { get; set; }
-
+        public string? FolderId { get; set; } 
 
         public string FileName { get; set; }
         public string ContentType { get; set; } = "application/octet-stream";

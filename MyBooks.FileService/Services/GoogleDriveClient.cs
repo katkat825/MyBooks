@@ -25,7 +25,7 @@ namespace MyBooks.FileService.Services
             });
         }
 
-        private async Task<string> RefreshAccessTokenAsync(string refreshToken)
+        public async Task<string> RefreshAccessTokenAsync(string refreshToken)
         {
             var payload = new Dictionary<string, string>
             {
@@ -77,6 +77,62 @@ namespace MyBooks.FileService.Services
                 throw new Exception($"Upload failed: {result.Exception?.Message}");
 
             return request.ResponseBody.Id;
+        }
+
+        public async Task<string> GetOrCreateFolderAsync(string folderName, string parentId, string refreshToken)
+        {
+            if (string.IsNullOrWhiteSpace(folderName))
+                throw new ArgumentException("folderName is required", nameof(folderName));
+
+            if (string.IsNullOrWhiteSpace(parentId))
+                parentId = "root";
+
+            var accessToken = await RefreshAccessTokenAsync(refreshToken);
+            var service = new DriveService(new BaseClientService.Initializer
+            {
+                HttpClientInitializer = GoogleCredential.FromAccessToken(accessToken),
+                ApplicationName = "MyBooks FileService"
+            });
+
+            // 1) Find existing folder(s) under parent
+            var listRequest = service.Files.List();
+            listRequest.Q = $"'{parentId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
+            listRequest.Fields = "files(id, name)";
+            listRequest.PageSize = 100;
+
+            var listResult = await listRequest.ExecuteAsync();
+
+            // prefer exact (case-insensitive) match if multiple
+            var existing = listResult.Files
+                .FirstOrDefault(f => string.Equals(f.Name, folderName, StringComparison.OrdinalIgnoreCase));
+
+            if (existing != null)
+                return existing.Id;
+
+            // 2) Create folder
+            var folderMetadata = new Google.Apis.Drive.v3.Data.File
+            {
+                Name = folderName,
+                MimeType = "application/vnd.google-apps.folder",
+                Parents = new List<string> { parentId }
+            };
+
+            var createRequest = service.Files.Create(folderMetadata);
+            createRequest.Fields = "id";
+            var created = await createRequest.ExecuteAsync();
+
+            if (!string.IsNullOrEmpty(created?.Id))
+                return created.Id;
+
+            // 3) Very rare: if we didn’t get an ID (or a race), try listing again and return the first match
+            listResult = await listRequest.ExecuteAsync();
+            existing = listResult.Files
+                .FirstOrDefault(f => string.Equals(f.Name, folderName, StringComparison.OrdinalIgnoreCase));
+
+            if (existing == null)
+                throw new InvalidOperationException("Failed to create or locate the requested Google Drive folder.");
+
+            return existing.Id;
         }
 
         public async Task DeleteFileAsync(string fileId, string refreshToken)

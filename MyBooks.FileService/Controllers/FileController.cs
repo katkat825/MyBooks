@@ -30,7 +30,7 @@ namespace MyBooks.FileService.Controllers
         // upload File - only owner or superadmin
         [HttpPost("upload")]
         [Authorize(Roles = AppRoles.OwnerPlus)]
-        public async Task<IActionResult> UploadFile([FromForm] IFormFile file, [FromForm] int bookId, [FromForm] string bookTitle)
+        public async Task<IActionResult> UploadFile([FromForm] IFormFile file, [FromForm] int bookId, [FromForm] string bookTitle, [FromForm] string folderId)
         {
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
@@ -41,6 +41,8 @@ namespace MyBooks.FileService.Controllers
                 .FirstOrDefaultAsync(g => g.TenantId == tenantId && g.IsActive);
             if (integration == null)
                 return BadRequest("Google Drive not configured for this tenant.");
+            if (integration.DriveFolderIds == null || !integration.DriveFolderIds.Contains(folderId))
+                return BadRequest("Invalid folder selection.");
 
             var fileValidator = new FileValidator();
             var fileValidationResult = fileValidator.Validate(file);
@@ -53,22 +55,44 @@ namespace MyBooks.FileService.Controllers
 
             // deactivate old file if exists
             var existingFile = await _context.Files.FirstOrDefaultAsync(f => f.BookId == bookId && f.IsActive);
+            if (string.IsNullOrEmpty(folderId) && existingFile?.FolderId != null)
+                folderId = existingFile.FolderId;
             if (existingFile != null)
-            {
-                if (existingFile.GoogleIntegrationId != null)
-                    await _googleDriveClient.DeleteFileAsync(existingFile.FilePath, integration.RefreshToken);
-                existingFile.IsActive = false;
-                _context.Files.Update(existingFile);
-                await _context.SaveChangesAsync();
-            }
+                {
+                    if (existingFile.GoogleIntegrationId != null)
+                        await _googleDriveClient.DeleteFileAsync(existingFile.FilePath, integration.RefreshToken);
+                    existingFile.IsActive = false;
+                    _context.Files.Update(existingFile);
+                    await _context.SaveChangesAsync();
+                }
 
             // upload to Google Drive
             string fileId;
             using (var stream = file.OpenReadStream())
             {
-                fileId = await _googleDriveClient.UploadFileAsync(
-                    fileName, stream, file.ContentType,
-                    integration.DriveFolderId!, integration.RefreshToken);
+                try
+                {
+                    fileId = await _googleDriveClient.UploadFileAsync(
+                        fileName, stream, file.ContentType,
+                        folderId, integration.RefreshToken);
+                }
+                catch (Google.GoogleApiException ex) when (ex.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    var fallbackFolderId = await _googleDriveClient.GetOrCreateFolderAsync(
+                        "MyBookCatalog", "root", integration.RefreshToken
+                    );
+
+                    // create new stream to prevent potential issues
+                    using (var retryStream = file.OpenReadStream())
+                    {
+                        fileId = await _googleDriveClient.UploadFileAsync(
+                            fileName, retryStream, file.ContentType,
+                            fallbackFolderId, integration.RefreshToken
+                        );
+                    }
+
+                    folderId = fallbackFolderId;                    
+                }
             }
 
             var fileMetadata = new FileMetadata
@@ -79,7 +103,8 @@ namespace MyBooks.FileService.Controllers
                 FileSize = file.Length,
                 BookId = bookId,
                 IsActive = true,
-                GoogleIntegrationId = integration.Id
+                GoogleIntegrationId = integration.Id,
+                FolderId = folderId
             };
 
             var validator = new FileMetaValidator();

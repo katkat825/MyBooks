@@ -12,11 +12,10 @@ namespace MyBooks.FileService.Models
 
         // auth
         public string RefreshToken { get; set; }
-        public string? AccessToken { get; set; } // optional: cached short-lived token
+        public string? AccessToken { get; set; } 
         public DateTime? AccessTokenExpiry { get; set; }
 
-        // optional scoping
-        public string? DriveFolderId { get; set; } // root folder where books are stored
+        public List<string>? DriveFolderIds { get; set; } // folders connected where books live
 
         public bool IsActive { get; set; } = true;
     }
