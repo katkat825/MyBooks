@@ -4,44 +4,46 @@
     <a href="/" class="app-title">My Book Catalog</a>
     <span class="spacer"></span>
 
-    <ng-container *ngIf="isAuthenticated()">
-      <button mat-button id="account-menu" [matMenuTriggerFor]="accountMenu" class="user-menu-button">
+    <ng-container *ngIf="isAuthenticated()" class="menu-class">
+      <button mat-button id="account-menu" [matMenuTriggerFor]="accountMenu">
         <mat-icon>more_vert</mat-icon>
       </button>    
 
-      <mat-menu #accountMenu="matMenu" xPosition="before" yPosition="below">
-        <button id="theme-menu" mat-menu-item [matMenuTriggerFor]="themeMenu">
-          <mat-icon>brightness_6</mat-icon> Theme
-        </button>
-        <button id="my-profile" mat-menu-item [routerLink]="'/profile'">
-          <mat-icon>person</mat-icon> My Profile
-        </button>
-        <button mat-menu-item id="admin-menu" *ngIf="userService.canAccessAdmin$ | async" [routerLink]="'/admin'">
-          <mat-icon>admin_panel_settings</mat-icon> Admin
-        </button>
-        <button mat-menu-item id="account-menu" *ngIf="userService.canAccessOwner$ | async" [routerLink]="'/account'">
-          <mat-icon>settings</mat-icon> Account Settings
-        </button>
+      <div class="menu-class">
+        <mat-menu #accountMenu="matMenu" xPosition="before" yPosition="below">
+          <button id="theme-menu" mat-menu-item [matMenuTriggerFor]="themeMenu">
+            <mat-icon>brightness_6</mat-icon> Theme
+          </button>
+          <button id="my-profile" mat-menu-item [routerLink]="'/profile'">
+            <mat-icon>person</mat-icon> My Profile
+          </button>
+          <button mat-menu-item id="admin-menu" *ngIf="userService.canAccessAdmin$ | async" [routerLink]="'/admin'">
+            <mat-icon>admin_panel_settings</mat-icon> Admin
+          </button>
+          <button mat-menu-item id="account-menu" *ngIf="userService.canAccessOwner$ | async" [routerLink]="'/account'">
+            <mat-icon>settings</mat-icon> Account Settings
+          </button>
 
-        <button mat-menu-item id="login-btn" *ngIf="!isAuthenticated()" [routerLink]="'/login'">
-          <mat-icon>login</mat-icon> Login
-        </button>
-        <button mat-menu-item id="logout-btn" *ngIf="isAuthenticated()" (click)="logout()">
-          <mat-icon>exit_to_app</mat-icon> Logout
-        </button>
-      </mat-menu>
+          <button mat-menu-item id="login-btn" *ngIf="!isAuthenticated()" [routerLink]="'/login'">
+            <mat-icon>login</mat-icon> Login
+          </button>
+          <button mat-menu-item id="logout-btn" *ngIf="isAuthenticated()" (click)="logout()">
+            <mat-icon>exit_to_app</mat-icon> Logout
+          </button>
+        </mat-menu>
 
-      <mat-menu #themeMenu="matMenu">
-        <button id="light-theme" mat-menu-item (click)="setTheme('light')">
-          <mat-icon *ngIf="isLightTheme">check</mat-icon> Light
-        </button>
-        <button id="dark-theme"  mat-menu-item (click)="setTheme('dark')">
-          <mat-icon *ngIf="isDarkTheme">check</mat-icon> Dark
-        </button>
-        <button id="contrast-theme" mat-menu-item (click)="setTheme('contrast')">
-          <mat-icon *ngIf="isContrastTheme">check</mat-icon> High-Contrast
-        </button>
-      </mat-menu>
+        <mat-menu #themeMenu="matMenu">
+          <button id="light-theme" mat-menu-item (click)="setTheme('light')">
+            <mat-icon *ngIf="isLightTheme">check</mat-icon> Light
+          </button>
+          <button id="dark-theme"  mat-menu-item (click)="setTheme('dark')">
+            <mat-icon *ngIf="isDarkTheme">check</mat-icon> Dark
+          </button>
+          <button id="contrast-theme" mat-menu-item (click)="setTheme('contrast')">
+            <mat-icon *ngIf="isContrastTheme">check</mat-icon> High-Contrast
+          </button>
+        </mat-menu>
+      </div>
     </ng-container>
   </mat-toolbar-row>
 </mat-toolbar>

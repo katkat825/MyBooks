@@ -3,12 +3,12 @@
 /* default: light theme */
 :root {
   --bg-color: #faf3e0;
-  --text-color: #333;
+  --text-color: #4a4a4a;
   --surface-bg: #e8dbc2;
   --border-color: #ccc;
   --button-bg: #00a6a6;
   --button-text: #faf3e0;
-  --title-color: #2e2e2e;
+  --title-color: #333;
   --subtitle-color: #3a3a3a;
   --primary: #66cfcf;
   --accent: #c2a0e0;
@@ -115,7 +115,7 @@ input, select {
 }
 
 .card-title {
-  color: var(--title-color) !important;
+  color: var(--text-color) !important;
 }
 
 .card-subtitle {
@@ -123,13 +123,14 @@ input, select {
 }
 
 button {
-  background-color: var(--button-bg);
-  color: var(--button-text);
+  background-color: var(--button-bg) !important;
+  color: var(--button-text) !important;
   border: none;
   padding: 8px 12px;
   margin: 8px;
   border-radius: 5px;
   cursor: pointer;
+  letter-spacing: .74px !important;
 }
 
   button:hover {
@@ -140,10 +141,29 @@ button {
   opacity: 0.5;
   cursor: not-allowed;
   pointer-events: none;
-}
+  }
+
+  button.warn-btn{
+    background-color: var(--warn) !important;
+    color: var(--button-text) !important;
+  }
 
 html {
   height: 100%;
+}
+
+.cdk-overlay-container .mat-mdc-menu-panel .mat-mdc-menu-content {
+  background-color: var(--surface-bg) !important;
+  color: var(--text-color) !important;
+}
+
+.cdk-overlay-container .mat-mdc-menu-item {
+  background-color: var(--surface-bg) !important;
+  color: var(--text-color) !important;
+}
+
+.cdk-overlay-container .mat-mdc-menu-item:hover {
+  background-color: var(--border-color) !important;
 }
 
 table,
@@ -183,6 +203,23 @@ mat-tab {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.dialog {
+  background-color: var(--text-color) !important;
+}
+
+.dialog-title {
+  color: var(--warn) !important;
+  font-weight: bold !important;
+}
+
+.dialog-warning {
+  font-weight: bold;
+}
+
+.dialog-message {
+  color: var(--bg-color) !important;
 }
 
 .admin-container {

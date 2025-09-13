@@ -7,7 +7,7 @@ namespace MyBooks.FileService.Models
         public int Id { get; set; }
         public int TenantId { get; set; }
 
-        public int GoogleIntegrationId { get; set; }
+        public int? GoogleIntegrationId { get; set; }
         public GoogleIntegration? GoogleIntegration { get; set; }
 
 

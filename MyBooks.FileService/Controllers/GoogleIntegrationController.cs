@@ -9,7 +9,7 @@ namespace MyBooks.FileService.Controllers
 {
     [ApiController]
     [Route("api/google-integrations")]
-    [Authorize(Roles = AppRoles.Owner)]
+    [Authorize(Roles = AppRoles.Admins)]
     public class GoogleIntegrationController : ControllerBase
     {
         private readonly FileDbContext _context;
@@ -27,13 +27,21 @@ namespace MyBooks.FileService.Controllers
         [HttpGet("authorize-url")]
         public IActionResult GetAuthorizationUrl()
         {
+            var tenantId = _context.GetCurrentTenantId();
+            var userId = _context.GetCurrentUserId();
+            var today = DateTime.UtcNow.ToString("yyyyMMdd");
+            var nonce = Guid.NewGuid().ToString("N");
+
+            var state = $"{tenantId}:{nonce}:{userId}:{today}";
+
             var clientId = _config["GoogleOAuth:ClientId"];
-            var redirectUri = _config["GoogleOAuth:RedirectUri"]; // must match in Google Cloud console
+            var redirectUri = _config["GoogleOAuth:RedirectUriLocal"]; // must match in Google Cloud console
             var scopes = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email";
 
             var url = $"https://accounts.google.com/o/oauth2/v2/auth" +
                       $"?client_id={clientId}" +
                       $"&redirect_uri={Uri.EscapeDataString(redirectUri)}" +
+                      $"&state={state}" +
                       $"&response_type=code" +
                       $"&access_type=offline" +
                       $"&prompt=consent" +
@@ -47,7 +55,24 @@ namespace MyBooks.FileService.Controllers
         [AllowAnonymous] // Google will hit this endpoint directly
         public async Task<IActionResult> OAuthCallback([FromQuery] string code, [FromQuery] string state)
         {
-            var tenantId = int.Parse(state); // you can pass tenantId as `state` when building the URL
+            var tenantId = 0;
+            var userId = "";
+            var date = "";
+
+            if (!string.IsNullOrEmpty(state))
+            {
+                var parts = state.Split(":");
+                if (parts.Length == 4)
+                {
+                    int.TryParse(parts[0], out tenantId);
+                    // parts[1] is random GUID - ignore for MVP
+                    userId = parts[2];
+                    date = parts[3];
+                }
+
+                if (date != DateTime.UtcNow.ToString("yyyyMMdd"))
+                    return BadRequest("State expired");
+            }
 
             var clientId = _config["GoogleOAuth:ClientId"];
             var clientSecret = _config["GoogleOAuth:ClientSecret"];
@@ -89,11 +114,13 @@ namespace MyBooks.FileService.Controllers
                 RefreshToken = refreshToken,
                 AccessToken = accessToken,
                 AccessTokenExpiry = accessExpiry,
-                IsActive = true
+                IsActive = true,
+                CreatedBy = userId,
+                CreatedDate = DateTime.UtcNow
             };
 
             _context.GoogleIntegrations.Add(integration);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsSystemAsync();
 
             // redirect user back to UI
             return Redirect(_config["GoogleOAuth:PostLoginRedirect"]);
@@ -102,7 +129,7 @@ namespace MyBooks.FileService.Controllers
         // STEP 3: List integrations
         [HttpGet]
         public async Task<IActionResult> GetIntegrations()
-        {
+        {            
             var tenantId = _context.GetCurrentTenantId();
             var list = await _context.GoogleIntegrations
                 .Where(g => g.TenantId == tenantId && g.IsActive)

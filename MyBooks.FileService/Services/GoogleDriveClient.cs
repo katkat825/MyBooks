@@ -25,29 +25,30 @@ namespace MyBooks.FileService.Services
             });
         }
 
-            private async Task<string> RefreshAccessTokenAsync(string refreshToken)
-            {
-                var payload = new Dictionary<string, string>
-                {
-                    {"client_id", _config["GoogleOAuth:ClientId"]},
-                    {"client_secret", _config["GoogleOAuth:ClientSecret"]},
-                    {"refresh_token", refreshToken},
-                    {"grant_type", "refresh_token"}
-                };
-
-                var response = await _httpClient.PostAsync(
-                    "https://oauth2.googleapis.com/token",
-                    new FormUrlEncodedContent(payload));
-
-                response.EnsureSuccessStatusCode();
-                var json = await response.Content.ReadAsStringAsync();
-
-                dynamic obj = Newtonsoft.Json.JsonConvert.DeserializeObject(json)!;
-                return (string)obj.access_token;
-            }
-
-        public async Task<Stream?> GetFileStreamAsync(string fileId, string accessToken)
+        private async Task<string> RefreshAccessTokenAsync(string refreshToken)
         {
+            var payload = new Dictionary<string, string>
+            {
+                {"client_id", _config["GoogleOAuth:ClientId"]},
+                {"client_secret", _config["GoogleOAuth:ClientSecret"]},
+                {"refresh_token", refreshToken},
+                {"grant_type", "refresh_token"}
+            };
+
+            var response = await _httpClient.PostAsync(
+                "https://oauth2.googleapis.com/token",
+                new FormUrlEncodedContent(payload));
+
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+
+            dynamic obj = Newtonsoft.Json.JsonConvert.DeserializeObject(json)!;
+            return (string)obj.access_token;
+        }
+
+        public async Task<Stream?> GetFileStreamAsync(string fileId, string refreshToken)
+        {
+            var accessToken = await RefreshAccessTokenAsync(refreshToken);
             var service = CreateService(accessToken);
 
             var request = service.Files.Get(fileId);
@@ -57,8 +58,9 @@ namespace MyBooks.FileService.Services
             return stream;
         }
 
-        public async Task<string> UploadFileAsync(string fileName, Stream content, string mimeType, string folderId, string accessToken)
+        public async Task<string> UploadFileAsync(string fileName, Stream content, string mimeType, string folderId, string refreshToken)
         {
+            var accessToken = await RefreshAccessTokenAsync(refreshToken);
             var service = CreateService(accessToken);
 
             var fileMetadata = new Google.Apis.Drive.v3.Data.File
@@ -77,8 +79,9 @@ namespace MyBooks.FileService.Services
             return request.ResponseBody.Id;
         }
 
-        public async Task DeleteFileAsync(string fileId, string accessToken)
+        public async Task DeleteFileAsync(string fileId, string refreshToken)
         {
+            var accessToken = await RefreshAccessTokenAsync(refreshToken);
             var service = CreateService(accessToken);
             await service.Files.Delete(fileId).ExecuteAsync();
         }

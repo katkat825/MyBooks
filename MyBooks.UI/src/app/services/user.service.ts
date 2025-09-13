@@ -25,7 +25,7 @@ export class UserService {
 
   constructor(private http: HttpClient, private router: Router) { }
 
-  private getAuthHeaders(): HttpHeaders {
+  public getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
     return new HttpHeaders({
       'Content-Type': 'application/json',

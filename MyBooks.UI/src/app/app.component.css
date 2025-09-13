@@ -48,6 +48,10 @@
   color: var(--text-color);
 }
 
+.mat-icon {
+  color: var(--text-color) !important;
+}
+
 .user-menu {
   position: relative;
   size: large !important;
@@ -62,8 +66,13 @@ mat-icon {
   color: var(--text-color);
 }
 
-mat-menu {
-  background-color: var(--surface-bg);
+.menu-class {
+  background-color: var(--surface-bg) !important;
+}
+
+button {
+  background-color: var(--surface-bg) !important;
+  color: var(--text-color) !important;
 }
 
 .mat-menu-item {

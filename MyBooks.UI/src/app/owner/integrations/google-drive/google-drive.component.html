@@ -1,0 +1,33 @@
+<div class="container mt-4">
+  <h2>Google Drive</h2>
+
+  <button mat-button color="primary" (click)="connect()">
+    <mat-icon>cloud</mat-icon> Connect Google Drive
+  </button>
+
+  <table mat-table [dataSource]="integrations" class="mat-elevation-z8 mt-3">
+    <ng-container matColumnDef="accountEmail">
+      <th mat-header-cell *matHeaderCellDef>Email</th>
+      <td mat-cell *matCellDef="let integration">{{ integration.accountEmail }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="createdDate">
+      <th mat-header-cell *matHeaderCellDef>Created</th>
+      <td mat-cell *matCellDef="let integration">
+        {{ integration.createdDate | date:'mediumDate' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let integration">
+        <button mat-button class="warn-btn" (click)="remove(integration)">
+          <mat-icon>delete</mat-icon> Remove
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="['accountEmail','createdDate','actions']"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['accountEmail','createdDate','actions'];"></tr>
+  </table>
+</div>

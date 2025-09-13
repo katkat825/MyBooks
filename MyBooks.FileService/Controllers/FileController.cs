@@ -55,7 +55,8 @@ namespace MyBooks.FileService.Controllers
             var existingFile = await _context.Files.FirstOrDefaultAsync(f => f.BookId == bookId && f.IsActive);
             if (existingFile != null)
             {
-                await _googleDriveClient.DeleteFileAsync(existingFile.FilePath, integration.RefreshToken);
+                if (existingFile.GoogleIntegrationId != null)
+                    await _googleDriveClient.DeleteFileAsync(existingFile.FilePath, integration.RefreshToken);
                 existingFile.IsActive = false;
                 _context.Files.Update(existingFile);
                 await _context.SaveChangesAsync();

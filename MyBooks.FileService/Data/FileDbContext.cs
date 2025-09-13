@@ -9,12 +9,13 @@ namespace MyBooks.FileService.Data
     public class FileDbContext : DbContext
     {
         private readonly IHttpContextAccessor _contextAccessor;
+
         public FileDbContext(DbContextOptions<FileDbContext> options, IHttpContextAccessor contextAccessor) : base(options)
         {
             _contextAccessor = contextAccessor;
         }
 
-        private string GetCurrentUserId()
+        public string GetCurrentUserId()
         {
             var user = _contextAccessor.HttpContext?.User;
             return user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -25,6 +26,13 @@ namespace MyBooks.FileService.Data
             var tenantId = _contextAccessor.HttpContext?.User?.FindFirst("TenantId")?.Value;
             Console.WriteLine($"Current Tenant ID: {tenantId}");
             return int.TryParse(tenantId, out var id) ? id : 0;
+        }
+
+        public string GetCurrentUserRole()
+        {
+            var role = _contextAccessor.HttpContext?.User?.FindFirst("role")?.Value;
+            Console.WriteLine($"Current Role: {role}");
+            return role ?? string.Empty;
         }
 
         public DbSet<FileMetadata> Files { get; set; }
@@ -72,10 +80,27 @@ namespace MyBooks.FileService.Data
                     
             return await base.SaveChangesAsync(cancellationToken);
         }
+        
+        public async Task<int> SaveChangesAsSystemAsync(CancellationToken cancellationToken = default)
+        {
+            // verify audit info set by controller
+            foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    if (string.IsNullOrWhiteSpace(entry.Entity.CreatedBy) || entry.Entity.CreatedDate == default)
+                    {
+                        throw new InvalidOperationException("System save requires CreatedBy and CreatedDate to be set.");
+                    }
+                }             
+            }
+            
+            return await base.SaveChangesAsync(cancellationToken);
+        }
 
         public void ApplyAuditInformation()
         {
-            if(_contextAccessor.HttpContext == null)
+            if (_contextAccessor.HttpContext == null)
                 return;
 
             var currentUser = GetCurrentUserId();

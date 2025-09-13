@@ -1,0 +1,36 @@
+button {
+  background-color: var(--button-bg) !important;
+  color: var(--button-text) !important;
+  border: none;
+  padding: 8px 12px;
+  margin: 8px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+  button:hover {
+    opacity: 0.9;
+  }
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.warn-btn {
+  background-color: var(--warn) !important;
+}
+
+h2,
+mat-card-title
+{
+  padding: 8px;
+  margin: 8px;
+}
+
+mat-icon {
+  vertical-align: middle;
+  line-height: 1;
+  font-size: 20px;
+}

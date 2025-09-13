@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
 import { AccountUsersComponent } from './account-users/account-users.component';
+import { GoogleDriveComponent } from '../integrations/google-drive/google-drive.component';
 
 
 @Component({
@@ -12,7 +13,8 @@ import { AccountUsersComponent } from './account-users/account-users.component';
   imports: [
     AccountUsersComponent,
     MatTabsModule,
-    RouterModule
+    RouterModule,
+    GoogleDriveComponent
   ]
 })
 export class AcountComponent {
@@ -22,5 +24,9 @@ export class AcountComponent {
   
   navigateToUsers() {
     this.router.navigate(['/account/users']);
+  }
+
+  navigateToIntegrations() {
+    this.router.navigate(['/account/integrations']);
   }
 }

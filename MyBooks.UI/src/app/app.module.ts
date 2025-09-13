@@ -17,6 +17,7 @@ import { AcceptableUsePolicyComponent } from './components/acceptable-use-policy
 import { ReportAbuseComponent } from './components/report-abuse/report-abuse.component';
 import { SignupComponent } from './components/signup/signup.component';
 import { AcountComponent } from './owner/account/account.component';
+import { GoogleDriveComponent } from './owner/integrations/google-drive/google-drive.component';
 
 @NgModule({
   imports: [
@@ -40,7 +41,8 @@ import { AcountComponent } from './owner/account/account.component';
     AcceptableUsePolicyComponent,
     ReportAbuseComponent,
     SignupComponent,
-    AcountComponent
+    AcountComponent,
+    GoogleDriveComponent
   ]
 })
 export class AppModule { }

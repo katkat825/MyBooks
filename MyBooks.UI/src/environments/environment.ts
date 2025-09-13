@@ -3,5 +3,6 @@ export const environment = {
   apiUrl: 'https://localhost:5001/api', // CatalogService
   authServiceUrl: 'https://localhost:7254/api', // AuthService
   fileApiUrl: `https://localhost:7142/api/files`, // FileService
-  tenantApiUrl: `https://localhost:5005/api` // TenantService
+  tenantApiUrl: `https://localhost:5005/api`, // TenantService
+  integrationApiUrl: `https://localhost:7142/api`
 };
