@@ -27,6 +27,8 @@ public class InternalUsersController : ControllerBase
     [HttpPost("create")]
     public async Task<IActionResult> Create(OwnerUserDto request)
     {
+        Console.WriteLine("create user reached from tenantservice");
+
         if (await _context.Users.AnyAsync(u => u.Email == request.Email))
             return Conflict(new { message = "Email already in use." });
 
@@ -43,6 +45,8 @@ public class InternalUsersController : ControllerBase
             CreatedDate = DateTime.UtcNow,
             TenantId = null
         };
+
+        Console.WriteLine("attempting to add user");
 
         _context.Users.Add(user);
         await _context.SaveChangesAsSystemAsync();

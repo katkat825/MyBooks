@@ -83,7 +83,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<AuthClient>(client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["Services:Auth"] ?? "https://localhost:7254"); 
+    client.BaseAddress = new Uri(builder.Configuration["Services:Auth"] ?? "https://localhost:7254");
+});
+builder.Services.AddHttpClient<CatalogClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Services:Catalog"] ?? "https://localhost:5003");
 });
 builder.Services.AddHttpContextAccessor();
 

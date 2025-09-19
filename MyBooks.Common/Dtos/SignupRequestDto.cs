@@ -3,7 +3,7 @@ namespace MyBooks.Common.Dtos;
 public class SignupRequestDto
 {
     // tenant info
-    public int BillingPlanId { get; set; } = 1;
+    public int? BillingPlanId { get; set; } = 1;
 
     // owner info
     public string FirstName { get; set; }

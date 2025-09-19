@@ -51,13 +51,16 @@ export class SignupComponent {
     this.isSubmitting = true;
     this.errorMessage = null;
 
-    const payload: SignupRequest = this.form.value as SignupRequest;
+    const payload: SignupRequest = {
+      ...this.form.value,
+      billingPlanId: 1
+    }
 
     this.signupService.createTenant(payload).subscribe({
       next: (resp: SignupResponse) => {
         this.isSubmitting = false;
         this.errorMessage = null;
-        this.router.navigate(['/login']);
+        console.log("tenant created successfully: " + resp.tenantId);
       },
       error: (err) => {
         this.errorMessage = err.error?.message ?? 'Signup failed';

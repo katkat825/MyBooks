@@ -30,6 +30,31 @@ namespace MyBooks.CatalogService.Controllers
             return await _context.Genres.ToListAsync();
         }
 
+        // seed initial genres
+        [HttpPost("seed/{tenantId}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> SeedDefaultGenres(int tenantId)
+        {
+            foreach (var genreName in DefaultGenres.Values)
+            {
+                var exists = await _context.Genres
+                    .AnyAsync(g => g.TenantId == tenantId && g.Name == genreName);
+
+                if (!exists)
+                {
+                    _context.Genres.Add(new Genre
+                    {
+                        TenantId = tenantId,
+                        Name = genreName,
+                        CreatedBy = "System",
+                        CreatedDate = DateTime.UtcNow
+                    });
+                }
+            }
+            await _context.SaveChangesAsSystemAsync();
+            return Ok();
+        }
+
         // add a new genre
         [HttpPost]
         [Authorize(Roles = AppRoles.Editors)]

@@ -116,6 +116,23 @@ namespace MyBooks.CatalogService.Data
             ApplyAuditInformation();
             return await base.SaveChangesAsync(cancellationToken);
         }
+        
+        public async Task<int> SaveChangesAsSystemAsync(CancellationToken cancellationToken = default)
+        {
+            // verify audit info set by controller
+            foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    if (string.IsNullOrWhiteSpace(entry.Entity.CreatedBy) || entry.Entity.CreatedDate == default)
+                    {
+                        throw new InvalidOperationException("System save requires CreatedBy and CreatedDate to be set.");
+                    }
+                }             
+            }
+            
+            return await base.SaveChangesAsync(cancellationToken);
+        }
 
         public void SoftDelete()
         {
@@ -141,15 +158,15 @@ namespace MyBooks.CatalogService.Data
                 }
 
                 // soft delete
-                    if (entry.State == EntityState.Deleted)
+                if (entry.State == EntityState.Deleted)
+                {
+                    var activeProperty = entry.Entity.GetType().GetProperty("IsActive");
+                    if (activeProperty != null && activeProperty.PropertyType == typeof(bool))
                     {
-                        var activeProperty = entry.Entity.GetType().GetProperty("IsActive");
-                        if (activeProperty != null && activeProperty.PropertyType == typeof(bool))
-                        {
-                            entry.State = EntityState.Modified;
-                            activeProperty?.SetValue(entry.Entity, false);
-                        }
+                        entry.State = EntityState.Modified;
+                        activeProperty?.SetValue(entry.Entity, false);
                     }
+                }
             }
         }
 
