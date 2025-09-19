@@ -228,3 +228,26 @@ mat-tab {
   padding: 20px;
   text-align: center;
 }
+
+.folder-dialog .mat-mdc-list-option {
+  color: var(--bg-color) !important;
+}
+
+.folder-dialog .mat-mdc-list-option .mdc-list-item__primary-text {
+  color: var(--bg-color) !important;
+}
+
+/* Unchecked outline */
+.folder-dialog .mdc-checkbox__background {
+  border: 2px solid var(--text-color) !important;
+  background: transparent !important;
+}
+
+/* Keep checked fill + checkmark intact */
+.folder-dialog .mdc-checkbox.mdc-checkbox--selected .mdc-checkbox__background {
+  background-color: var(--text-color) !important;
+  border-color: var(--text-color) !important;
+}
+.folder-dialog .mdc-checkbox.mdc-checkbox--selected .mdc-checkbox__checkmark-path {
+  stroke: var(--bg-color) !important;
+}

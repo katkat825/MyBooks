@@ -141,5 +141,30 @@ namespace MyBooks.FileService.Services
             var service = CreateService(accessToken);
             await service.Files.Delete(fileId).ExecuteAsync();
         }
+
+        public async Task<IList<Google.Apis.Drive.v3.Data.File>> ListFoldersAsync(string parentId, string refreshToken)
+        {
+            if (string.IsNullOrWhiteSpace(parentId))
+                parentId = "root";
+
+            var accessToken = await RefreshAccessTokenAsync(refreshToken);
+            var service = CreateService(accessToken);
+
+            var request = service.Files.List();
+            request.Q = $"'{parentId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
+            request.Fields = "files(id, name)";
+            request.PageSize = 100;
+
+            var result = await request.ExecuteAsync();
+
+            //debugging 
+            Console.WriteLine($"[GoogleDriveClient] ListFoldersAsync - Parent: {parentId}, Count: {result.Files.Count}");
+            foreach (var file in result.Files)
+            {
+                Console.WriteLine($"[GoogleDriveClient] Folder: {file.Name} ({file.Id}), Parents: {string.Join(",", file.Parents ?? new List<string>())}");
+            }
+            
+            return result.Files;
+        }
     }
 }

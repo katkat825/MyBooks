@@ -18,6 +18,9 @@ import { ReportAbuseComponent } from './components/report-abuse/report-abuse.com
 import { SignupComponent } from './components/signup/signup.component';
 import { AcountComponent } from './owner/account/account.component';
 import { GoogleDriveComponent } from './owner/integrations/google-drive/google-drive.component';
+import { GoogleDriveFolderComponentComponent } from './owner/integrations/google-drive-folder.component/google-drive-folder.component.component';
+import { GoogleDriveFolderComponent } from './owner/integrations/google-drive-folder/google-drive-folder.component';
+import { AddGoogleDriveFolderComponent } from './owner/integrations/add-google-drive-folder/add-google-drive-folder.component';
 
 @NgModule({
   imports: [
@@ -42,7 +45,10 @@ import { GoogleDriveComponent } from './owner/integrations/google-drive/google-d
     ReportAbuseComponent,
     SignupComponent,
     AcountComponent,
-    GoogleDriveComponent
+    GoogleDriveComponent,
+    GoogleDriveFolderComponentComponent,
+    GoogleDriveFolderComponent,
+    AddGoogleDriveFolderComponent
   ]
 })
 export class AppModule { }

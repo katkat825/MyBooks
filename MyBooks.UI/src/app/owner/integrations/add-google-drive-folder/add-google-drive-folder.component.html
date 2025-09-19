@@ -1,0 +1,16 @@
+<h2>Google Drive Folders</h2>
+
+<mat-selection-list>
+  <mat-list-option
+    *ngFor="let folder of folders"
+    [selected]="selected.has(folder.id)"
+    (click)="toggleSelection(folder.id)"
+    class="folder-list">
+      {{ folder.name }}
+  </mat-list-option>
+</mat-selection-list>
+
+<div class="actions mt-3">
+  <button mat-button color="primary" (click)="save()">Save</button>
+  <button mat-button (click)="cancel()">Cancel</button>
+</div>

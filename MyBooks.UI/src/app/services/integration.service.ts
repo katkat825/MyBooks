@@ -36,4 +36,19 @@ export class IntegrationService {
   deleteIntegration(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() });
   }
+
+  getFolders(integrationId: number): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${this.apiUrl}/${integrationId}/folders`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  updateFolders(integrationId: number, folderIds: string[]): Observable<void> {
+    return this.http.put<void>(
+      `${this.apiUrl}/${integrationId}/folders`,
+      folderIds,
+      { headers: this.getAuthHeaders() }
+    );
+  }
 }

@@ -17,12 +17,14 @@ namespace MyBooks.FileService.Controllers
         private readonly FileDbContext _context;
         private readonly IConfiguration _config;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly GoogleDriveClient _googleDriveClient;
 
-        public GoogleIntegrationController(FileDbContext context, IConfiguration config, IHttpClientFactory httpClientFactory)
+        public GoogleIntegrationController(FileDbContext context, IConfiguration config, IHttpClientFactory httpClientFactory, GoogleDriveClient googleDriveClient)
         {
             _context = context;
             _config = config;
             _httpClientFactory = httpClientFactory;
+            _googleDriveClient = googleDriveClient;
         }
 
         // STEP 1: Get OAuth consent URL
@@ -38,7 +40,7 @@ namespace MyBooks.FileService.Controllers
 
             var clientId = _config["GoogleOAuth:ClientId"];
             var redirectUri = _config["GoogleOAuth:RedirectUriLocal"]; // must match in Google Cloud console
-            var scopes = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email";
+            var scopes = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/drive.metadata.readonly";
 
             var url = $"https://accounts.google.com/o/oauth2/v2/auth" +
                       $"?client_id={clientId}" +
@@ -139,7 +141,7 @@ namespace MyBooks.FileService.Controllers
             return Ok(list);
         }
 
-        [HttpGet("folders")]
+        [HttpGet("{id}/folders")]
         public async Task<IActionResult> GetFolders([FromQuery] string? parentId = "root")
         {
             var tenantId = _context.GetCurrentTenantId();
@@ -148,30 +150,20 @@ namespace MyBooks.FileService.Controllers
             if (integration == null)
                 return BadRequest("Google Drive not configured for this account.");
 
-            // get access to google drive
-            var accessToken = await new GoogleDriveClient(_config, _httpClientFactory.CreateClient())
-                .RefreshAccessTokenAsync(integration.RefreshToken);
 
-            var service = new Google.Apis.Drive.v3.DriveService(
-                new Google.Apis.Services.BaseClientService.Initializer
-                {
-                    HttpClientInitializer = Google.Apis.Auth.OAuth2.GoogleCredential.FromAccessToken(accessToken),
-                    ApplicationName = "MyBooks FileService"
-                });
+            var files = await _googleDriveClient.ListFoldersAsync(parentId ?? "root", integration.RefreshToken);
+            
+            var selectedIds = integration.DriveFolderIds ?? new List<string>();
 
-            // get subfolders under the given parentId
-            var request = service.Files.List();
-            request.Q = $"'{parentId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
-            request.Fields = "files(id, name)";
-            request.PageSize = 100;
-
-            var result = await request.ExecuteAsync();
-
-            var folders = result.Files.Select(f => new
+            var folders = files.Select(f => new
             {
                 Id = f.Id,
-                Name = f.Name
+                Name = f.Name,
+                IsSelected = selectedIds.Contains(f.Id)
             }).ToList();
+
+            //debugging 
+            Console.WriteLine($"[Controller] Returning {folders.Count} folders to client.");
 
             return Ok(folders);
         }
