@@ -13,7 +13,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookService } from '../../services/book.service';
 import { UserService } from '../../services/user.service';
-
+import { ConfirmDialogComponent } from '../../components/shared/confirmation.component';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-book-form',
@@ -30,7 +31,8 @@ import { UserService } from '../../services/user.service';
     MatIconModule,
     HttpClientModule,
     MatTooltipModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatDialogModule
   ]
 })
 export class BookFormComponent implements OnInit {
@@ -50,7 +52,8 @@ export class BookFormComponent implements OnInit {
     private bookService: BookService,
     private userService: UserService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -276,16 +279,32 @@ export class BookFormComponent implements OnInit {
     }
 
     if(this.fileId) {
-      const ok = confirm("Uploading a new file will permanently delete the old one. Continue?");
-      if(!ok) {
-        return;
-      }
-    }
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          itemType: 'Existing File',
+          itemSpecific: this.selectedFile.name,
+          message: "Uploading a new file will permanently delete the old one.",
+          cancelText: "Keep Existing File",
+          confirmText: "Replace File"
+        }
+      });
 
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result) {
+          this.doUpload();
+        }
+      });
+    } 
+    else {
+      this.doUpload();
+    }
+  }
+
+  private doUpload() {
     const bookTitle = this.bookForm.get('step1')?.get('title')?.value;
     this.isFinalizing = true;  
 
-    this.bookService.uploadFile(this.selectedFile, this.bookId, bookTitle).subscribe({
+    this.bookService.uploadFile(this.selectedFile!, this.bookId, bookTitle).subscribe({
       next: (response) => {
         if (response && response.fileId) {
           this.fileId = response.fileId;

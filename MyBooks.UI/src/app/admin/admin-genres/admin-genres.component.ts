@@ -6,13 +6,24 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { BookService } from '../../services/book.service';
 import { MatIconModule } from '@angular/material/icon';
+import { ConfirmDialogComponent } from '../../components/shared/confirmation.component';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-admin-genres',
   standalone: true,
   templateUrl: './admin-genres.component.html',
-  styleUrl: './admin-genres.component.css',
-  imports: [FormsModule, MatFormFieldModule, MatInputModule, CommonModule, MatTableModule, MatIconModule, ReactiveFormsModule]
+  styleUrls: ['./admin-genres.component.css'],
+  imports: [
+    FormsModule, 
+    MatFormFieldModule, 
+    MatInputModule, 
+    CommonModule, 
+    MatTableModule, 
+    MatIconModule, 
+    ReactiveFormsModule,
+    MatDialogModule
+  ]
 })
 export class AdminGenresComponent {
   genres: any[] = [];
@@ -21,7 +32,7 @@ export class AdminGenresComponent {
   createForm!: FormGroup;
   addingGenre: boolean = false;
 
-  constructor(private bookService: BookService, private fb: FormBuilder) { }
+  constructor(private bookService: BookService, private fb: FormBuilder, private dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.loadGenres();
@@ -101,19 +112,25 @@ export class AdminGenresComponent {
     })
   }
 
-  deleteGenre(id: number) {
-    if (confirm('Are you sure you want to delete this genres?')) {
-      this.bookService.deleteGenre(id).subscribe({
-        next: () => this.loadGenres(),
-        error: (error) => {
-          console.error('Error deleting genres: ', error)
-          if (error.status === 409) {
-            alert("This genres cannot be delted because it contains books.");
-          } else {
-            alert("An error occurred while deleting the genres.");
+  deleteGenre(genre: any) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: { itemType: 'Genre', itemSpecific: genre.name}
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if(result) {
+        this.bookService.deleteGenre(genre.id).subscribe({
+          next: () => this.loadGenres(),
+          error: (error) => {
+            console.error('Error deleting genres: ', error)
+            if (error.status === 409) {
+              alert("This genres cannot be deleted because it contains books.");
+            } else {
+              alert("An error occurred while deleting the genres.");
+            }
           }
-        }
-      });
-    }
+        });
+      }
+    });
   }
 }

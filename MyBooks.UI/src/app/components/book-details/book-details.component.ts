@@ -8,13 +8,23 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { BookService } from '../../services/book.service';
 import { UserService } from '../../services/user.service';
+import { ConfirmDialogComponent } from '../../components/shared/confirmation.component';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-book-details',
   standalone: true,
   templateUrl: './book-details.component.html',
   styleUrls: ['./book-details.component.css'],
-  imports: [CommonModule, MatIconModule, MatButtonModule, RouterModule, HttpClientModule, MatCardModule],
+  imports: [
+    CommonModule,
+     MatIconModule, 
+     MatButtonModule, 
+     RouterModule, 
+     HttpClientModule, 
+     MatCardModule,
+     MatDialogModule
+    ],
 })
 export class BookDetailsComponent implements OnInit {
   book: any = null;
@@ -30,7 +40,7 @@ export class BookDetailsComponent implements OnInit {
     private bookService: BookService,
     private userService: UserService,
     private router: Router,
-    private sanitizer: DomSanitizer
+    private dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -80,20 +90,26 @@ export class BookDetailsComponent implements OnInit {
         return;
       }
 
-    if (confirm("Are you sure you want to delete this book?")) {
-      const id = book.id;
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: { itemType: 'Book', itemSpecific: book.title }
+    });
+    
+    dialogRef.afterClosed().subscribe((result) => {
+      if(result) {
+        const id = book.id;
 
-      if (book.fileId) {
-        this.bookService.deleteFile(book.fileId).subscribe({
-          next: () => {
-            this.deleteBookRecord(id);
-          },
-          error: (error) => console.error("Error deleting file", error),
-        });
-      } else {
-        this.deleteBookRecord(id);
+        if (book.fileId) {
+          this.bookService.deleteFile(book.fileId).subscribe({
+            next: () => {
+              this.deleteBookRecord(id);
+            },
+            error: (error) => console.error("Error deleting file", error),
+          });
+        } else {
+          this.deleteBookRecord(id);
+        }
       }
-    }
+    });      
   }
 
   private deleteBookRecord(id: number) {

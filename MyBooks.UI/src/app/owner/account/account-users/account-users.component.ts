@@ -11,6 +11,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { UserService } from '../../../services/user.service';
+import { ConfirmDialogComponent } from '../../../components/shared/confirmation.component';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+
 
 @Component({
   selector: 'app-account-users',
@@ -29,7 +32,9 @@ import { UserService } from '../../../services/user.service';
     MatCardModule,
     MatTooltipModule,
     MatSnackBarModule,
-    ReactiveFormsModule]
+    ReactiveFormsModule,
+    MatDialogModule
+  ]
 })
 export class AccountUsersComponent {
   users: any[] = [];
@@ -45,7 +50,8 @@ export class AccountUsersComponent {
   constructor(
     private userService: UserService,
     private fb: FormBuilder,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -90,13 +96,39 @@ export class AccountUsersComponent {
       return;
     }
     if (user.isActive) {
-      if (confirm(`Are you sure you want to deactivate ${user.firstName}?`)) {
-        this.userService.deactivateUser(user.id).subscribe(() => this.loadUsers());
-      }
-    } else {
-      if (confirm(`Are you sure you want to reactivate ${user.firstName}?`)) {
-        this.userService.reactivateUser(user.id).subscribe(() => this.loadUsers());
-      }
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: { 
+          itemType: 'User', 
+          itemSpecific: user.firstName,
+          message: `Are you sure you want to deactivate ${user.firstName}?`,
+          confirmText: 'Deactivate',
+          title: "Deactivate User",
+          permanent: false
+        }
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if(result)
+          this.userService.deactivateUser(user.id).subscribe(() => this.loadUsers());
+      });
+    } 
+    
+    else {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          itemType: 'User',
+          itemSpecific: user.firstName,
+          message: `Are you sure you want to reactivate ${user.firstName}?`,
+          confirmText: 'Reactivate',
+          title: "Reactivate User",
+          permanent: false
+        }
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if(result)
+          this.userService.reactivateUser(user.id).subscribe(() => this.loadUsers());
+      });
     }
   }
 
@@ -110,18 +142,23 @@ export class AccountUsersComponent {
       return;
     }
 
-    if (confirm(`Are you sure you want to delete ${user.firstName}?`)) {
-      this.userService.deleteUser(user.id).subscribe({
-        next: () => {
-          this.showSavedSnack();
-          this.loadUsers();
-        },
-        error: (err) => {
-          console.error("Error deleting user: ", err);
-          alert("Failed to delete user.");
-        }
-      });
-    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: { itemType: 'User', itemSpecific: user.firstName }
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.userService.deleteUser(user.id).subscribe({
+          next: () => {
+            this.showSavedSnack();
+            this.loadUsers();
+          },
+          error: (err) => {
+            console.error("Error deleting user: ", err);
+            alert("Failed to delete user.");
+          }
+        });
+      }
+    })
   }
 
   loadUsers() {

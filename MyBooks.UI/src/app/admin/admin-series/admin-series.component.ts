@@ -6,13 +6,24 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { BookService } from '../../services/book.service';
 import { MatIconModule } from '@angular/material/icon';
+import { ConfirmDialogComponent } from '../../components/shared/confirmation.component';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-admin-series',
   standalone: true,
   templateUrl: './admin-series.component.html',
   styleUrls: ['./admin-series.component.css'],
-  imports: [FormsModule, MatFormFieldModule, MatInputModule, CommonModule, MatTableModule, MatIconModule, ReactiveFormsModule]
+  imports: [
+    FormsModule, 
+    MatFormFieldModule, 
+    MatInputModule, 
+    CommonModule, 
+    MatTableModule, 
+    MatIconModule, 
+    ReactiveFormsModule,
+    MatDialogModule
+  ]
 })
 
 export class AdminSeriesComponent implements OnInit {
@@ -22,7 +33,7 @@ export class AdminSeriesComponent implements OnInit {
   createForm!: FormGroup;
   addingSeries: boolean = false;
 
-  constructor(private bookService: BookService, private fb: FormBuilder) { }
+  constructor(private bookService: BookService, private fb: FormBuilder, private dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.loadSeries();
@@ -100,19 +111,25 @@ export class AdminSeriesComponent implements OnInit {
     })
   }
 
-  deleteSeries(id: number) {
-    if (confirm('Are you sure you want to delete this series?')) {
-      this.bookService.deleteSeries(id).subscribe({
-        next: () => this.loadSeries(),
-        error: (error) => {
-          console.error('Error deleting series:', error)
-          if (error.status === 409) {
-            alert("This series cannot be deleted because it contains books.");
-          } else {
-            alert("An error occurred while deleting the series.");
+  deleteSeries(series: any) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: { itemType: 'Series', itemSpecific: series.name }
+    });
+    
+    dialogRef.afterClosed().subscribe((result) => {
+      if(result) {
+        this.bookService.deleteSeries(series.id).subscribe({
+          next: () => this.loadSeries(),
+          error: (error) => {
+            console.error('Error deleting series:', error)
+            if (error.status === 409) {
+              alert("This series cannot be deleted because it contains books.");
+            } else {
+              alert("An error occurred while deleting the series.");
+            }
           }
-        }
-      });
-    }
+        });
+      }
+    })
   }
 }

@@ -30,7 +30,7 @@ namespace MyBooks.FileService.Controllers
         // upload File - only owner or superadmin
         [HttpPost("upload")]
         [Authorize(Roles = AppRoles.OwnerPlus)]
-        public async Task<IActionResult> UploadFile([FromForm] IFormFile file, [FromForm] int bookId, [FromForm] string bookTitle, [FromForm] string folderId)
+        public async Task<IActionResult> UploadFile([FromForm] IFormFile file, [FromForm] int bookId, [FromForm] string bookTitle, [FromForm] string? folderId)
         {
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
@@ -41,8 +41,8 @@ namespace MyBooks.FileService.Controllers
                 .FirstOrDefaultAsync(g => g.TenantId == tenantId && g.IsActive);
             if (integration == null)
                 return BadRequest("Google Drive not configured for this tenant.");
-            if (integration.DriveFolderIds == null || !integration.DriveFolderIds.Contains(folderId))
-                return BadRequest("Invalid folder selection.");
+            if (string.IsNullOrWhiteSpace(folderId))
+                folderId = await _googleDriveClient.GetOrCreateFolderAsync("MyBookCatalog", "root", integration.RefreshToken);
 
             var fileValidator = new FileValidator();
             var fileValidationResult = fileValidator.Validate(file);
@@ -114,7 +114,6 @@ namespace MyBooks.FileService.Controllers
 
             _context.Files.Add(fileMetadata);
             await _context.SaveChangesAsync();
-
             return Ok(new { FileId = fileMetadata.Id, Message = "File uploaded successfully" });
         }
 
