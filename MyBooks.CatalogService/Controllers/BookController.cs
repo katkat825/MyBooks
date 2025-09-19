@@ -80,8 +80,9 @@ namespace MyBooks.CatalogService.Controllers
             return Ok(book);
         }
 
-        //create new book
+        //create new book - owner & superadmin only
         [HttpPost]
+        [Authorize(Roles = AppRoles.OwnerPlus)]
         public async Task<ActionResult<Book>> PostBook(Book book)
         {
             if (book == null) return BadRequest("Invalid book data.");
@@ -91,11 +92,11 @@ namespace MyBooks.CatalogService.Controllers
 
             //sanitize all text fields, if they exist
             book.Title = _htmlSanitizationService.Sanitize(book.Title);
-            if(!string.IsNullOrWhiteSpace(book.Author))
+            if (!string.IsNullOrWhiteSpace(book.Author))
                 book.Author = _htmlSanitizationService.Sanitize(book.Author);
-            if(!string.IsNullOrWhiteSpace(book.Description))
+            if (!string.IsNullOrWhiteSpace(book.Description))
                 book.Description = _htmlSanitizationService.Sanitize(book.Description);
-            if(!string.IsNullOrWhiteSpace(book.Location))
+            if (!string.IsNullOrWhiteSpace(book.Location))
                 book.Location = _htmlSanitizationService.Sanitize(book.Location);
             if (!string.IsNullOrWhiteSpace(book.TagInput))
             {
@@ -122,10 +123,10 @@ namespace MyBooks.CatalogService.Controllers
             }
 
             var genre = await _context.Genres.FindAsync(book.GenreId);
-                if (genre == null) return BadRequest("Invalid genre ID.");
-                book.Genre = genre;
+            if (genre == null) return BadRequest("Invalid genre ID.");
+            book.Genre = genre;
 
-            if(book.FileId.HasValue)
+            if (book.FileId.HasValue)
             {
                 var response = await _httpClient.GetAsync($"https://localhost:7142/api/files/{book.FileId}");
                 if (!response.IsSuccessStatusCode) return BadRequest("Invalid FileId. File not found.");
@@ -134,11 +135,12 @@ namespace MyBooks.CatalogService.Controllers
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetBook), new {id = book.Id}, book);
+            return CreatedAtAction(nameof(GetBook), new { id = book.Id }, book);
         }
 
-        //update existing book
+        //update existing book - owner & superadmin only
         [HttpPut("{id}")]
+        [Authorize(Roles = AppRoles.OwnerPlus)]
         public async Task<IActionResult> PutBook(int id, Book book)
         {
             if (id != book.Id) return BadRequest("Book ID mismatch.");
@@ -207,8 +209,8 @@ namespace MyBooks.CatalogService.Controllers
             existingBook.AgeCategoryId = book.AgeCategoryId;
             existingBook.PublishedDate = book.PublishedDate;
             existingBook.ISBN = book.ISBN;
-            existingBook.GenreId = book.GenreId;      
-            
+            existingBook.GenreId = book.GenreId;
+
 
             _context.Entry(existingBook).State = EntityState.Modified;
 
@@ -218,6 +220,7 @@ namespace MyBooks.CatalogService.Controllers
         }
 
         [HttpPatch("{id}/file")]
+        [Authorize(Roles = AppRoles.OwnerPlus)]
         public async Task<IActionResult> UpdateBookFileId(int id, [FromBody] FileUpdateDto request)
         {
             Console.WriteLine($"📡 Received request to update book {id} with FileId: {request.FileId}");
@@ -232,9 +235,9 @@ namespace MyBooks.CatalogService.Controllers
                 return Forbid($"Book '{book.Title}' is restricted and its file cannot be changed.");
 
             if (request.FileId <= 0)
-                {
-                    return BadRequest("Invalid FileId.");
-                }
+            {
+                return BadRequest("Invalid FileId.");
+            }
 
             book.FileId = request.FileId;
             _context.Entry(book).State = EntityState.Modified;
@@ -251,6 +254,7 @@ namespace MyBooks.CatalogService.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = AppRoles.OwnerPlus)]
         public async Task<IActionResult> DeleteBook(int id)
         {
             var book = await _context.Books.FindAsync(id);
@@ -260,7 +264,7 @@ namespace MyBooks.CatalogService.Controllers
                 return Forbid($"Book '{book.Title}' is restricted and cannot be deleted.");
 
             //verify authenticated user is either admin, editor, or creator
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             var canEdit = AppRoles.EditorsArray.Any(User.IsInRole);
             var isCreator = book.CreatedBy == userId.ToString();
 

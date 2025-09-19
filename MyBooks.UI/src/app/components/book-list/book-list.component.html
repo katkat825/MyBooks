@@ -4,7 +4,7 @@
     <p>Please wait while we load your books...</p>
   </div>
   <div class="book-wrapper">
-    <button mat-button id="add-book" (click)="addBook()">
+    <button mat-button *ngIf="hasCreatePermission()" id="add-book" (click)="addBook()">
       <mat-icon class="add-book-icon">add</mat-icon>Add New Book
     </button>
 

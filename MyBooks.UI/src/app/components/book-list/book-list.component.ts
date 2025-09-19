@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-book-list',
@@ -34,15 +35,25 @@ export class BookListComponent {
   filteredBooks: any[] = [];
   searchQuery: string = '';
   isFinalizing: boolean = true;
+  currentUser: any = null;
 
-  constructor(private bookService: BookService, private router: Router) { }
+  constructor(private bookService: BookService, private router: Router, private userService: UserService) { }
 
   ngOnInit(): void {
+    this.userService.getProfile().subscribe({
+      next: (user) => { this.currentUser = user; },
+      error: (err) => { console.error("Error fetching current user profile", err); }
+    })
     this.loadBooks();
   }
 
   viewBookDetails(book: any) {
     this.router.navigate(['/book', book.id]);
+  }
+
+  hasCreatePermission(): boolean {
+    if (!this.currentUser) return false;
+    return ['owner', 'superadmin'].includes(this.currentUser.role.toLowerCase());
   }
 
   loadBooks() {

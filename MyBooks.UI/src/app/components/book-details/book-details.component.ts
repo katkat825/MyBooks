@@ -74,8 +74,7 @@ export class BookDetailsComponent implements OnInit {
 
   hasEditDeletePermission(): boolean {
     if (!this.book || !this.currentUser) return false;
-    return this.book.createdBy === this.currentUser.id.toString() ||
-      ['admin', 'editor', 'owner', 'superadmin'].includes(this.currentUser.role.toLowerCase());
+    return ['owner', 'superadmin'].includes(this.currentUser.role.toLowerCase());
   }
 
   editBook(book: any) {

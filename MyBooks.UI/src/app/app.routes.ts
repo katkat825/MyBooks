@@ -19,8 +19,8 @@ import { RemovedGuard } from './utilities/removed.guard';
 export const routes: Routes = [
   { path: '', component: BookListComponent, canActivate: [AupGuard, AuthGuard] },
   { path: 'login', component: LoginComponent},
-  { path: 'create', component: BookFormComponent, canActivate: [AupGuard, AuthGuard] },
-  { path: 'create/:id', component: BookFormComponent, canActivate: [AupGuard, AuthGuard] },
+  { path: 'create', component: BookFormComponent, canActivate: [AupGuard, AuthGuard, OwnerGuard] },
+  { path: 'create/:id', component: BookFormComponent, canActivate: [AupGuard, AuthGuard, OwnerGuard] },
   { path: 'book/:id', component: BookDetailsComponent, canActivate: [AupGuard, AuthGuard] },
   { path: 'admin', component: AdminComponent, canActivate: [AdminGuard, AupGuard, AuthGuard] },
   { path: 'profile', component: AccountSettingsComponent },

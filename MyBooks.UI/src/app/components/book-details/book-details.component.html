@@ -41,7 +41,7 @@
     </mat-card>
     <div class="button-group" *ngIf="hasEditDeletePermission() && !book.isRestricted">
       <button mat-raised-button id="edit-book" (click)="editBook(book)">Edit</button>
-      <button mat-raised-button id="danger-button" (click)="deleteBook(book)">Delete</button>
+      <button mat-raised-button id="danger-button" class="warn-btn" (click)="deleteBook(book)">Delete</button>
     </div>
   </div>
 </div>
