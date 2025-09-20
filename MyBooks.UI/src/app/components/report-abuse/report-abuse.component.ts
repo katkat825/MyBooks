@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-report-abuse',
@@ -48,7 +49,8 @@ export class ReportAbuseComponent implements OnInit {
     const token = localStorage.getItem('token');
     const headers = { Authorization: `Bearer ${token}` };
 
-    this.http.post('/api/email/reportabuse', this.form.value, { headers }).subscribe({
+    this.http.post(`${environment.emailServiceUrl}/reportabuse`, this.form.value, { headers })
+      .subscribe({
       next: () => {
         this.isSubmitting = false;
         this.form.reset({ pageUrl: window.location.href });

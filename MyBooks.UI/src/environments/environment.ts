@@ -4,5 +4,7 @@ export const environment = {
   authServiceUrl: 'https://localhost:7254/api', // AuthService
   fileApiUrl: `https://localhost:7142/api/files`, // FileService
   tenantApiUrl: `https://localhost:5005/api`, // TenantService
-  integrationApiUrl: `https://localhost:7142/api`
+  integrationApiUrl: `https://localhost:7142/api`,
+  authBaseUrl: 'https://localhost:7254',
+  emailServiceUrl: 'https://localhost:5005/api'
 };

@@ -156,13 +156,6 @@ namespace MyBooks.FileService.Services
             request.PageSize = 100;
 
             var result = await request.ExecuteAsync();
-
-            //debugging 
-            Console.WriteLine($"[GoogleDriveClient] ListFoldersAsync - Parent: {parentId}, Count: {result.Files.Count}");
-            foreach (var file in result.Files)
-            {
-                Console.WriteLine($"[GoogleDriveClient] Folder: {file.Name} ({file.Id}), Parents: {string.Join(",", file.Parents ?? new List<string>())}");
-            }
             
             return result.Files;
         }

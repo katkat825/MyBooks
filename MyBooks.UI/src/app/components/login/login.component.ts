@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -43,7 +44,7 @@ export class LoginComponent {
 
     const payload = { ...this.loginForm.value };
 
-    this.http.post<any>('https://localhost:7254/login', payload).subscribe({
+    this.http.post<any>(`${environment.authBaseUrl}/login`, payload).subscribe({
       next: (response) => {
         localStorage.setItem('token', response.token);
         this.router.navigate(['/']); 
