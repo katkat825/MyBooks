@@ -6,6 +6,7 @@ using MyBooks.TenantService.Models;
 using MyBooks.TenantService.Validators;
 using MyBooks.TenantService.Data;
 using MyBooks.Common.Services;
+using MyBooks.Common.Helpers;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -89,6 +90,14 @@ builder.Services.AddHttpClient<CatalogClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["Services:Catalog"] ?? "https://localhost:5003");
 });
+builder.Services.AddHttpClient<SystemTokenHelper>()
+    .AddTypedClient((http, sp) =>
+    {
+        var config = sp.GetRequiredService<IConfiguration>();
+        var baseUrl = config["AuthService:BaseUrl"];
+        return new SystemTokenHelper(http, baseUrl!);
+    });
+
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();

@@ -7,11 +7,13 @@ using MyBooks.Common.BaseClasses;
 using MyBooks.Common.Services;
 using MyBooks.Common.Dtos;
 using System.Security.Cryptography;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MyBooks.AuthService.Controllers;
 
 [ApiController]
 [Route("api/internal/users")]
+[Authorize(Roles = AppRoles.TenantService)]
 public class InternalUsersController : ControllerBase
 {
     private readonly AuthDbContext _context;
