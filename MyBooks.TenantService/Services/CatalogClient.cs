@@ -1,21 +1,39 @@
-namespace MyBooks.TenantService.Services
+using MyBooks.Common.Helpers;
+using MyBooks.Common.BaseClasses;
+using System.Net.Http.Headers;
+
+namespace MyBooks.TenantService.Services;
+
+public class CatalogClient
 {
-    public class CatalogClient
+    private readonly HttpClient _http;
+    private readonly IConfiguration _config;
+    private readonly SystemTokenHelper _tokenHelper;
+
+    public CatalogClient(HttpClient http, IConfiguration config, SystemTokenHelper tokenHelper)
     {
-        private readonly HttpClient _http;
+        _http = http;
+        _config = config;
+        _tokenHelper = tokenHelper;
+    }
 
-        public CatalogClient(HttpClient http)
-        {
-            _http = http;
-        }
+    private async Task AddSystemAuthHeaderAsync()
+    {
+        var token = await _tokenHelper.GetSystemTokenAsync(
+            AppRoles.TenantService,
+            _config["ServiceSecrets:TenantService"]);
 
-        public async Task SeedDefaultGenresAsync(int tenantId)
-        {
-            var response = await _http.PostAsync(
-                $"api/books/genres/seed/{tenantId}", 
-                null);
+        _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+    }
 
-            response.EnsureSuccessStatusCode();
-        }
+    public async Task SeedDefaultGenresAsync(int tenantId)
+    {
+        await AddSystemAuthHeaderAsync();
+        
+        var response = await _http.PostAsync(
+            $"api/books/genres/seed/{tenantId}",
+            null);
+
+        response.EnsureSuccessStatusCode();
     }
 }

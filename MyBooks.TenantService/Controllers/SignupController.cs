@@ -32,7 +32,6 @@ public class SignupController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<SignupResponseDto>> Signup(SignupRequestDto request)
     {
-        Console.WriteLine("signup controller reached");
         // sanitize all open text fields
         request.FirstName = _sanitizationService.Sanitize(request.FirstName);
         request.LastName = _sanitizationService.Sanitize(request.LastName);
@@ -50,9 +49,7 @@ public class SignupController : ControllerBase
             IsActive = true,            
         };
 
-        Console.WriteLine("attempting to create user");
         var userId = await _auth.CreateUserAsync(user);
-        Console.WriteLine("user created");
 
         // create tenant
         var tenant = new Tenant
@@ -64,10 +61,8 @@ public class SignupController : ControllerBase
             CreatedDate = DateTime.UtcNow
         };
 
-        Console.WriteLine("attempting to add tenant");
         _context.Tenants.Add(tenant);
         await _context.SaveChangesAsSystemAsync();
-        Console.WriteLine("tenant added successfully");
 
         // try seeding default genres
         try
@@ -79,8 +74,6 @@ public class SignupController : ControllerBase
         {
             Console.WriteLine($"[WARN] Failed to seed genres for tenant {tenant.Id}: {ex.Message}");
         }
-
-        Console.WriteLine("attempting to assign tenant to user");
 
         // add tenantid to user record
         await _auth.AssignTenantAsync(new AssignTenantDto

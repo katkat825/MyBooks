@@ -32,7 +32,7 @@ namespace MyBooks.CatalogService.Controllers
 
         // seed initial genres
         [HttpPost("seed/{tenantId}")]
-        [AllowAnonymous]
+        [Authorize(Roles = AppRoles.TenantService)]
         public async Task<IActionResult> SeedDefaultGenres(int tenantId)
         {
             foreach (var genreName in DefaultGenres.Values)
