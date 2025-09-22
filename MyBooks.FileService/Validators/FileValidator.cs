@@ -22,11 +22,11 @@ namespace MyBooks.FileService.Validators
                 .MaximumLength(255).WithMessage("File name must not exceed 255 characters.")
                 .Must(fileName =>
                 {
-                    var allowedExtensions = new[] { ".pdf", ".epub", ".txt" };
+                    var allowedExtensions = new[] { ".pdf", ".epub"};
                     var extension = Path.GetExtension(fileName)?.ToLowerInvariant();
                     return !string.IsNullOrEmpty(extension) && allowedExtensions.Contains(extension);
                 })
-                .WithMessage("Invalid file extension. Allowed extensions are: .pdf, .epub, .txt.");
+                .WithMessage("Invalid file extension. Allowed extensions are: .pdf and .epub");
 
             // Validate MIME type: non-empty and one of the allowed types
             RuleFor(file => file.ContentType)
@@ -37,7 +37,6 @@ namespace MyBooks.FileService.Validators
                     {
                         "application/pdf",                // PDF
                         "application/epub+zip",           // EPUB
-                        "text/plain"                      // TXT
                     };
                     return allowedMimeTypes.Contains(contentType);
                 })
@@ -74,10 +73,6 @@ namespace MyBooks.FileService.Validators
                     // EPUB is a zip archive, so it should start with "PK" (hex: 50 4B)
                     var zipSignature = new byte[] { 0x50, 0x4B };
                     return header.Take(2).SequenceEqual(zipSignature);
-
-                case ".txt":
-                    // For plain text files, there isn't a standard signature.
-                    return true;
 
                 default:
                     return false;

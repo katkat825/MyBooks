@@ -2,162 +2,184 @@ using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
 using Google.Apis.Services;
 
-namespace MyBooks.FileService.Services
+namespace MyBooks.FileService.Services;
+
+public class GoogleDriveClient
 {
-    public class GoogleDriveClient
+    private readonly IConfiguration _config;
+    private readonly HttpClient _httpClient;
+
+    public GoogleDriveClient(IConfiguration config, HttpClient httpClient)
     {
-        private readonly IConfiguration _config;
-        private readonly HttpClient _httpClient;
+        _config = config;
+        _httpClient = httpClient;
+    }
 
-        public GoogleDriveClient(IConfiguration config, HttpClient httpClient)
+    private DriveService CreateService(string accessToken)
+    {
+        var credential = GoogleCredential.FromAccessToken(accessToken);
+        return new DriveService(new BaseClientService.Initializer
         {
-            _config = config;
-            _httpClient = httpClient;
-        }
+            HttpClientInitializer = credential,
+            ApplicationName = "MyBooks FileService"
+        });
+    }
 
-        private DriveService CreateService(string accessToken)
+    public async Task<string> RefreshAccessTokenAsync(string refreshToken)
+    {
+        var payload = new Dictionary<string, string>
         {
-            var credential = GoogleCredential.FromAccessToken(accessToken);
-            return new DriveService(new BaseClientService.Initializer
-            {
-                HttpClientInitializer = credential,
-                ApplicationName = "MyBooks FileService"
-            });
-        }
+            {"client_id", _config["GoogleOAuth:ClientId"]},
+            {"client_secret", _config["GoogleOAuth:ClientSecret"]},
+            {"refresh_token", refreshToken},
+            {"grant_type", "refresh_token"}
+        };
 
-        public async Task<string> RefreshAccessTokenAsync(string refreshToken)
+        var response = await _httpClient.PostAsync(
+            "https://oauth2.googleapis.com/token",
+            new FormUrlEncodedContent(payload));
+
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+
+        dynamic obj = Newtonsoft.Json.JsonConvert.DeserializeObject(json)!;
+        return (string)obj.access_token;
+    }
+
+    public async Task<Stream?> GetFileStreamAsync(string fileId, string refreshToken)
+    {
+        var accessToken = await RefreshAccessTokenAsync(refreshToken);
+        var service = CreateService(accessToken);
+
+        var request = service.Files.Get(fileId);
+        var stream = new MemoryStream();
+        await request.DownloadAsync(stream);
+        stream.Position = 0;
+        return stream;
+    }
+
+    public async Task<string> UploadFileAsync(string fileName, Stream content, string mimeType, string folderId, string refreshToken)
+    {
+        var accessToken = await RefreshAccessTokenAsync(refreshToken);
+        var service = CreateService(accessToken);
+
+        var fileMetadata = new Google.Apis.Drive.v3.Data.File
         {
-            var payload = new Dictionary<string, string>
-            {
-                {"client_id", _config["GoogleOAuth:ClientId"]},
-                {"client_secret", _config["GoogleOAuth:ClientSecret"]},
-                {"refresh_token", refreshToken},
-                {"grant_type", "refresh_token"}
-            };
+            Name = fileName,
+            Parents = new List<string> { folderId }
+        };
 
-            var response = await _httpClient.PostAsync(
-                "https://oauth2.googleapis.com/token",
-                new FormUrlEncodedContent(payload));
+        var request = service.Files.Create(fileMetadata, content, mimeType);
+        request.Fields = "id";
+        var result = await request.UploadAsync();
 
-            response.EnsureSuccessStatusCode();
-            var json = await response.Content.ReadAsStringAsync();
+        if (result.Status != Google.Apis.Upload.UploadStatus.Completed)
+            throw new Exception($"Upload failed: {result.Exception?.Message}");
 
-            dynamic obj = Newtonsoft.Json.JsonConvert.DeserializeObject(json)!;
-            return (string)obj.access_token;
-        }
+        return request.ResponseBody.Id;
+    }
 
-        public async Task<Stream?> GetFileStreamAsync(string fileId, string refreshToken)
+    public async Task<string> GetOrCreateFolderAsync(string folderName, string parentId, string refreshToken)
+    {
+        if (string.IsNullOrWhiteSpace(folderName))
+            throw new ArgumentException("folderName is required", nameof(folderName));
+
+        if (string.IsNullOrWhiteSpace(parentId))
+            parentId = "root";
+
+        var accessToken = await RefreshAccessTokenAsync(refreshToken);
+        var service = new DriveService(new BaseClientService.Initializer
         {
-            var accessToken = await RefreshAccessTokenAsync(refreshToken);
-            var service = CreateService(accessToken);
+            HttpClientInitializer = GoogleCredential.FromAccessToken(accessToken),
+            ApplicationName = "MyBooks FileService"
+        });
 
-            var request = service.Files.Get(fileId);
-            var stream = new MemoryStream();
-            await request.DownloadAsync(stream);
-            stream.Position = 0;
-            return stream;
-        }
+        // 1) Find existing folder(s) under parent
+        var listRequest = service.Files.List();
+        listRequest.Q = $"'{parentId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
+        listRequest.Fields = "files(id, name)";
+        listRequest.PageSize = 100;
 
-        public async Task<string> UploadFileAsync(string fileName, Stream content, string mimeType, string folderId, string refreshToken)
-        {
-            var accessToken = await RefreshAccessTokenAsync(refreshToken);
-            var service = CreateService(accessToken);
+        var listResult = await listRequest.ExecuteAsync();
 
-            var fileMetadata = new Google.Apis.Drive.v3.Data.File
-            {
-                Name = fileName,
-                Parents = new List<string> { folderId }
-            };
+        // prefer exact (case-insensitive) match if multiple
+        var existing = listResult.Files
+            .FirstOrDefault(f => string.Equals(f.Name, folderName, StringComparison.OrdinalIgnoreCase));
 
-            var request = service.Files.Create(fileMetadata, content, mimeType);
-            request.Fields = "id";
-            var result = await request.UploadAsync();
-
-            if (result.Status != Google.Apis.Upload.UploadStatus.Completed)
-                throw new Exception($"Upload failed: {result.Exception?.Message}");
-
-            return request.ResponseBody.Id;
-        }
-
-        public async Task<string> GetOrCreateFolderAsync(string folderName, string parentId, string refreshToken)
-        {
-            if (string.IsNullOrWhiteSpace(folderName))
-                throw new ArgumentException("folderName is required", nameof(folderName));
-
-            if (string.IsNullOrWhiteSpace(parentId))
-                parentId = "root";
-
-            var accessToken = await RefreshAccessTokenAsync(refreshToken);
-            var service = new DriveService(new BaseClientService.Initializer
-            {
-                HttpClientInitializer = GoogleCredential.FromAccessToken(accessToken),
-                ApplicationName = "MyBooks FileService"
-            });
-
-            // 1) Find existing folder(s) under parent
-            var listRequest = service.Files.List();
-            listRequest.Q = $"'{parentId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
-            listRequest.Fields = "files(id, name)";
-            listRequest.PageSize = 100;
-
-            var listResult = await listRequest.ExecuteAsync();
-
-            // prefer exact (case-insensitive) match if multiple
-            var existing = listResult.Files
-                .FirstOrDefault(f => string.Equals(f.Name, folderName, StringComparison.OrdinalIgnoreCase));
-
-            if (existing != null)
-                return existing.Id;
-
-            // 2) Create folder
-            var folderMetadata = new Google.Apis.Drive.v3.Data.File
-            {
-                Name = folderName,
-                MimeType = "application/vnd.google-apps.folder",
-                Parents = new List<string> { parentId }
-            };
-
-            var createRequest = service.Files.Create(folderMetadata);
-            createRequest.Fields = "id";
-            var created = await createRequest.ExecuteAsync();
-
-            if (!string.IsNullOrEmpty(created?.Id))
-                return created.Id;
-
-            // 3) Very rare: if we didn’t get an ID (or a race), try listing again and return the first match
-            listResult = await listRequest.ExecuteAsync();
-            existing = listResult.Files
-                .FirstOrDefault(f => string.Equals(f.Name, folderName, StringComparison.OrdinalIgnoreCase));
-
-            if (existing == null)
-                throw new InvalidOperationException("Failed to create or locate the requested Google Drive folder.");
-
+        if (existing != null)
             return existing.Id;
-        }
 
-        public async Task DeleteFileAsync(string fileId, string refreshToken)
+        // 2) Create folder
+        var folderMetadata = new Google.Apis.Drive.v3.Data.File
         {
-            var accessToken = await RefreshAccessTokenAsync(refreshToken);
-            var service = CreateService(accessToken);
-            await service.Files.Delete(fileId).ExecuteAsync();
-        }
+            Name = folderName,
+            MimeType = "application/vnd.google-apps.folder",
+            Parents = new List<string> { parentId }
+        };
 
-        public async Task<IList<Google.Apis.Drive.v3.Data.File>> ListFoldersAsync(string parentId, string refreshToken)
-        {
-            if (string.IsNullOrWhiteSpace(parentId))
-                parentId = "root";
+        var createRequest = service.Files.Create(folderMetadata);
+        createRequest.Fields = "id";
+        var created = await createRequest.ExecuteAsync();
 
-            var accessToken = await RefreshAccessTokenAsync(refreshToken);
-            var service = CreateService(accessToken);
+        if (!string.IsNullOrEmpty(created?.Id))
+            return created.Id;
 
-            var request = service.Files.List();
-            request.Q = $"'{parentId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
-            request.Fields = "files(id, name)";
-            request.PageSize = 100;
+        // 3) Very rare: if we didn’t get an ID (or a race), try listing again and return the first match
+        listResult = await listRequest.ExecuteAsync();
+        existing = listResult.Files
+            .FirstOrDefault(f => string.Equals(f.Name, folderName, StringComparison.OrdinalIgnoreCase));
 
-            var result = await request.ExecuteAsync();
-            
-            return result.Files;
-        }
+        if (existing == null)
+            throw new InvalidOperationException("Failed to create or locate the requested Google Drive folder.");
+
+        return existing.Id;
+    }
+
+    public async Task DeleteFileAsync(string fileId, string refreshToken)
+    {
+        var accessToken = await RefreshAccessTokenAsync(refreshToken);
+        var service = CreateService(accessToken);
+        await service.Files.Delete(fileId).ExecuteAsync();
+    }
+
+    public async Task<IList<Google.Apis.Drive.v3.Data.File>> ListFoldersAsync(string parentId, string refreshToken)
+    {
+        if (string.IsNullOrWhiteSpace(parentId))
+            parentId = "root";
+
+        var accessToken = await RefreshAccessTokenAsync(refreshToken);
+        var service = CreateService(accessToken);
+
+        var request = service.Files.List();
+        request.Q = $"'{parentId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
+        request.Fields = "files(id, name)";
+        request.PageSize = 100;
+
+        var result = await request.ExecuteAsync();
+
+        return result.Files;
+    }
+    
+    public async Task<IList<Google.Apis.Drive.v3.Data.File>> ListFilesAsync(
+        string parentId,
+        string refreshToken)
+    {
+        if (string.IsNullOrWhiteSpace(parentId))
+            parentId = "root";
+
+        var accessToken = await RefreshAccessTokenAsync(refreshToken);
+        var service = CreateService(accessToken);
+
+        var request = service.Files.List();
+
+        // Only return supported book types (PDF + EPUB)
+        request.Q = $"'{parentId}' in parents " +
+                    $"and trashed = false " +
+                    $"and (mimeType = 'application/pdf' or mimeType = 'application/epub+zip')";
+        request.Fields = "files(id, name, size, mimeType)";
+        request.PageSize = 100;
+
+        var result = await request.ExecuteAsync();
+        return result.Files;
     }
 }

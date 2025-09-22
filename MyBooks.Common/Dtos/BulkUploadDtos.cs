@@ -1,0 +1,24 @@
+namespace MyBooks.Common.Dtos;
+
+public class BookImportRequestDto
+{
+    public string? Title { get; set; }
+    public string? Author { get; set; }
+    public int GenreId { get; set; }
+    public int AgeCategoryId { get; set; }
+    public string FilePath { get; set; } = string.Empty;
+    public string FileName { get; set; } = string.Empty;
+    public int TenantId { get; set; }
+}
+
+public class BookImportResponseDto
+{
+    public int BookId { get; set; }
+    public string FilePath { get; set; }
+}
+
+public class BookFileLinkDto
+{
+    public int BookId { get; set; }
+    public int FileId { get; set; }
+}
