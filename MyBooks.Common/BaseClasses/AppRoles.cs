@@ -7,6 +7,10 @@ public static class AppRoles
     public const string Admin = "Admin";
     public const string Editor = "Editor";
     public const string User = "User";
+    public const string TenantService = "TenantService";
+    public const string CatalogService = "CatalogService";
+    public const string EmailService = "EmailService";
+    public const string FileService = "FileService";
 
     // helpers for common combos
     public const string Admins = SuperAdmin + "," + Owner + "," + Admin;
