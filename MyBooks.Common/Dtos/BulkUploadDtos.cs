@@ -22,3 +22,20 @@ public class BookFileLinkDto
     public int BookId { get; set; }
     public int FileId { get; set; }
 }
+
+public class BulkImportStartDto
+{
+    public List<string> FileIds { get; set; } = new();
+    public int GenreId { get; set; }
+    public int AgeCategoryId { get; set; }
+    
+    // Optional: allow per-file overrides if UI adds them later
+    public List<BulkImportFileOverrideDto>? Overrides { get; set; }
+}
+
+public class BulkImportFileOverrideDto
+{
+    public string FileId { get; set; }
+    public int? GenreId { get; set; }
+    public int? AgeCategoryId { get; set; }
+}
