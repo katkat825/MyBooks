@@ -8,6 +8,7 @@ using MyBooks.FileService.Validators;
 using MyBooks.FileService.Services;
 using Microsoft.AspNetCore.Identity;
 using MyBooks.Common.Services;
+using MyBooks.Common.Helpers;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -83,6 +84,15 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddOpenApi();
 builder.Services.AddSingleton<HtmlSanitizationService>();
 builder.Services.AddHttpClient<GoogleDriveClient>();
+builder.Services.AddScoped<BulkImportProcessor>();
+builder.Services.AddHttpClient<SystemTokenHelper>()
+    .AddTypedClient((http, sp) =>
+    {
+        var config = sp.GetRequiredService<IConfiguration>();
+        var baseUrl = config["AuthService:BaseUrl"];
+        return new SystemTokenHelper(http, baseUrl!);
+    });
+
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<FileMetaValidator>();

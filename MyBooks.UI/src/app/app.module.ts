@@ -21,6 +21,8 @@ import { GoogleDriveComponent } from './owner/integrations/google-drive/google-d
 import { GoogleDriveFolderComponentComponent } from './owner/integrations/google-drive-folder.component/google-drive-folder.component.component';
 import { GoogleDriveFolderComponent } from './owner/integrations/google-drive-folder/google-drive-folder.component';
 import { AddGoogleDriveFolderComponent } from './owner/integrations/add-google-drive-folder/add-google-drive-folder.component';
+import { BulkImportComponentComponent } from './owner/bulk-import.component/bulk-import.component.component';
+import { BulkImportComponent } from './owner/bulk-import/bulk-import.component';
 
 @NgModule({
   imports: [
@@ -48,7 +50,9 @@ import { AddGoogleDriveFolderComponent } from './owner/integrations/add-google-d
     GoogleDriveComponent,
     GoogleDriveFolderComponentComponent,
     GoogleDriveFolderComponent,
-    AddGoogleDriveFolderComponent
+    AddGoogleDriveFolderComponent,
+    BulkImportComponentComponent,
+    BulkImportComponent
   ]
 })
 export class AppModule { }

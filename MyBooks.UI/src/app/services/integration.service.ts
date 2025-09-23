@@ -51,4 +51,11 @@ export class IntegrationService {
       { headers: this.getAuthHeaders() }
     );
   }
+
+  getImportableFiles(integrationId: number, folderId: string = 'root'): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${this.apiUrl}/${integrationId}/importable-files?folderId=${folderId}`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
 }

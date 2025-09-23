@@ -80,7 +80,7 @@ public class BulkImportController : ControllerBase
         };
 
         // call filescan process
-        _ = Task.Run(() => _processor.ProcessJobAsync(job.Id, scanDto));
+        await _processor.ProcessJobAsync(job.Id, scanDto);
 
         return Ok(new
         {

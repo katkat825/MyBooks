@@ -40,7 +40,7 @@ public class GoogleIntegrationController : ControllerBase
 
         var clientId = _config["GoogleOAuth:ClientId"];
         var redirectUri = _config["GoogleOAuth:RedirectUriLocal"]; // must match in Google Cloud console
-        var scopes = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/drive.metadata.readonly";
+        var scopes = "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/userinfo.email";
 
         var url = $"https://accounts.google.com/o/oauth2/v2/auth" +
                     $"?client_id={clientId}" +

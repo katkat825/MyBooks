@@ -3,6 +3,7 @@ import { Router, RouterModule } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
 import { AccountUsersComponent } from './account-users/account-users.component';
 import { GoogleDriveComponent } from '../integrations/google-drive/google-drive.component';
+import { BulkImportComponent } from '../bulk-import/bulk-import.component';
 
 
 @Component({
@@ -14,7 +15,8 @@ import { GoogleDriveComponent } from '../integrations/google-drive/google-drive.
     AccountUsersComponent,
     MatTabsModule,
     RouterModule,
-    GoogleDriveComponent
+    GoogleDriveComponent,
+    BulkImportComponent
   ]
 })
 export class AcountComponent {
@@ -28,5 +30,9 @@ export class AcountComponent {
 
   navigateToIntegrations() {
     this.router.navigate(['/account/integrations']);
+  }
+
+  navigateToBulkImport() {
+    this.router.navigate(['/account/bulk-import']);
   }
 }

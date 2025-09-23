@@ -71,7 +71,9 @@ namespace MyBooks.CatalogService.Controllers
         [HttpPatch("file")]
         public async Task<IActionResult> AttachFile([FromBody] BookFileLinkDto dto)
         {
-            var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == dto.BookId);
+            var book = await _context.Books
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(b => b.Id == dto.BookId);
             if (book == null) return NotFound();
 
             book.FileId = dto.FileId;
