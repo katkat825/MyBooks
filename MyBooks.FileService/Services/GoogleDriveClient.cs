@@ -159,7 +159,7 @@ public class GoogleDriveClient
 
         return result.Files;
     }
-    
+
     public async Task<IList<Google.Apis.Drive.v3.Data.File>> ListFilesAsync(
         string parentId,
         string refreshToken)
@@ -181,5 +181,15 @@ public class GoogleDriveClient
 
         var result = await request.ExecuteAsync();
         return result.Files;
+    }
+    
+    public async Task<Google.Apis.Drive.v3.Data.File?> GetFileAsync(string fileId, string refreshToken)
+    {
+        var accessToken = await RefreshAccessTokenAsync(refreshToken);
+        var service = CreateService(accessToken);
+
+        var request = service.Files.Get(fileId);
+        request.Fields = "id, name, mimeType, size";
+        return await request.ExecuteAsync();
     }
 }

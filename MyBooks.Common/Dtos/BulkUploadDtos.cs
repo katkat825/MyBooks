@@ -28,6 +28,7 @@ public class BulkImportStartDto
     public List<string> FileIds { get; set; } = new();
     public int GenreId { get; set; }
     public int AgeCategoryId { get; set; }
+    public int IntegrationId { get; set; }
     
     // Optional: allow per-file overrides if UI adds them later
     public List<BulkImportFileOverrideDto>? Overrides { get; set; }
@@ -38,4 +39,13 @@ public class BulkImportFileOverrideDto
     public string FileId { get; set; }
     public int? GenreId { get; set; }
     public int? AgeCategoryId { get; set; }
+}
+
+public class FileScanDto
+{
+    public string UserId { get; set; }
+    public int TenantId { get; set; }
+    public string IpAddress { get; set; }
+    public int IntegrationId { get; set; }
+    public BulkImportStartDto BulkImportStart { get; set; }
 }
