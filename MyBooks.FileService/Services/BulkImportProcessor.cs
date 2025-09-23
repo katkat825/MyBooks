@@ -40,21 +40,17 @@ public class BulkImportProcessor
 
     public async Task ProcessJobAsync(int jobId, FileScanDto scanDto)
     {
-        Console.WriteLine($"[BulkImport] Starting job {jobId} for tenant {scanDto.TenantId} with {scanDto.BulkImportStart.FileIds.Count} files.");
-
         var job = await _context.BulkImportJobs
             .Include(j => j.Items)
             .FirstOrDefaultAsync(j => j.Id == jobId);
 
         if (job == null || (job.Status != "Pending" && job.Status != "RetryFails"))
         {
-            Console.WriteLine($"[BulkImport] Job {jobId} not found.");
             return;
         }
 
         job.Status = "Running";
         await _context.SaveChangesAsSystemAsync();
-        Console.WriteLine($"[BulkImport] Job {jobId} marked as Running.");
 
         var integration = await _context.GoogleIntegrations
             .FirstOrDefaultAsync(g => g.TenantId == job.TenantId &&
@@ -71,30 +67,23 @@ public class BulkImportProcessor
 
             job.Status = "Failed";
             job.ErrorMessage = "Google integration not found";
-
-            Console.WriteLine("integration = null. failed");
+            job.LastModifiedDate = DateTime.UtcNow;
 
             await _context.SaveChangesAsSystemAsync();
             return;
         }
 
-        Console.WriteLine("sending for 1st run");
-
         // process items - first run
         await ProcessItemsAsync(job, integration, scanDto);
-
-        Console.WriteLine("1st run processed");
 
         if (job.Items.All(i => i.Status == "Success"))
         {
             job.Status = "Completed";
-            Console.WriteLine("Success on the first run");
         }
 
         else if (job.Items.All(i => i.Status == "Failed"))
         {
             job.Status = "Failed";
-            Console.WriteLine("all fail on the first run");
         }
 
         else
@@ -107,10 +96,9 @@ public class BulkImportProcessor
             {
                 item.Status = "Pending";
                 item.ErrorMessage = null;
-                job.ProcessedFiles--; // remove failed items from processed count. they'll be processed again
+                if(job.ProcessedFiles > 0)
+                    job.ProcessedFiles--; // remove failed items from processed count. they'll be processed again
             }
-
-            Console.WriteLine("2nd try being called now");
 
             await _context.SaveChangesAsSystemAsync();
 
@@ -123,16 +111,15 @@ public class BulkImportProcessor
                 job.Status = "CompletedWithErrors";
         }
 
+        job.LastModifiedDate = DateTime.UtcNow;
+
         await _context.SaveChangesAsSystemAsync();
     }
 
     private async Task ProcessItemsAsync(BulkImportJob job, GoogleIntegration integration, FileScanDto scanDto)
     {
-        Console.WriteLine("processing items");
-
         foreach (var item in job.Items.Where(i => i.Status == "Pending"))
         {
-            Console.WriteLine($"[BulkImport] Processing file {item.FileId}...");
             try
             {
                 var file = await _googleDriveClient.GetFileAsync(item.FileId, integration.RefreshToken);
@@ -143,8 +130,6 @@ public class BulkImportProcessor
                     continue;
                 }
 
-                Console.WriteLine("processing items - file is not null");
-
                 item.FileName = _sanitizer.Sanitize(file.Name);
 
                 using var stream = await _googleDriveClient.GetFileStreamAsync(item.FileId, integration.RefreshToken);
@@ -154,12 +139,10 @@ public class BulkImportProcessor
 
                 if (file.MimeType == "application/pdf")
                 {
-                    Console.WriteLine("sending to pdf extract method");
                     (title, author) = ExtractPdfMetadata(stream, item.FileName);
                 }
                 else if (file.MimeType == "application/epub+zip")
                 {
-                    Console.WriteLine("sending to epub extract method");
                     (title, author) = ExtractEpubMetadata(stream, item.FileName);
                 }
                 else
@@ -187,15 +170,11 @@ public class BulkImportProcessor
                     TenantId = job.TenantId
                 };
 
-                Console.WriteLine("book import request dto created, sending now");
-
                 var catalogUrl = _config["ServiceUrls:CatalogService"];
                 var bookResponse = await _httpClient.PostAsJsonAsync($"{catalogUrl}/api/book-import", requestDto);
                 bookResponse.EnsureSuccessStatusCode();
 
                 var responseDto = await bookResponse.Content.ReadFromJsonAsync<BookImportResponseDto>();
-
-                Console.WriteLine("book import response received");
 
                 if (responseDto == null)
                 {
@@ -221,12 +200,8 @@ public class BulkImportProcessor
                     CreatedDate = DateTime.UtcNow
                 };
 
-                Console.WriteLine("sending filemetadata create request now");
-
                 _context.Files.Add(fileMeta);
                 await _context.SaveChangesAsSystemAsync(scanDto.UserId, scanDto.IpAddress);
-
-                Console.WriteLine("file metadata saved, now to link the book to the file");
 
                 item.CreatedFileId = fileMeta.Id;
 
@@ -238,12 +213,7 @@ public class BulkImportProcessor
 
                 var linkResponse = await _httpClient.PatchAsJsonAsync($"{catalogUrl}/api/book-import/file", linkDto);
                 linkResponse.EnsureSuccessStatusCode();
-
-                Console.WriteLine("book successfully updated with fileid");
-
                 item.Status = "Success";
-
-                Console.WriteLine($"[BulkImport] File {item.FileId} processed successfully. BookId={item.CreatedBookId}, FileId={item.CreatedFileId}");
             }
             catch (Exception ex)
             {
@@ -258,21 +228,14 @@ public class BulkImportProcessor
 
     private (string Title, string? Author) ExtractPdfMetadata(Stream pdfStream, string fallbackName)
     {
-        Console.WriteLine("pdf extractor reached");
-
         fallbackName = Path.GetFileNameWithoutExtension(fallbackName);
         using var mem = new MemoryStream();
         pdfStream.CopyTo(mem);
         mem.Position = 0;
 
-        Console.WriteLine("starting using var pdf = PdfReader.Open(mem, PdfDocumentOpenMode.ReadOnly);");
-
         try
         {
             using var pdf = PdfReader.Open(mem, PdfDocumentOpenMode.ReadOnly);
-
-            Console.WriteLine("finished using var pdf = PdfReader.Open(mem, PdfDocumentOpenMode.ReadOnly);");
-
             string title = !string.IsNullOrWhiteSpace(pdf.Info.Title)
                 ? _sanitizer.Sanitize(pdf.Info.Title)
                 : fallbackName;
@@ -284,15 +247,12 @@ public class BulkImportProcessor
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[BulkImport] WARNING: Failed to parse PDF metadata, using fallback. Error: {ex.Message}");
             return (fallbackName, null);
         }
     }
 
     private (string Title, string? Author) ExtractEpubMetadata(Stream epubStream, string fallbackName)
     {
-        Console.WriteLine("epub extractor reached");
-
         fallbackName = Path.GetFileNameWithoutExtension(fallbackName);
         epubStream.Position = 0;
         using var archive = new ZipArchive(epubStream, ZipArchiveMode.Read, leaveOpen: true);

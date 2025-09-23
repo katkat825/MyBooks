@@ -1,15 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
+import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { IntegrationService } from '../../services/integration.service';
 import { BookService } from '../../services/book.service';
 import { BulkImportService, BulkImportStartDto, BulkImportFileOverrideDto } from '../../services/bulk-import.service';
+import { BulkImportJobsDialogComponent } from './bulk-import-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-bulk-import',
@@ -24,7 +27,9 @@ import { BulkImportService, BulkImportStartDto, BulkImportFileOverrideDto } from
     MatCheckboxModule,
     MatButtonModule,
     MatTableModule,
-    FormsModule
+    FormsModule,
+    MatSnackBarModule,
+    MatIconModule
   ]
 })
 export class BulkImportComponent implements OnInit {
@@ -42,7 +47,8 @@ export class BulkImportComponent implements OnInit {
     private integrationService: IntegrationService,
     private bulkImportService: BulkImportService,
     private bookService: BookService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -113,11 +119,21 @@ export class BulkImportComponent implements OnInit {
     };
 
     this.bulkImportService.startBulkImport(dto).subscribe({
-      next: () => this.showSnack('Bulk import started'),
+      next: () => {
+        this.showSnack('Bulk import started');
+        this.resetForm();
+      },
       error: (err) => {
         console.error('Error starting bulk import:', err);
         this.showSnack('Failed to start bulk import');
       }
+    });
+  }
+
+  openJobsDialog(): void {
+    this.dialog.open(BulkImportJobsDialogComponent, {
+      width: '600px',
+      panelClass: 'bulk-import-dialog'
     });
   }
 
@@ -131,5 +147,24 @@ export class BulkImportComponent implements OnInit {
 
   get noFilesSelected(): boolean {
     return this.files.every(f => !f.selected);
+  }
+
+  private resetForm(): void {
+    this.form.reset();
+    this.folders = [];
+    this.files = [];
+  }
+
+  isAllSelected(): boolean {
+    return this.files.length > 0 && this.files.every(f => f.selected);
+  }
+
+  isIndeterminate(): boolean {
+    return this.files.some(f => f.selected) && !this.isAllSelected();
+  }
+
+  toggleAllSelection(event: any): void {
+    const checked = event.checked;
+    this.files.forEach(f => f.selected = checked);
   }
 }

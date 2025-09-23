@@ -39,4 +39,16 @@ export class BulkImportService {
         headers: this.getAuthHeaders(),
     });
   }
+
+  getJobs(): Observable<any[]> {
+      return this.http.get<any[]>(`${this.baseUrl}/jobs`, {
+        headers: this.getAuthHeaders(),
+      });
+  }
+
+  getJobStatus(jobId: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/status/${jobId}`, {
+      headers: this.getAuthHeaders(),
+    });
+  }
 }

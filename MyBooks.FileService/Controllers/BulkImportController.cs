@@ -121,4 +121,37 @@ public class BulkImportController : ControllerBase
             })
         });
     }
+
+    [HttpGet("jobs")]
+    public async Task<IActionResult> GetAllJobs()
+    {
+        var tenantId = _context.GetCurrentTenantId();
+
+        var jobs = await _context.BulkImportJobs
+            .Include(j => j.Items)
+            .Where(j => j.TenantId == tenantId)
+            .OrderByDescending(j => j.CreatedDate)
+            .Take(20)
+            .ToListAsync();
+
+        var shaped = jobs.Select(j => new {
+            j.Id,
+            j.Status,
+            j.TotalFiles,
+            j.ProcessedFiles,
+            j.CreatedDate,
+            CompletedDate = j.LastModifiedDate,
+            j.ErrorMessage,
+            Items = j.Items
+                .Where(i => i.Status != "Success")
+                .Select(i => new {
+                    i.Id,
+                    i.FileName,
+                    i.Status,
+                    i.ErrorMessage
+                })
+        });
+
+        return Ok(shaped);
+    }
 }

@@ -173,6 +173,16 @@ td {
   color: var(--text-color) !important;
 }
 
+/* in bulk-import-jobs-dialog.component.css */
+table.import-status-table,
+table.import-status-table th,
+table.import-status-table td {
+  background: var(--text-color) !important; /* flip bg/text compared to global */
+  color: var(--bg-color) !important;
+  padding: 8px;
+  border-radius: 8px;
+}
+
 mat-tab-group,
 mat-tab {
   margin-top: 20px;
