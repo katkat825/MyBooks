@@ -232,6 +232,32 @@ mat-tab {
   justify-content: center;
 }
 
+.global-overlay {
+  position: fixed;        /* cover viewport regardless of scroll */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  display: flex;          /* center content */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  background-color: var(--bg-color); 
+  z-index: 9999;          /* above mat-toolbar & menus */
+  pointer-events: all;    /* block clicks */
+}
+
+.global-overlay p {
+  margin-top: 16px;
+  color: var(--text-color); 
+}
+
+.global-spinner circle {
+  stroke: var(--primary) !important;
+}
+
 .dialog {
   background-color: var(--text-color) !important;
 }

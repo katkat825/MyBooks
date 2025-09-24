@@ -17,6 +17,7 @@ import { ConfirmDialogComponent } from '../../components/shared/confirmation.com
 import { MatDialog } from '@angular/material/dialog';
 import { ToastService } from '../../services/toast.service';
 import { ToastComponent } from '../../components/shared/toast.component';
+import { GlobalLoadingService } from '../../services/global-loading.service';
 
 @Component({
   selector: 'app-bulk-import',
@@ -40,7 +41,6 @@ import { ToastComponent } from '../../components/shared/toast.component';
 })
 export class BulkImportComponent implements OnInit {
   form!: FormGroup;
-  isLoading = false;
   integrations: any[] = [];
   folders: any[] = [];
   files: any[] = []; // holds selection + overrides
@@ -54,7 +54,8 @@ export class BulkImportComponent implements OnInit {
     private bulkImportService: BulkImportService,
     private bookService: BookService,
     private toastService: ToastService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private globalLoading: GlobalLoadingService
   ) {}
 
   ngOnInit(): void {
@@ -166,17 +167,17 @@ export class BulkImportComponent implements OnInit {
           overrides: overrides.length > 0 ? overrides : undefined
         };
 
-        this.isLoading = true;
+        this.globalLoading.show("Please wait while we start your bulk import...");
         this.bulkImportService.startBulkImport(dto).subscribe({
           next: () => {
             this.toastService.show('Bulk import started')
             this.resetForm();
-            this.isLoading = false;
+            this.globalLoading.hide();
           },
           error: (err) => {
             console.error('Error starting bulk import:', err);
             this.toastService.show('Failed to start bulk import');
-            this.isLoading = false;
+            this.globalLoading.hide();
           }
         });
       }

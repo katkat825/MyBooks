@@ -54,6 +54,7 @@ public class BulkImportProcessor
         await _context.SaveChangesAsSystemAsync();
 
         var integration = await _context.GoogleIntegrations
+            .IgnoreQueryFilters()
             .FirstOrDefaultAsync(g => g.TenantId == job.TenantId &&
                                     g.IsActive &&
                                     g.Id == job.GoogleIntegrationId);
@@ -260,7 +261,8 @@ public class BulkImportProcessor
 
                     if (!string.IsNullOrWhiteSpace(firstLine))
                     {
-                        title = _sanitizer.Sanitize(firstLine);
+                        var sanitized = _sanitizer.Sanitize(firstLine);
+                        title = sanitized.Length <= 100 ? sanitized : fallbackName;
                     }
                 }
 

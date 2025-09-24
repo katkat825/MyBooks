@@ -1,9 +1,4 @@
-<div class="owner-container container mt-4" [formGroup]="form">
-  <div class="overlay" *ngIf="isLoading">
-    <mat-spinner class="mat-spinner"></mat-spinner>
-    <p>Please wait while we start the bulk import job...</p>
-  </div>
-
+<div class="owner-container container mt-4" [formGroup]="form">  
   <h2>Bulk Import</h2>    
 
   <!-- action buttons grouped above dropdowns -->
@@ -127,7 +122,7 @@
       </td>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="['select','fileName','overrideGenreId','overrideAgeCategoryId']; sticky: true"></tr>
+    <tr mat-header-row *matHeaderRowDef="['select','fileName','overrideGenreId','overrideAgeCategoryId'];"></tr>
     <tr mat-row *matRowDef="let row; columns: ['select','fileName','overrideGenreId','overrideAgeCategoryId'];"></tr>
   </table>
   <br>

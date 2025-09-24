@@ -5,11 +5,14 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UserService } from './services/user.service';
 import { isTokenExpired } from './utilities/auth-utilities';
 import { ViewChild } from '@angular/core';
 import { ToastComponent } from './components/shared/toast.component';
 import { ToastService } from './services/toast.service';
+import { GlobalLoadingService } from './services/global-loading.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -23,7 +26,9 @@ import { ToastService } from './services/toast.service';
     MatButtonModule,
     MatToolbarModule,
     RouterModule,
-    ToastComponent]
+    ToastComponent,
+    MatProgressSpinnerModule
+  ]
 })
 export class AppComponent {
   @ViewChild(ToastComponent) toast!: ToastComponent;
@@ -34,12 +39,19 @@ export class AppComponent {
   userRole: string = '';
   currentUrl = window.location.href;
 
+  globalLoading$: Observable<boolean>;
+  globalMessage$: Observable<string>;
+
   constructor(
     private renderer: Renderer2, 
     private router: Router, 
     public userService: UserService,
-    private toastService: ToastService
-  ) { }
+    private toastService: ToastService,
+    private loadingService: GlobalLoadingService
+  ) { 
+    this.globalLoading$ = this.loadingService.isVisible$;
+    this.globalMessage$ = this.loadingService.message$;
+  }
 
   ngOnInit() { 
     const publicRoutes = ['/login', '/signup', '/aup'];

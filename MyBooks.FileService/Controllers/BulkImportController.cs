@@ -16,11 +16,13 @@ public class BulkImportController : ControllerBase
 {
     private readonly FileDbContext _context;
     private readonly BulkImportProcessor _processor;
+    private readonly IServiceScopeFactory _scopeFactory;
 
-    public BulkImportController(FileDbContext context, BulkImportProcessor processor)
+    public BulkImportController(FileDbContext context, BulkImportProcessor processor, IServiceScopeFactory scopeFactory)
     {
         _context = context;
         _processor = processor;
+        _scopeFactory = scopeFactory;
     }
 
     [HttpPost("start")]
@@ -76,18 +78,19 @@ public class BulkImportController : ControllerBase
             UserId = userId,
             TenantId = tenantId,
             IpAddress = ip,
-            BulkImportStart = dto
+            BulkImportStart = dto,
+            IntegrationId = dto.IntegrationId
         };
 
         // call filescan process
-        await _processor.ProcessJobAsync(job.Id, scanDto);
-
-        return Ok(new
+        _ = Task.Run(async () =>
         {
-            JobId = job.Id,
-            Status = job.Status,
-            TotalFiles = job.TotalFiles
+            using var scope = _scopeFactory.CreateScope();
+            var processor = scope.ServiceProvider.GetRequiredService<BulkImportProcessor>();
+            await processor.ProcessJobAsync(job.Id, scanDto);
         });
+
+        return Ok();
     }
 
     [HttpGet("status/{jobId}")]

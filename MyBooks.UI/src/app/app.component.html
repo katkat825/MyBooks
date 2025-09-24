@@ -1,3 +1,8 @@
+<div class="global-overlay" *ngIf="globalLoading$ | async">
+  <mat-spinner class="global-spinner"></mat-spinner>
+  <p>{{ globalMessage$ | async }}</p>
+</div>
+
 <mat-toolbar class="navbar mybooks-header" color="primary">
   <mat-toolbar-row>
     <img src="logo.png" alt="My Book Catalog Logo" class="logo" />
