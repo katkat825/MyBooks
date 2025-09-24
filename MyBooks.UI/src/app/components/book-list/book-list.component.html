@@ -31,8 +31,8 @@
             matTooltip="This book is under investigation and cannot be accessed">
           <mat-icon class="restricted-icon">block</mat-icon>
         </span>
-        <h5 class="book-title">{{ book.title }}</h5>
-        <h6 class="book-author">{{ book.author || "Unknown Author"}}</h6>
+        <h5 class="book-title" [matTooltip]="book.title.length > 50 ? book.title : ''">{{ book.title }}</h5>
+        <h6 class="book-author" [matTooltip]="book.author.length > 18 ? book.author : ''">{{ book.author || "Unknown Author"}}</h6>
         <div class="book-spine"></div>
       </div>
     </div>
