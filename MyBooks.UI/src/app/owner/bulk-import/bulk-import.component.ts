@@ -167,10 +167,10 @@ export class BulkImportComponent implements OnInit {
           overrides: overrides.length > 0 ? overrides : undefined
         };
 
-        this.globalLoading.show("Please wait while we start your bulk import...");
+        this.globalLoading.show("Setting up your bulk import... Don't leave this page until setup finishes");
         this.bulkImportService.startBulkImport(dto).subscribe({
           next: () => {
-            this.toastService.show('Bulk import started')
+            this.toastService.show('Bulk import now running in the background')
             this.resetForm();
             this.globalLoading.hide();
           },
