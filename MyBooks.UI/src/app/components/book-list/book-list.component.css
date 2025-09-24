@@ -56,7 +56,7 @@
   border-radius: 0 10px 10px 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   text-align: center;
   padding: 15px;
   transition: background 0.3s ease, border 0.3s ease;
@@ -66,14 +66,15 @@
   position: absolute;
   top: 8px;
   right: 8px;
-  padding: 10px;        /* enlarge clickable area */
+  width: 40px;
+  height: 40px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .read-icon, .restricted-icon {
-  position: absolute;
-  top: 8px;
-  right: 8px;
   font-size: 22px;
   color: var(--title-color);
   pointer-events: none;  /* allow clicks to pass through to wrapper */
@@ -83,16 +84,31 @@
   color: var(--warn);
 }
 
+.book-title,
+.book-author {
+  margin: 0;
+}
+
 .book-title {
+  margin-top: 35px;
   font-size: 1.1rem;
   font-weight: bold;
   color: var(--title-color);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
+  word-break: break-word;
 }
 
 .book-author {
   font-size: 0.9rem;
   font-weight: normal;
   color: var(--subtitle-color);
+  margin-bottom: 10px;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .book-spine {
