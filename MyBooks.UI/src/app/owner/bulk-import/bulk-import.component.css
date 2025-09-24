@@ -35,7 +35,26 @@ mat-icon {
   font-size: 20px;
 }
 
+.primary-selects {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
 .bulk-import-dropdowns {
-    min-width: 300px;
-    margin: 10px;
+  flex: 1;
+  min-width: 300px;
+}
+
+.info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 16px 0;
+  font-size: 14px;
+  flex-wrap: wrap;
+}
+
+.clickable-name {
+  cursor: pointer;
 }

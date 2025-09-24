@@ -5,6 +5,7 @@
 
 .viewer-container {
   margin: 20px;
+  padding-bottom: 60px;
   height: 100%;
   position: absolute;
   justify-content: center;

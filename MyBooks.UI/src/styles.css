@@ -125,6 +125,15 @@ input, select {
   color: var(--subtitle-color) !important;
 }
 
+.owner-container {
+  max-width: 70%;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 button {
   background-color: var(--button-bg) !important;
   color: var(--button-text) !important;
@@ -240,13 +249,6 @@ mat-tab {
   color: var(--bg-color) !important;
 }
 
-.admin-container {
-  max-width: 800px;
-  margin: auto;
-  padding: 20px;
-  text-align: center;
-}
-
 .folder-dialog .mat-mdc-list-option {
   color: var(--bg-color) !important;
 }
@@ -268,4 +270,50 @@ mat-tab {
 }
 .folder-dialog .mdc-checkbox.mdc-checkbox--selected .mdc-checkbox__checkmark-path {
   stroke: var(--bg-color) !important;
+}
+
+.show-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none;
+  }
+
+  .show-mobile {
+    display: inline !important;
+  }
+
+  table {
+    display: block;                 /* allow scroll */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    min-width: 700px;        
+  }
+
+  td.file-name-cell, th.file-name-cell {
+    white-space: normal !important;   /* allow wrapping */
+    word-break: break-word !important; /* break long words sensibly */
+    overflow-wrap: break-word !important;
+    line-height: 1.4;
+    min-width: 150px; 
+  }
+
+  td.file-name-cell span {
+    display: inline-block;  /* ensures wrapping respects width */
+    width: 100%;
+  }
+
+  td.override-dropdown, th.override-dropdown {
+    min-width: 120px;
+    max-width: 160px;
+  }
+
+  th, td {           
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    max-width: 100%;
+  }
 }

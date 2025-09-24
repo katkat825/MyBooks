@@ -1,17 +1,19 @@
-<div class="container mt-4">
-  <h2>Users</h2>
+<div class="owner-container container mt-4">
+  <h2>Manage Users</h2>
 
-  <!-- Toggle Inactive Users -->
-  <button mat-button (click)="toggleInactiveUsers()">
-    <mat-icon>{{ showInactiveUsers ? 'visibility_off' : 'visibility' }}</mat-icon>
-    {{ showInactiveUsers ? 'Hide Inactive Users' : 'Show Inactive Users' }}
-  </button>
+  <div class="owner-buttons">
+    <!-- Toggle Inactive Users -->
+    <button mat-button (click)="toggleInactiveUsers()">
+      <mat-icon>{{ showInactiveUsers ? 'visibility_off' : 'visibility' }}</mat-icon>
+      {{ showInactiveUsers ? 'Hide Inactive Users' : 'Show Inactive Users' }}
+    </button>
 
-  <!-- Button to Show Add User Form -->
-  <button mat-button (click)="toggleAddUserForm()">
-    <mat-icon>{{ showAddUserForm ? 'close' : 'add' }}</mat-icon>
-    {{ showAddUserForm ? 'Cancel' : 'Add User' }}
-  </button>
+    <!-- Button to Show Add User Form -->
+    <button mat-button (click)="toggleAddUserForm()">
+      <mat-icon>{{ showAddUserForm ? 'close' : 'add' }}</mat-icon>
+      {{ showAddUserForm ? 'Cancel' : 'Add User' }}
+    </button>
+  </div>
 
   <!-- Add User Form inside a Card -->
     <mat-card *ngIf="showAddUserForm" class="add-user-card">

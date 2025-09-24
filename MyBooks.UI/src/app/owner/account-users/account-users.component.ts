@@ -10,8 +10,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { UserService } from '../../../services/user.service';
-import { ConfirmDialogComponent } from '../../../components/shared/confirmation.component';
+import { UserService } from '../../services/user.service';
+import { ConfirmDialogComponent } from '../../components/shared/confirmation.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 

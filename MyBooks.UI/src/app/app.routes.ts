@@ -5,7 +5,7 @@ import { BookDetailsComponent } from './components/book-details/book-details.com
 import { BookViewerComponent } from './components/book-viewer/book-viewer.component';
 import { AdminComponent } from './admin/admin.component';
 import { LoginComponent } from './components/login/login.component';
-import { AccountSettingsComponent } from './components/account-settings/account-settings.component';
+import { MyProfileComponent } from './components/my-profile/my-profile.component';
 import { AcceptableUsePolicyComponent } from './components/acceptable-use-policy/acceptable-use-policy.component';
 import { AdminGuard } from './utilities/admin.guard';
 import { AupGuard } from './utilities/aup.guard';
@@ -13,8 +13,10 @@ import { OwnerGuard } from './utilities/owner.guard';
 import { ReportAbuseComponent } from './components/report-abuse/report-abuse.component';
 import { SignupComponent } from './components/signup/signup.component';
 import { AuthGuard } from './utilities/auth.guard';
-import { AcountComponent } from './owner/account/account.component';
 import { RemovedGuard } from './utilities/removed.guard';
+import { AccountUsersComponent } from './owner/account-users/account-users.component';
+import { GoogleDriveComponent } from './owner/integrations/google-drive/google-drive.component';
+import { BulkImportComponent } from './owner/bulk-import/bulk-import.component';
 
 export const routes: Routes = [
   { path: '', component: BookListComponent, canActivate: [AupGuard, AuthGuard] },
@@ -23,10 +25,17 @@ export const routes: Routes = [
   { path: 'create/:id', component: BookFormComponent, canActivate: [AupGuard, AuthGuard, OwnerGuard] },
   { path: 'book/:id', component: BookDetailsComponent, canActivate: [AupGuard, AuthGuard] },
   { path: 'admin', component: AdminComponent, canActivate: [AdminGuard, AupGuard, AuthGuard] },
-  { path: 'profile', component: AccountSettingsComponent },
+  { path: 'profile', component: MyProfileComponent },
   { path: 'book-viewer/:fileId', component: BookViewerComponent, canActivate: [AupGuard, AuthGuard] },
   { path: 'aup', component: AcceptableUsePolicyComponent},
   { path: 'report-abuse', component: ReportAbuseComponent},
   { path: 'signup', component: SignupComponent, canActivate: [RemovedGuard]},
-  { path: 'account', component: AcountComponent, canActivate: [OwnerGuard] },
+  { path: 'account', canActivate: [OwnerGuard, AupGuard, AuthGuard], 
+    children: [
+      { path: 'users', component: AccountUsersComponent },
+      { path: 'integrations', component: GoogleDriveComponent },
+      { path: 'bulk-import', component: BulkImportComponent },
+      { path: '', redirectTo: 'users', pathMatch: 'full' }
+    ]
+  }
 ];

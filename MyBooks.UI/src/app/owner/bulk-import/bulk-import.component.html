@@ -1,10 +1,11 @@
-<div class="container mt-4" [formGroup]="form">
-  <h2>Bulk Import</h2>
-    
+<div class="owner-container container mt-4" [formGroup]="form">
   <div class="overlay" *ngIf="isLoading">
     <mat-spinner class="mat-spinner"></mat-spinner>
     <p>Please wait while we start the bulk import job...</p>
   </div>
+
+  <h2>Bulk Import</h2>    
+
   <!-- action buttons grouped above dropdowns -->
   <div class="action-buttons mb-3">
     <button mat-button (click)="openJobsDialog()">
@@ -16,49 +17,55 @@
     </button>
   </div>
 
-  <!-- integration selection -->
-  <mat-form-field appearance="fill" class="bulk-import-dropdowns">
-    <mat-label>Select Integration</mat-label>
-    <mat-select formControlName="integrationId" (selectionChange)="onIntegrationSelected($event.value)">
-      <mat-option *ngFor="let integration of integrations" [value]="integration.id">
-        {{ integration.accountEmail }}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  <!-- folder selection -->
-  <mat-form-field appearance="fill" class="bulk-import-dropdowns">
-    <mat-label>Select Folder</mat-label>
-    <mat-select 
-      formControlName="folderId" 
-      [disabled]="!form.get('integrationId')?.value"
-      (selectionChange)="onFolderSelected($event.value)">
-      <mat-option [value]="null">No Folder (root)</mat-option>
-      <mat-option *ngFor="let folder of folders" [value]="folder.id">
-        {{ folder.name }}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  <!-- primary genre + age category -->
-  <div class="primary-selects mb-3" *ngIf="files.length > 0">
-    <mat-form-field appearance="fill" class="bulk-import-dropdowns flex-item">
-      <mat-label>Default Genre</mat-label>
-      <mat-select formControlName="genreId" required>
-        <mat-option *ngFor="let g of genres" [value]="g.id">{{ g.name }}</mat-option>
+  <!-- integration + folder -->
+  <div class="primary-selects mb-3">
+    <mat-form-field appearance="fill" class="bulk-import-dropdowns">
+      <mat-label>Select Integration</mat-label>
+      <mat-select formControlName="integrationId" (selectionChange)="onIntegrationSelected($event.value)">
+        <mat-option *ngFor="let integration of integrations" [value]="integration.id">
+          {{ integration.accountEmail }}
+        </mat-option>
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field appearance="fill" class="bulk-import-dropdowns flex-item">
-      <mat-label>Default Age Category</mat-label>
-      <mat-select formControlName="ageCategoryId" required>
-        <mat-option *ngFor="let a of ageCategories" [value]="a.id">{{ a.name }}</mat-option>
+    <mat-form-field appearance="fill" class="bulk-import-dropdowns">
+      <mat-label>Select Folder</mat-label>
+      <mat-select 
+        formControlName="folderId" 
+        (selectionChange)="onFolderSelected($event.value)">
+        <mat-option [value]="null">No Folder (root)</mat-option>
+        <mat-option *ngFor="let folder of folders" [value]="folder.id">
+          {{ folder.name }}
+        </mat-option>
       </mat-select>
     </mat-form-field>
   </div>
 
+  <!-- primary genre + age category -->
+  <div *ngIf="form.get('integrationId')?.value && form.get('folderId')?.value !== undefined">
+    <div class="info-row"> 
+      <mat-icon class="me-1">info</mat-icon>
+      Each file uses the <strong>Global</strong> Genre and Age Category for unless you pick a <strong>Per-File</strong> value.
+    </div>
+    <div class="primary-selects mb-3" >
+      <mat-form-field appearance="fill" class="bulk-import-dropdowns flex-item">
+        <mat-label>Global Genre</mat-label>
+        <mat-select formControlName="genreId" required>
+          <mat-option *ngFor="let g of genres" [value]="g.id">{{ g.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="bulk-import-dropdowns flex-item">
+        <mat-label>Global Age Category</mat-label>
+        <mat-select formControlName="ageCategoryId" required>
+          <mat-option *ngFor="let a of ageCategories" [value]="a.id">{{ a.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
   <!-- file list -->
-  <table mat-table [dataSource]="files" class="mat-elevation-z8 w-100" *ngIf="files.length > 0">
+  <table mat-table [dataSource]="files" class="mat-elevation-z8 w-100" *ngIf="form.get('genreId')?.value && form.get('ageCategoryId')?.value">
     <!-- select checkbox -->
     <ng-container matColumnDef="select">
       <th mat-header-cell *matHeaderCellDef>
@@ -75,18 +82,22 @@
 
     <!-- file name -->
     <ng-container matColumnDef="fileName">
-      <th mat-header-cell *matHeaderCellDef>File</th>
-      <td mat-cell *matCellDef="let file">{{ file.name }}</td>
+      <th mat-header-cell *matHeaderCellDef class="file-name-cell">File Name</th>
+      <td mat-cell *matCellDef="let file"
+        (click)="file.selected = !file.selected"
+        class="clickable-name file-name-cell">
+        {{ file.name }}
+      </td>
     </ng-container>
 
     <!-- override genre -->
     <ng-container matColumnDef="overrideGenreId">
-      <th mat-header-cell *matHeaderCellDef>Override Genre</th>
-      <td mat-cell *matCellDef="let file">
-        <mat-form-field appearance="fill" class="w-100">
-          <mat-label>Use Primary</mat-label>
+      <th mat-header-cell *matHeaderCellDef class="override-dropdown">Genre (Per-File)</th>
+      <td mat-cell *matCellDef="let file" class="override-dropdown">
+        <mat-form-field appearance="fill">
+          <mat-label>Global Genre</mat-label>
           <mat-select [(ngModel)]="file.overrideGenreId" [ngModelOptions]="{standalone: true}">
-            <mat-option [value]="null">Use Primary</mat-option>
+            <mat-option [value]="null">Global Genre</mat-option>
             <mat-option *ngFor="let g of genres" [value]="g.id">{{ g.name }}</mat-option>
           </mat-select>
         </mat-form-field>
@@ -95,19 +106,28 @@
 
     <!-- override age category -->
     <ng-container matColumnDef="overrideAgeCategoryId">
-      <th mat-header-cell *matHeaderCellDef>Override Age Category</th>
-      <td mat-cell *matCellDef="let file">
-        <mat-form-field appearance="fill" class="w-100">
-          <mat-label>Use Primary</mat-label>
+      <th mat-header-cell *matHeaderCellDef class="override-dropdown">
+        <span class="hide-mobile">Age Category (Per-File)</span>
+        <span class="show-mobile">Age (Per-File)</span>
+      </th>
+      <td mat-cell *matCellDef="let file" class="override-dropdown">
+        <mat-form-field appearance="fill">
+          <mat-label>
+            <span class="hide-mobile">Global Age Category</span>
+            <span class="show-mobile">Global Age</span>
+          </mat-label>
           <mat-select [(ngModel)]="file.overrideAgeCategoryId" [ngModelOptions]="{standalone: true}">
-            <mat-option [value]="null">Use Primary</mat-option>
+            <mat-option [value]="null">
+              <span class="hide-mobile">Use Global Age Category</span>
+              <span class="show-mobile">Use Global Age</span>
+            </mat-option>
             <mat-option *ngFor="let a of ageCategories" [value]="a.id">{{ a.name }}</mat-option>
           </mat-select>
         </mat-form-field>
       </td>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="['select','fileName','overrideGenreId','overrideAgeCategoryId']"></tr>
+    <tr mat-header-row *matHeaderRowDef="['select','fileName','overrideGenreId','overrideAgeCategoryId']; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: ['select','fileName','overrideGenreId','overrideAgeCategoryId'];"></tr>
   </table>
   <br>
@@ -118,7 +138,8 @@
   </button>
   <br>
 
-  <br>
-  <mat-icon class="me-1">info</mat-icon>
-  Only <strong>EPUB</strong> and <strong>PDF</strong> files are supported at this time.
+  <div class="info-row">  
+    <mat-icon class="me-1">info</mat-icon>
+    Only <strong>EPUB</strong> and <strong>PDF</strong> files are supported at this time.
+  </div>
 </div>

@@ -1,35 +1,24 @@
-<div class="container mt-4">
-  <h2>Google Drive</h2>
+<div class="owner-container container mt-4">
+  <h2>Manage Integrations</h2>
 
   <button mat-button (click)="connect()">
     <mat-icon>cloud</mat-icon> Connect Google Drive
   </button>
 
   <table mat-table [dataSource]="integrations" multiTemplateDataRows class="mat-elevation-z8 mt-3">
+    <ng-container matColumnDef="cloudService">
+      <th mat-header-cell *matHeaderCellDef class="hide-mobile">Cloud Service</th>
+      <td mat-cell *matCellDef="let integration" class="hide-mobile">Google Drive</td>
+    </ng-container>
     <ng-container matColumnDef="accountEmail">
       <th mat-header-cell *matHeaderCellDef>Email</th>
       <td mat-cell *matCellDef="let integration">{{ integration.accountEmail }}</td>
     </ng-container>
 
     <ng-container matColumnDef="createdDate">
-      <th mat-header-cell *matHeaderCellDef>Created</th>
-      <td mat-cell *matCellDef="let integration">
+      <th mat-header-cell *matHeaderCellDef class="hide-mobile">Created</th>
+      <td mat-cell *matCellDef="let integration" class="hide-mobile">
         {{ integration.createdDate | date:'mediumDate' }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="folders">
-      <th mat-header-cell *matHeaderCellDef>Folders</th>
-      <td mat-cell *matCellDef="let integration">
-        <div *ngIf="integration.folders?.length > 0; else noFolders">
-          <div *ngFor="let folder of integration.folders" class="folder-row">
-            <mat-icon>folder</mat-icon>
-            <span class="folder-name">{{ folder.name }}</span>
-          </div>
-        </div>
-        <ng-template #noFolders>
-          <span>No folders connected</span>
-        </ng-template>
       </td>
     </ng-container>
 
@@ -37,13 +26,12 @@
       <th mat-header-cell *matHeaderCellDef>Actions</th>
       <td mat-cell *matCellDef="let integration">
         <div class="actions-column">
-          <button mat-button (click)="openFolderDialog(integration)">Manage</button>
           <button mat-button class="warn-btn" (click)="remove(integration)">Remove</button>
         </div>
       </td>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="['accountEmail','createdDate','folders','actions']"></tr>
-    <tr mat-row *matRowDef="let row; columns: ['accountEmail','createdDate','folders','actions'];"></tr>
+    <tr mat-header-row *matHeaderRowDef="['cloudService','accountEmail','createdDate','actions']"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['cloudService','accountEmail','createdDate','actions'];"></tr>
   </table>
 </div>

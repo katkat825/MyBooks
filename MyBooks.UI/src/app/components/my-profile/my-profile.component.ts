@@ -9,10 +9,10 @@ import { UserService } from '../../services/user.service';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-account-settings',
+  selector: 'app-my-profile',
   standalone: true,
-  templateUrl: './account-settings.component.html',
-  styleUrls: ['./account-settings.component.css'],
+  templateUrl: './my-profile.component.html',
+  styleUrls: ['./my-profile.component.css'],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -23,7 +23,7 @@ import { Router } from '@angular/router';
     MatSnackBarModule
   ]
 })
-export class AccountSettingsComponent implements OnInit {
+export class MyProfileComponent implements OnInit {
   accountForm!: FormGroup;
   loading = false;
   errorMessage = '';
