@@ -5,8 +5,9 @@ using MyBooks.Common.Services;
 using MyBooks.FileService.Data;
 using MyBooks.FileService.Models;
 using MyBooks.FileService.Services;
-using PdfSharpCore.Pdf;
-using PdfSharpCore.Pdf.IO;
+using UglyToad.PdfPig;
+using UglyToad.PdfPig.Content;
+using UglyToad.PdfPig.Core;
 using System.IO.Compression;
 using System.Management;
 using System.Xml.Linq;
@@ -229,23 +230,44 @@ public class BulkImportProcessor
     private (string Title, string? Author) ExtractPdfMetadata(Stream pdfStream, string fallbackName)
     {
         fallbackName = Path.GetFileNameWithoutExtension(fallbackName);
-        using var mem = new MemoryStream();
-        pdfStream.CopyTo(mem);
-        mem.Position = 0;
 
         try
         {
-            using var pdf = PdfReader.Open(mem, PdfDocumentOpenMode.ReadOnly);
-            string title = !string.IsNullOrWhiteSpace(pdf.Info.Title)
-                ? _sanitizer.Sanitize(pdf.Info.Title)
-                : fallbackName;
+            // pdfpig requires a seekable stream
+            pdfStream.Position = 0;
 
-            string? author = !string.IsNullOrWhiteSpace(pdf.Info.Author)
-                ? _sanitizer.Sanitize(pdf.Info.Author) : null;
+            using (var document = PdfDocument.Open(pdfStream, new ParsingOptions { UseLenientParsing = true }))
+            {
+                var info = document.Information;
 
-            return (title, author);
+                // pull title, fallback to filename
+                string title = !string.IsNullOrWhiteSpace(info.Title)
+                    ? _sanitizer.Sanitize(info.Title)
+                    : fallbackName;
+
+                // pull author if available
+                string? author = !string.IsNullOrWhiteSpace(info.Author)
+                    ? _sanitizer.Sanitize(info.Author)
+                    : null;
+
+                // optional: if still no title, try first line of page 1 text
+                if (title == fallbackName && document.NumberOfPages > 0)
+                {
+                    var firstPageText = document.GetPage(1).Text;
+                    var firstLine = firstPageText.Split('\n')
+                                                .Select(l => l.Trim())
+                                                .FirstOrDefault(l => !string.IsNullOrEmpty(l));
+
+                    if (!string.IsNullOrWhiteSpace(firstLine))
+                    {
+                        title = _sanitizer.Sanitize(firstLine);
+                    }
+                }
+
+                return (title, author);
+            }
         }
-        catch (Exception ex)
+        catch
         {
             return (fallbackName, null);
         }

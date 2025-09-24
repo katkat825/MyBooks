@@ -136,7 +136,7 @@ namespace MyBooks.FileService.Controllers
             return File(stream, file.ContentType, file.FileName);
         }
 
-        // delete file - only owner or superadmin
+        // soft-delete file metadata - only owner or superadmin
         [HttpDelete("{id}")]
         [Authorize(Roles = AppRoles.OwnerPlus)]
         public async Task<IActionResult> DeleteFile(int id)
@@ -147,8 +147,6 @@ namespace MyBooks.FileService.Controllers
 
             if (file == null)
                 return NotFound("File not found.");
-
-            await _googleDriveClient.DeleteFileAsync(file.FilePath, file.GoogleIntegration.RefreshToken);
 
             file.IsActive = false;
             _context.Files.Update(file);

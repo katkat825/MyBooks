@@ -1,7 +1,10 @@
 <div class="container mt-4" [formGroup]="form">
   <h2>Bulk Import</h2>
     
-
+  <div class="overlay" *ngIf="isLoading">
+    <mat-spinner class="mat-spinner"></mat-spinner>
+    <p>Please wait while we start the bulk import job...</p>
+  </div>
   <!-- action buttons grouped above dropdowns -->
   <div class="action-buttons mb-3">
     <button mat-button (click)="openJobsDialog()">
@@ -23,13 +26,14 @@
     </mat-select>
   </mat-form-field>
 
-  <!-- folder selection (always visible, disabled until integration) -->
+  <!-- folder selection -->
   <mat-form-field appearance="fill" class="bulk-import-dropdowns">
     <mat-label>Select Folder</mat-label>
     <mat-select 
       formControlName="folderId" 
       [disabled]="!form.get('integrationId')?.value"
       (selectionChange)="onFolderSelected($event.value)">
+      <mat-option [value]="null">No Folder (root)</mat-option>
       <mat-option *ngFor="let folder of folders" [value]="folder.id">
         {{ folder.name }}
       </mat-option>
@@ -39,21 +43,19 @@
   <!-- primary genre + age category -->
   <div class="primary-selects mb-3" *ngIf="files.length > 0">
     <mat-form-field appearance="fill" class="bulk-import-dropdowns flex-item">
-      <mat-label>Primary Genre</mat-label>
+      <mat-label>Default Genre</mat-label>
       <mat-select formControlName="genreId" required>
         <mat-option *ngFor="let g of genres" [value]="g.id">{{ g.name }}</mat-option>
       </mat-select>
     </mat-form-field>
 
     <mat-form-field appearance="fill" class="bulk-import-dropdowns flex-item">
-      <mat-label>Primary Age Category</mat-label>
+      <mat-label>Default Age Category</mat-label>
       <mat-select formControlName="ageCategoryId" required>
         <mat-option *ngFor="let a of ageCategories" [value]="a.id">{{ a.name }}</mat-option>
       </mat-select>
     </mat-form-field>
   </div>
-
-  
 
   <!-- file list -->
   <table mat-table [dataSource]="files" class="mat-elevation-z8 w-100" *ngIf="files.length > 0">

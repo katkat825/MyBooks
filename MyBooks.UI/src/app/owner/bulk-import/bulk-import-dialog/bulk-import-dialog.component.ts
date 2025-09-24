@@ -3,7 +3,7 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { HttpClient } from '@angular/common/http';
-import { BulkImportService } from '../../services/bulk-import.service';
+import { BulkImportService } from '../../../services/bulk-import.service';
 
 @Component({
   selector: 'app-bulk-import-jobs-dialog',

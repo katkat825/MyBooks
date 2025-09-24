@@ -7,12 +7,16 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 import { IntegrationService } from '../../services/integration.service';
 import { BookService } from '../../services/book.service';
 import { BulkImportService, BulkImportStartDto, BulkImportFileOverrideDto } from '../../services/bulk-import.service';
-import { BulkImportJobsDialogComponent } from './bulk-import-dialog.component';
+import { BulkImportJobsDialogComponent } from './bulk-import-dialog/bulk-import-dialog.component';
+import { ConfirmDialogComponent } from '../../components/shared/confirmation.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ToastService } from '../../services/toast.service';
+import { ToastComponent } from '../../components/shared/toast.component';
 
 @Component({
   selector: 'app-bulk-import',
@@ -29,12 +33,14 @@ import { MatDialog } from '@angular/material/dialog';
     MatTableModule,
     FormsModule,
     MatSnackBarModule,
-    MatIconModule
+    MatIconModule,
+    ToastComponent,
+    MatProgressSpinnerModule
   ]
 })
 export class BulkImportComponent implements OnInit {
   form!: FormGroup;
-
+  isLoading = false;
   integrations: any[] = [];
   folders: any[] = [];
   files: any[] = []; // holds selection + overrides
@@ -47,14 +53,14 @@ export class BulkImportComponent implements OnInit {
     private integrationService: IntegrationService,
     private bulkImportService: BulkImportService,
     private bookService: BookService,
-    private snackBar: MatSnackBar,
+    private toastService: ToastService,
     private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
     this.form = this.fb.group({
       integrationId: [null, Validators.required],
-      folderId: [null, Validators.required],
+      folderId: [null],
       genreId: [null, Validators.required],
       ageCategoryId: [null, Validators.required]
     });
@@ -76,14 +82,13 @@ export class BulkImportComponent implements OnInit {
 
   onIntegrationSelected(integrationId: number): void {
     this.selectedIntegrationId = integrationId;
-    this.integrationService.getFolders(integrationId).subscribe((folders: any[]) => {
-      this.folders = folders;
-    });
-  }
 
-  onFolderSelected(folderId: string): void {
-    this.integrationService.getImportableFiles(this.selectedIntegrationId, folderId).subscribe((files: any[]) => {
-      // keep local UI state (selected, overrides)
+    // reset folderId and clear folders/files on change
+    this.form.patchValue({folderId: null});
+    this.folders = [];
+    this.files = [];
+    
+    this.integrationService.getImportableFiles(this.selectedIntegrationId).subscribe((files: any[]) => { 
       this.files = files.map(f => ({
         id: f.id,
         name: f.name,
@@ -92,6 +97,34 @@ export class BulkImportComponent implements OnInit {
         overrideAgeCategoryId: null
       }));
     });
+    
+    this.integrationService.getFolders(integrationId).subscribe((folders: any[]) => {
+      this.folders = folders;
+    });
+  }
+
+  onFolderSelected(folderId: string | null): void {
+    if (!folderId){
+      this.integrationService.getImportableFiles(this.selectedIntegrationId).subscribe((files: any[]) => { 
+        this.files = files.map(f => ({
+          id: f.id,
+          name: f.name,
+          selected: false,
+          overrideGenreId: null,
+          overrideAgeCategoryId: null
+        }));
+      });
+    } else {
+      this.integrationService.getImportableFiles(this.selectedIntegrationId, folderId).subscribe((files: any[]) => { 
+        this.files = files.map(f => ({
+          id: f.id,
+          name: f.name,
+          selected: false,
+          overrideGenreId: null,
+          overrideAgeCategoryId: null
+        }));
+      });
+    }
   }
 
   submit(): void {
@@ -100,32 +133,52 @@ export class BulkImportComponent implements OnInit {
     const selected = this.files.filter(f => f.selected);
     if (selected.length === 0) return;
 
-    const fileIds = selected.map(f => f.id);
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Metadata Warning',
+        message: `We will try to extract the book title from each PDF. 
+                However, many PDFs do not contain this information in a readable form. 
+                If that happens, the book title in this app will default to the filename.
+                <br/><br/>
+                Click the red Import button to proceed`,
+        confirmText: 'Import',
+        permanent: false
+      }
+    });
 
-    const overrides: BulkImportFileOverrideDto[] = selected
-      .filter(f => f.overrideGenreId || f.overrideAgeCategoryId)
-      .map(f => ({
-        fileId: f.id,
-        genreId: f.overrideGenreId || undefined,
-        ageCategoryId: f.overrideAgeCategoryId || undefined
-      }));
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const fileIds = selected.map(f => f.id);
 
-    const dto: BulkImportStartDto = {
-      fileIds,
-      genreId: this.form.value.genreId,
-      ageCategoryId: this.form.value.ageCategoryId,
-      integrationId: this.form.value.integrationId,
-      overrides: overrides.length > 0 ? overrides : undefined
-    };
+        const overrides: BulkImportFileOverrideDto[] = selected
+          .filter(f => f.overrideGenreId || f.overrideAgeCategoryId)
+          .map(f => ({
+            fileId: f.id,
+            genreId: f.overrideGenreId || undefined,
+            ageCategoryId: f.overrideAgeCategoryId || undefined
+          }));
 
-    this.bulkImportService.startBulkImport(dto).subscribe({
-      next: () => {
-        this.showSnack('Bulk import started');
-        this.resetForm();
-      },
-      error: (err) => {
-        console.error('Error starting bulk import:', err);
-        this.showSnack('Failed to start bulk import');
+        const dto: BulkImportStartDto = {
+          fileIds,
+          genreId: this.form.value.genreId,
+          ageCategoryId: this.form.value.ageCategoryId,
+          integrationId: this.form.value.integrationId,
+          overrides: overrides.length > 0 ? overrides : undefined
+        };
+
+        this.isLoading = true;
+        this.bulkImportService.startBulkImport(dto).subscribe({
+          next: () => {
+            this.toastService.show('Bulk import started')
+            this.resetForm();
+            this.isLoading = false;
+          },
+          error: (err) => {
+            console.error('Error starting bulk import:', err);
+            this.toastService.show('Failed to start bulk import');
+            this.isLoading = false;
+          }
+        });
       }
     });
   }
@@ -134,14 +187,6 @@ export class BulkImportComponent implements OnInit {
     this.dialog.open(BulkImportJobsDialogComponent, {
       width: '600px',
       panelClass: 'bulk-import-dialog'
-    });
-  }
-
-  private showSnack(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: 2000,
-      horizontalPosition: 'right',
-      verticalPosition: 'bottom',
     });
   }
 

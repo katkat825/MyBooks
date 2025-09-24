@@ -7,41 +7,55 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { UserService } from './services/user.service';
 import { isTokenExpired } from './utilities/auth-utilities';
+import { ViewChild } from '@angular/core';
+import { ToastComponent } from './components/shared/toast.component';
+import { ToastService } from './services/toast.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css',
+  styleUrls: ['./app.component.css'],
   imports: [RouterOutlet,
     CommonModule,
     MatMenuModule,
     MatIconModule,
     MatButtonModule,
     MatToolbarModule,
-    RouterModule],    
+    RouterModule,
+    ToastComponent]
 })
 export class AppComponent {
+  @ViewChild(ToastComponent) toast!: ToastComponent;
+
   isDarkTheme = false;
   isContrastTheme = false;
   isLightTheme = true;
   userRole: string = '';
-  //accessAdminMenu: boolean = false;
   currentUrl = window.location.href;
 
-  constructor(private renderer: Renderer2, private router: Router, public userService: UserService) { }
+  constructor(
+    private renderer: Renderer2, 
+    private router: Router, 
+    public userService: UserService,
+    private toastService: ToastService
+  ) { }
 
   ngOnInit() { 
-      const publicRoutes = ['/login', '/signup', '/aup'];
+    const publicRoutes = ['/login', '/signup', '/aup'];
 
-      if (publicRoutes.some(r => this.router.url.startsWith(r))) return;
+    if (publicRoutes.some(r => this.router.url.startsWith(r))) return;
 
-      const savedTheme = localStorage.getItem('theme');
-      this.setTheme(savedTheme || 'light');
-      
-      this.userService.loadProfile();
-    }
-  
+    const savedTheme = localStorage.getItem('theme');
+    this.setTheme(savedTheme || 'light');
+    
+    this.userService.loadProfile();
+  }
+
+  ngAfterViewInit() {
+    console.log('Registering toast...');
+    this.toastService.register(this.toast);
+  }
 
   setTheme(theme: string) {
     this.isDarkTheme = theme === 'dark';
