@@ -6,273 +6,323 @@ using MyBooks.CatalogService.Data;
 using MyBooks.CatalogService.Models;
 using MyBooks.Common.Services;
 using MyBooks.Common.BaseClasses;
+using MyBooks.CatalogService.Services;
 
-namespace MyBooks.CatalogService.Controllers
+namespace MyBooks.CatalogService.Controllers;
+
+[Route("api/books")]
+[ApiController]
+[Authorize]
+public class BookController : ControllerBase
 {
-    [Route("api/books")]
-    [ApiController]
-    [Authorize]
-    public class BookController :  ControllerBase
+    private readonly CatalogDbContext _context;
+    private readonly IValidator<Book> _validator;
+    private readonly HtmlSanitizationService _htmlSanitizationService;
+    private readonly HttpClient _httpClient;
+    private readonly OpenLibraryClient _openLibraryClient;
+    private readonly string _fileServiceBaseUrl;
+
+    public BookController(
+        CatalogDbContext context,
+        HtmlSanitizationService htmlSanitizationService,
+        IValidator<Book> validator,
+        IHttpClientFactory httpClientFactory,
+        OpenLibraryClient openLibraryClient,
+        IConfiguration config)
     {
-        private readonly CatalogDbContext _context;
-        private readonly IValidator<Book> _validator;
-        private readonly HtmlSanitizationService _htmlSanitizationService;
-        private readonly HttpClient _httpClient;
+        _context = context;
+        _htmlSanitizationService = htmlSanitizationService;
+        _validator = validator;
+        _httpClient = httpClientFactory.CreateClient();
+        _openLibraryClient = openLibraryClient;
+        _fileServiceBaseUrl = config["BaseUrls:FileService"] ?? throw new ArgumentNullException("FileService base URL is not configured.");
+    }
 
-        public BookController(
-            CatalogDbContext context,
-            HtmlSanitizationService htmlSanitizationService,
-            IValidator<Book> validator,
-            IHttpClientFactory httpClientFactory)
-        {
-            _context = context;
-            _htmlSanitizationService = htmlSanitizationService;
-            _validator = validator;
-            _httpClient = httpClientFactory.CreateClient();
-        }
-
-        // get all books
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
-        {
-            try
-            {
-                var ageCategoryClaim = User.FindFirst("AgeCategoryId")?.Value;
-                if (string.IsNullOrWhiteSpace(ageCategoryClaim)) return Unauthorized("User age category could not be determined.");
-                int userAgeCategory = int.Parse(ageCategoryClaim);
-
-                var books = await _context.Books
-                    .Where(b => b.AgeCategoryId <= userAgeCategory)
-                    .Include(b => b.Genre)
-                    .Include(b => b.AgeCategory)
-                    .Include(b => b.Tags)
-                    .Include(b => b.Series)
-                    .ToListAsync();
-
-                Console.WriteLine($"Fetched {books.Count} books. User AgeCategoryId {userAgeCategory}");
-                return books;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return StatusCode(500);
-            }
-        }
-
-        // get 1 book
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Book>> GetBook(int id)
+    // get all books
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+    {
+        try
         {
             var ageCategoryClaim = User.FindFirst("AgeCategoryId")?.Value;
-            if (string.IsNullOrWhiteSpace(ageCategoryClaim)) return Unauthorized("User age category cannot be determined.");
+            if (string.IsNullOrWhiteSpace(ageCategoryClaim)) return Unauthorized("User age category could not be determined.");
             int userAgeCategory = int.Parse(ageCategoryClaim);
 
-            var book = await _context.Books
-                .Where(b => b.Id == id && b.AgeCategoryId <= userAgeCategory)
+            var books = await _context.Books
+                .Where(b => b.AgeCategoryId <= userAgeCategory)
                 .Include(b => b.Genre)
                 .Include(b => b.AgeCategory)
                 .Include(b => b.Tags)
                 .Include(b => b.Series)
-                .FirstOrDefaultAsync(b => b.Id == id);
+                .ToListAsync();
 
-            if (book == null) return NotFound();
+            Console.WriteLine($"Fetched {books.Count} books. User AgeCategoryId {userAgeCategory}");
+            return books;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return StatusCode(500);
+        }
+    }
 
-            return Ok(book);
+    // get 1 book
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Book>> GetBook(int id)
+    {
+        var ageCategoryClaim = User.FindFirst("AgeCategoryId")?.Value;
+        if (string.IsNullOrWhiteSpace(ageCategoryClaim)) return Unauthorized("User age category cannot be determined.");
+        int userAgeCategory = int.Parse(ageCategoryClaim);
+
+        var book = await _context.Books
+            .Where(b => b.Id == id && b.AgeCategoryId <= userAgeCategory)
+            .Include(b => b.Genre)
+            .Include(b => b.AgeCategory)
+            .Include(b => b.Tags)
+            .Include(b => b.Series)
+            .FirstOrDefaultAsync(b => b.Id == id);
+
+        if (book == null) return NotFound();
+
+        return Ok(book);
+    }
+
+    //create new book - owner & superadmin only
+    [HttpPost]
+    [Authorize(Roles = AppRoles.OwnerPlus)]
+    public async Task<ActionResult<Book>> PostBook(Book book)
+    {
+        if (book == null) return BadRequest("Invalid book data.");
+
+        var validationResult = await _validator.ValidateAsync(book);
+        if (!validationResult.IsValid) return BadRequest($"Validation failed for new book: {book.Title}.");       
+
+        // sanitize all user-provided text fields, if they exist
+        book.Title = _htmlSanitizationService.Sanitize(book.Title);
+        if (!string.IsNullOrWhiteSpace(book.Author))
+            book.Author = _htmlSanitizationService.Sanitize(book.Author);
+        if (!string.IsNullOrWhiteSpace(book.Description))
+            book.Description = _htmlSanitizationService.Sanitize(book.Description);
+        if (!string.IsNullOrWhiteSpace(book.Location))
+            book.Location = _htmlSanitizationService.Sanitize(book.Location);
+        if (!string.IsNullOrWhiteSpace(book.ISBN) && !IsbnHelper.IsPlausibleIsbn(book.ISBN))
+            book.ISBN = null;
+
+        // enrich book via openlibraryclient
+        OpenLibraryBookDto? metadata = null;
+        if (!string.IsNullOrWhiteSpace(book.Title))
+        {
+            metadata = await _openLibraryClient.LookupByTitleAsync(book.Title);
         }
 
-        //create new book - owner & superadmin only
-        [HttpPost]
-        [Authorize(Roles = AppRoles.OwnerPlus)]
-        public async Task<ActionResult<Book>> PostBook(Book book)
+        // fill in only missing fields from metadata
+        if (metadata != null)
         {
-            if (book == null) return BadRequest("Invalid book data.");
+            if (string.IsNullOrWhiteSpace(book.Author) && !string.IsNullOrWhiteSpace(metadata.Author))
+                book.Author = metadata.Author;
 
-            var validationResult = await _validator.ValidateAsync(book);
-            if (!validationResult.IsValid) return BadRequest($"Validation failed for new book: {book.Title}.");
+            if (!book.PublishedDate.HasValue && metadata.PublishedDate.HasValue)
+                book.PublishedDate = metadata.PublishedDate;
 
-            //sanitize all text fields, if they exist
-            book.Title = _htmlSanitizationService.Sanitize(book.Title);
-            if (!string.IsNullOrWhiteSpace(book.Author))
-                book.Author = _htmlSanitizationService.Sanitize(book.Author);
-            if (!string.IsNullOrWhiteSpace(book.Description))
-                book.Description = _htmlSanitizationService.Sanitize(book.Description);
-            if (!string.IsNullOrWhiteSpace(book.Location))
-                book.Location = _htmlSanitizationService.Sanitize(book.Location);
-            if (!string.IsNullOrWhiteSpace(book.TagInput))
-            {
-                var tagNames = book.TagInput.Split(',')
-                    .Select(t => t.Trim().ToLowerInvariant())
-                    .Where(t => !string.IsNullOrEmpty(t))
-                    .Distinct()
-                    .Select(t => _htmlSanitizationService.Sanitize(t))
-                    .ToList();
+            if (string.IsNullOrWhiteSpace(book.ISBN) && !string.IsNullOrWhiteSpace(metadata.ISBN))
+                book.ISBN = metadata.ISBN;
+        }
 
-                //disallow duplicates
-                var existingTags = await _context.Tags
-                    .Where(t => tagNames.Contains(t.Name.ToLower()))
-                    .ToListAsync();
+        // tags - not used yet
+        if (!string.IsNullOrWhiteSpace(book.TagInput))
+        {
+            var tagNames = book.TagInput.Split(',')
+                .Select(t => t.Trim().ToLowerInvariant())
+                .Where(t => !string.IsNullOrEmpty(t))
+                .Distinct()
+                .Select(t => _htmlSanitizationService.Sanitize(t))
+                .ToList();
 
-                var newTags = tagNames.Except(existingTags.Select(t => t.Name.ToLower()))
-                    .Select(t => new Tag { Name = t })
-                    .ToList();
+            //disallow duplicates
+            var existingTags = await _context.Tags
+                .Where(t => tagNames.Contains(t.Name.ToLower()))
+                .ToListAsync();
 
-                _context.Tags.AddRange(newTags);
-                await _context.SaveChangesAsync();
+            var newTags = tagNames.Except(existingTags.Select(t => t.Name.ToLower()))
+                .Select(t => new Tag { Name = t })
+                .ToList();
 
-                book.Tags = existingTags.Concat(newTags).ToList();
-            }
-
-            var genre = await _context.Genres.FindAsync(book.GenreId);
-            if (genre == null) return BadRequest("Invalid genre ID.");
-            book.Genre = genre;
-
-            if (book.FileId.HasValue)
-            {
-                var response = await _httpClient.GetAsync($"https://localhost:7142/api/files/{book.FileId}");
-                if (!response.IsSuccessStatusCode) return BadRequest("Invalid FileId. File not found.");
-            }
-
-            _context.Books.Add(book);
+            _context.Tags.AddRange(newTags);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetBook), new { id = book.Id }, book);
+            book.Tags = existingTags.Concat(newTags).ToList();
         }
 
-        //update existing book - owner & superadmin only
-        [HttpPut("{id}")]
-        [Authorize(Roles = AppRoles.OwnerPlus)]
-        public async Task<IActionResult> PutBook(int id, Book book)
+        var genre = await _context.Genres.FindAsync(book.GenreId);
+        if (genre == null) return BadRequest("Invalid genre ID.");
+        book.Genre = genre;
+
+        if (book.FileId.HasValue)
         {
-            if (id != book.Id) return BadRequest("Book ID mismatch.");
+            var response = await _httpClient.GetAsync($"{_fileServiceBaseUrl}/api/files/{book.FileId}");
+            if (!response.IsSuccessStatusCode) return BadRequest("Invalid FileId. File not found.");
+        }
 
-            var existingBook = await _context.Books.Include(b => b.Genre).FirstOrDefaultAsync(b => b.Id == id);
+        _context.Books.Add(book);
+        await _context.SaveChangesAsync();
 
-            if (existingBook == null) return NotFound();
+        return CreatedAtAction(nameof(GetBook), new { id = book.Id }, book);
+    }
 
-            if (existingBook.IsRestricted)
-                return Forbid($"Book '{existingBook.Title}' is restricted and cannot be modified.");
+    //update existing book - owner & superadmin only
+    [HttpPut("{id}")]
+    [Authorize(Roles = AppRoles.OwnerPlus)]
+    public async Task<IActionResult> PutBook(int id, Book book)
+    {
+        if (id != book.Id) return BadRequest("Book ID mismatch.");
 
-            //verify authenticated user is either admin, editor, or creator
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var existingBook = await _context.Books.Include(b => b.Genre).FirstOrDefaultAsync(b => b.Id == id);
 
-            var canEdit = AppRoles.EditorsArray.Any(User.IsInRole);
-            var isCreator = book.CreatedBy == userId.ToString();
+        if (existingBook == null) return NotFound();
 
-            if (!canEdit && !isCreator) return Forbid("Only an admin, editor, or the book's creator is authorized to update this book.");
+        if (existingBook.IsRestricted)
+            return Forbid($"Book '{existingBook.Title}' is restricted and cannot be modified.");
 
-            //sanitize all text fields, if they exist
-            book.Title = _htmlSanitizationService.Sanitize(book.Title);
-            if (!string.IsNullOrWhiteSpace(book.Author))
-                book.Author = _htmlSanitizationService.Sanitize(book.Author);
-            if (!string.IsNullOrWhiteSpace(book.Description))
-                book.Description = _htmlSanitizationService.Sanitize(book.Description);
-            if (!string.IsNullOrWhiteSpace(book.Location))
-                book.Location = _htmlSanitizationService.Sanitize(book.Location);
-            if (!string.IsNullOrWhiteSpace(book.TagInput))
-            {
-                var tagNames = book.TagInput.Split(',')
-                    .Select(t => t.Trim().ToLowerInvariant())
-                    .Where(t => !string.IsNullOrEmpty(t))
-                    .Distinct()
-                    .Select(t => _htmlSanitizationService.Sanitize(t))
-                    .ToList();
+        //verify authenticated user is either admin, editor, or creator
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-                //disallow duplicates
-                var existingTags = await _context.Tags
-                    .Where(t => tagNames.Contains(t.Name.ToLower()))
-                    .ToListAsync();
+        var canEdit = AppRoles.EditorsArray.Any(User.IsInRole);
+        var isCreator = book.CreatedBy == userId.ToString();
 
-                var newTags = tagNames.Except(existingTags.Select(t => t.Name.ToLower()))
-                    .Select(t => new Tag { Name = t })
-                    .ToList();
+        if (!canEdit && !isCreator) return Forbid("Only an admin, editor, or the book's creator is authorized to update this book.");
 
-                _context.Tags.AddRange(newTags);
-                await _context.SaveChangesAsync();
+        //sanitize all text fields, if they exist
+        book.Title = _htmlSanitizationService.Sanitize(book.Title);
+        if (!string.IsNullOrWhiteSpace(book.Author))
+            book.Author = _htmlSanitizationService.Sanitize(book.Author);
+        if (!string.IsNullOrWhiteSpace(book.Description))
+            book.Description = _htmlSanitizationService.Sanitize(book.Description);
+        if (!string.IsNullOrWhiteSpace(book.Location))
+            book.Location = _htmlSanitizationService.Sanitize(book.Location);
+        if (!string.IsNullOrWhiteSpace(book.ISBN) && !IsbnHelper.IsPlausibleIsbn(book.ISBN))
+            book.ISBN = null;
+        if (!string.IsNullOrWhiteSpace(book.TagInput))
+        {
+            var tagNames = book.TagInput.Split(',')
+                .Select(t => t.Trim().ToLowerInvariant())
+                .Where(t => !string.IsNullOrEmpty(t))
+                .Distinct()
+                .Select(t => _htmlSanitizationService.Sanitize(t))
+                .ToList();
 
-                book.Tags = existingTags.Concat(newTags).ToList();
-            }
+            //disallow duplicates
+            var existingTags = await _context.Tags
+                .Where(t => tagNames.Contains(t.Name.ToLower()))
+                .ToListAsync();
 
-            if (book.FileId.HasValue)
-            {
-                var response = await _httpClient.GetAsync($"https://localhost:7142/api/files/{book.FileId}");
-                if (!response.IsSuccessStatusCode) return BadRequest("Invalid FileId. File not found.");
-                existingBook.FileId = book.FileId;
-            }
+            var newTags = tagNames.Except(existingTags.Select(t => t.Name.ToLower()))
+                .Select(t => new Tag { Name = t })
+                .ToList();
 
-            existingBook.Title = book.Title;
-            existingBook.Author = book.Author;
-            existingBook.Description = book.Description;
-            existingBook.Location = book.Location;
-            existingBook.SeriesId = book.SeriesId;
-            existingBook.SeriesPosition = book.SeriesPosition;
-            existingBook.TagInput = book.TagInput;
-            existingBook.AgeCategoryId = book.AgeCategoryId;
-            existingBook.PublishedDate = book.PublishedDate;
-            existingBook.ISBN = book.ISBN;
-            existingBook.GenreId = book.GenreId;
-
-
-            _context.Entry(existingBook).State = EntityState.Modified;
-
+            _context.Tags.AddRange(newTags);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            book.Tags = existingTags.Concat(newTags).ToList();
         }
 
-        [HttpPatch("{id}/file")]
-        [Authorize(Roles = AppRoles.OwnerPlus)]
-        public async Task<IActionResult> UpdateBookFileId(int id, [FromBody] FileUpdateDto request)
+        // enrich book via openlibraryclient
+        OpenLibraryBookDto? metadata = null;
+        if (!string.IsNullOrWhiteSpace(book.Title))
         {
-            Console.WriteLine($"📡 Received request to update book {id} with FileId: {request.FileId}");
-
-            var book = await _context.Books.FindAsync(id);
-            if (book == null)
-            {
-                return NotFound("Book not found.");
-            }
-
-            if (book.IsRestricted)
-                return Forbid($"Book '{book.Title}' is restricted and its file cannot be changed.");
-
-            if (request.FileId <= 0)
-            {
-                return BadRequest("Invalid FileId.");
-            }
-
-            book.FileId = request.FileId;
-            _context.Entry(book).State = EntityState.Modified;
-
-            await _context.SaveChangesAsync();
-
-
-            return NoContent();
+            metadata = await _openLibraryClient.LookupByTitleAsync(book.Title);
         }
 
-        public class FileUpdateDto
+        // fill in only missing fields from metadata
+        if (metadata != null)
         {
-            public int FileId { get; set; }
+            if (string.IsNullOrWhiteSpace(book.Author) && !string.IsNullOrWhiteSpace(metadata.Author))
+                book.Author = metadata.Author;
+
+            if (!book.PublishedDate.HasValue && metadata.PublishedDate.HasValue)
+                book.PublishedDate = metadata.PublishedDate;
+
+            if (string.IsNullOrWhiteSpace(book.ISBN) && !string.IsNullOrWhiteSpace(metadata.ISBN))
+                book.ISBN = metadata.ISBN;
         }
 
-        [HttpDelete("{id}")]
-        [Authorize(Roles = AppRoles.OwnerPlus)]
-        public async Task<IActionResult> DeleteBook(int id)
+        if (book.FileId.HasValue)
         {
-            var book = await _context.Books.FindAsync(id);
-            if (book == null) return NotFound();
-
-            if (book.IsRestricted)
-                return Forbid($"Book '{book.Title}' is restricted and cannot be deleted.");
-
-            //verify authenticated user is either admin, editor, or creator
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            var canEdit = AppRoles.EditorsArray.Any(User.IsInRole);
-            var isCreator = book.CreatedBy == userId.ToString();
-
-            if (!canEdit && !isCreator) return Forbid("Only an admin, editor, or the book's creator is authorized to delete this book.");
-
-            _context.Books.Remove(book);
-            await _context.SaveChangesAsync();
-            return NoContent();
+            var response = await _httpClient.GetAsync($"{_fileServiceBaseUrl}/api/files/{book.FileId}");
+            if (!response.IsSuccessStatusCode) return BadRequest("Invalid FileId. File not found.");
+            existingBook.FileId = book.FileId;
         }
+
+        existingBook.Title = book.Title;
+        existingBook.Author = book.Author;
+        existingBook.Description = book.Description;
+        existingBook.Location = book.Location;
+        existingBook.SeriesId = book.SeriesId;
+        existingBook.SeriesPosition = book.SeriesPosition;
+        existingBook.TagInput = book.TagInput;
+        existingBook.AgeCategoryId = book.AgeCategoryId;
+        existingBook.PublishedDate = book.PublishedDate;
+        existingBook.ISBN = book.ISBN;
+        existingBook.GenreId = book.GenreId;
+
+
+        _context.Entry(existingBook).State = EntityState.Modified;
+
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    [HttpPatch("{id}/file")]
+    [Authorize(Roles = AppRoles.OwnerPlus)]
+    public async Task<IActionResult> UpdateBookFileId(int id, [FromBody] FileUpdateDto request)
+    {
+        var book = await _context.Books.FindAsync(id);
+        if (book == null)
+        {
+            return NotFound("Book not found.");
+        }
+
+        if (book.IsRestricted)
+            return Forbid($"Book '{book.Title}' is restricted and its file cannot be changed.");
+
+        if (request.FileId <= 0)
+        {
+            return BadRequest("Invalid FileId.");
+        }
+
+        book.FileId = request.FileId;
+        _context.Entry(book).State = EntityState.Modified;
+
+        await _context.SaveChangesAsync();
+
+
+        return NoContent();
+    }
+
+    public class FileUpdateDto
+    {
+        public int FileId { get; set; }
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = AppRoles.OwnerPlus)]
+    public async Task<IActionResult> DeleteBook(int id)
+    {
+        var book = await _context.Books.FindAsync(id);
+        if (book == null) return NotFound();
+
+        if (book.IsRestricted)
+            return Forbid($"Book '{book.Title}' is restricted and cannot be deleted.");
+
+        //verify authenticated user is either admin, editor, or creator
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var canEdit = AppRoles.EditorsArray.Any(User.IsInRole);
+        var isCreator = book.CreatedBy == userId.ToString();
+
+        if (!canEdit && !isCreator) return Forbid("Only an admin, editor, or the book's creator is authorized to delete this book.");
+
+        _context.Books.Remove(book);
+        await _context.SaveChangesAsync();
+        return NoContent();
     }
 }
