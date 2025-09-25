@@ -41,6 +41,7 @@ export class AppComponent {
 
   globalLoading$: Observable<boolean>;
   globalMessage$: Observable<string>;
+  globalFunMessage$: Observable<string>;
 
   constructor(
     private renderer: Renderer2, 
@@ -51,6 +52,7 @@ export class AppComponent {
   ) { 
     this.globalLoading$ = this.loadingService.isVisible$;
     this.globalMessage$ = this.loadingService.message$;
+    this.globalFunMessage$ = this.loadingService.funMessage$;
   }
 
   ngOnInit() { 

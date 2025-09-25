@@ -11,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { UserService } from '../../services/user.service';
+import { GlobalLoadingService, LoadingContext } from '../../services/global-loading.service';
 
 @Component({
   selector: 'app-book-list',
@@ -34,16 +35,24 @@ export class BookListComponent {
   books: any[] = [];
   filteredBooks: any[] = [];
   searchQuery: string = '';
-  isFinalizing: boolean = true;
   currentUser: any = null;
 
-  constructor(private bookService: BookService, private router: Router, private userService: UserService) { }
+  constructor(
+    private bookService: BookService, 
+    private router: Router, 
+    private userService: UserService,
+    private globalLoading: GlobalLoadingService
+  ) { }
 
   ngOnInit(): void {
     this.userService.getProfile().subscribe({
       next: (user) => { this.currentUser = user; },
-      error: (err) => { console.error("Error fetching current user profile", err); }
+      error: (err) => { 
+        console.error("Error fetching current user profile", err);
+        this.globalLoading.hide();
+      }
     })
+    this.globalLoading.show("Loading books...", LoadingContext.Login);
     this.loadBooks();
   }
 
@@ -61,9 +70,12 @@ export class BookListComponent {
       next: (data) => {
         this.books = data.sort((a,b) => a.title.localeCompare(b.title));
         this.filteredBooks = [...this.books];
-        this.isFinalizing = false;
+        this.globalLoading.hide();
       },
-      error: (error) => console.error('Error loading books', error)
+      error: (error) => {
+        console.error('Error loading books', error);
+        this.globalLoading.hide();
+      }
     });
   }
 

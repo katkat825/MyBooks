@@ -1,6 +1,7 @@
 <div class="global-overlay" *ngIf="globalLoading$ | async">
   <mat-spinner class="global-spinner"></mat-spinner>
-  <p>{{ globalMessage$ | async }}</p>
+  <p class="global-message">{{ globalMessage$ | async }}</p>
+  <small class="global-fun-message">{{ globalFunMessage$ | async }}</small>
 </div>
 
 <mat-toolbar class="navbar mybooks-header" color="primary">

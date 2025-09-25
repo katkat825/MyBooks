@@ -9,6 +9,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { environment } from '../../../environments/environment';
+import { GlobalLoadingService, LoadingContext } from '../../services/global-loading.service';
 
 @Component({
   selector: 'app-login',
@@ -26,9 +27,8 @@ import { environment } from '../../../environments/environment';
 export class LoginComponent {
   loginForm: FormGroup;
   errorMessage: string = '';
-  isLoading: boolean = false;
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private router: Router) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private router: Router, private globalLoading: GlobalLoadingService) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
@@ -40,7 +40,7 @@ export class LoginComponent {
       return;
     }
 
-    this.isLoading = true;
+    this.globalLoading.show("Logging in...", LoadingContext.Login);
 
     const payload = { ...this.loginForm.value };
 
@@ -48,10 +48,10 @@ export class LoginComponent {
       next: (response) => {
         localStorage.setItem('token', response.token);
         this.router.navigate(['/']); 
-        this.isLoading = false;
       },
       error: () => {
         this.errorMessage = 'Invalid email or password.';
+        this.globalLoading.hide();
       }
     });
   }
