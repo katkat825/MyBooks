@@ -10,11 +10,14 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookService } from '../../services/book.service';
 import { UserService } from '../../services/user.service';
 import { ConfirmDialogComponent } from '../../components/shared/confirmation.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { publish } from 'rxjs';
 
 @Component({
   selector: 'app-book-form',
@@ -32,7 +35,9 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
     HttpClientModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
-    MatDialogModule
+    MatDialogModule,
+    MatDatepickerModule,
+    MatNativeDateModule
   ]
 })
 export class BookFormComponent implements OnInit {
@@ -70,7 +75,8 @@ export class BookFormComponent implements OnInit {
         seriesName: [''],
         isbn: [''],
         description: [''],
-        location: ['']
+        location: [''],
+        publishedDate: [null]
       }),
       step3: this.fb.group({ file: [null] })
     });
@@ -96,7 +102,7 @@ export class BookFormComponent implements OnInit {
                   this.router.navigate(['/book', id]);
                 } else if (
                   book.createdBy !== this.currentUser.id.toString() &&
-                  !['admin', 'editor', 'owner', 'superadmin'].includes(this.currentUser.role.toLowerCase())
+                  !['owner', 'superadmin'].includes(this.currentUser.role.toLowerCase())
                 ) {
                   alert('You do not have permission to edit this book.');
                   this.router.navigate(['/book', id]);
@@ -143,7 +149,9 @@ export class BookFormComponent implements OnInit {
               seriesId: book.seriesId,
               seriesPosition: book.seriesPosition,
               isbn: book.isbn,
-              description: book.description
+              description: book.description,
+              publishedDate: book.publishedDate ? new Date(book.publishedDate).getFullYear() : null,
+              location: book.location
             }
           });
         }
@@ -235,6 +243,15 @@ export class BookFormComponent implements OnInit {
       this.bookService.createBook(bookData).subscribe({
         next: (response) => {
           this.bookId = response.id;
+
+          // pre-fill step 2 with enriched values from backend
+          this.bookForm.patchValue({
+            step2: {
+              author: response.author,
+              isbn: response.isbn,
+              publishedDate: response.publishedDate ? new Date(response.publishedDate).getFullYear() : null
+            }              
+          });
           this.isFinalizing = false;
         },
         error: (error) => {
@@ -254,6 +271,11 @@ export class BookFormComponent implements OnInit {
       ...this.step1.value,
       ...this.step2.value
     };
+
+    // normalize publishedDate if exists
+    if (bookData.publishedDate && typeof bookData.publishedDate === 'number') {
+      bookData.publishedDate = new Date(bookData.publishedDate, 0, 1);
+    }
 
     this.bookService.updateBook(this.bookId, bookData).subscribe({
       next: () => this.isFinalizing = false,

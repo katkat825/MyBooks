@@ -19,8 +19,7 @@ namespace MyBooks.Common.Services
             _sanitizer.AllowedTags.Add("em");
 
             // Remove potentially dangerous JavaScript attributes
-            _sanitizer.AllowedAttributes.Remove("onmouseover");
-            _sanitizer.AllowedAttributes.Remove("onclick");
+            _sanitizer.AllowedAttributes.Clear();
         }
 
         public string Sanitize(string input, bool allowEmail = false)
@@ -32,14 +31,11 @@ namespace MyBooks.Common.Services
             string sanitized = _sanitizer.Sanitize(input).Trim();
 
             // Step 2: Remove unsafe characters (for general text fields)
-            if (allowEmail)
-            {
-                //allow @ in an email
-                sanitized = Regex.Replace(sanitized, @"[^a-zA-Z0-9_\-.\s@]", "");
-            } else
-            {
-                sanitized = Regex.Replace(sanitized, @"[^a-zA-Z0-9_\-.\s]", "");
-            }                
+            var pattern = allowEmail
+                ? @"[^a-zA-Z0-9_\-.\s#@+'""?!,:;/\\()&%*$=]"
+                : @"[^a-zA-Z0-9_\-.\s#+'""?!,:;/\\()&%*$=]";
+
+            sanitized = Regex.Replace(sanitized, pattern, "");                      
 
             return sanitized;
         }

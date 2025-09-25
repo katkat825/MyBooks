@@ -9,6 +9,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using MyBooks.CatalogService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("CatalogConnection");
@@ -88,6 +89,7 @@ builder.Services.AddDbContext<CatalogDbContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<OpenLibraryClient>();
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();

@@ -35,7 +35,7 @@
     <!-- Step 2: Optional Fields -->
     <mat-step [stepControl]="bookForm.controls['step2']">
       <form [formGroup]="step2">
-        <h3>Step 2: Optional Fields</h3>
+        <h3>Step 2: Optional Fields for {{ step1.get('title')?.value }}</h3>
         <mat-form-field class="full-width">
           <mat-label>Author</mat-label>
           <input matInput type="text" formControlName="author">
@@ -75,19 +75,30 @@
           </mat-form-field>
         </div>
 
-        <mat-form-field class="full-width">
+        <mat-form-field class="full-width" *ngIf="step2.get('seriesId')?.value != null">
           <mat-label>Series Position</mat-label>
           <input matInput type="number" formControlName="seriesPosition">
         </mat-form-field>
 
         <mat-form-field class="full-width">
-          <mat-label>Location</mat-label>
-          <textarea matInput rows="3" formControlName="location"></textarea>
+          <mat-label>ISBN</mat-label>
+          <input matInput type="text" formControlName="isbn">
         </mat-form-field>
 
         <mat-form-field class="full-width">
-          <mat-label>ISBN</mat-label>
-          <input matInput type="text" formControlName="isbn">
+          <mat-label>Published Year</mat-label>
+          <input 
+            matInput 
+            type="number" 
+            formControlName="publishedDate"
+            placeholder="YYYY"
+            [min]="1000"
+            [max]="9999">
+        </mat-form-field>
+
+        <mat-form-field class="full-width">
+          <mat-label>Location</mat-label>
+          <textarea matInput formControlName="location"></textarea>
         </mat-form-field>
 
         <mat-form-field class="full-width">
@@ -102,7 +113,7 @@
 
     <!-- Step 3: File Upload -->
     <mat-step [stepControl]="step3">
-      <h3>Step 3: Upload File</h3>
+      <h3>Step 3: Upload File for {{ step1.get('title')?.value }}</h3>
       <input type="file" (change)="onFileSelected($event)">
       <p *ngIf="selectedFile">{{ selectedFile.name }}</p>
 

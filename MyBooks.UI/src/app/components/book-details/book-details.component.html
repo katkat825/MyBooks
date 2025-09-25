@@ -27,6 +27,7 @@
         <p *ngIf="!book.fileId && !book.isRestricted"><strong>Location:</strong> {{ book.location || 'Unknown' }}</p>
         <p *ngIf="!book.isRestricted"><strong>Description:</strong> {{ book.description || 'Unknown' }}</p>
         <p><strong>ISBN:</strong> {{ book.isbn || 'Unknown' }}</p>
+        <p><strong>Published:</strong> {{ book.publishedDate | date:'yyyy'}}</p>
         <p *ngIf="book.isRestricted" class="restricted-status">
           <strong>Status:</strong> This book is currently under investigation and cannot be accessed, deleted, or modified
         </p>

@@ -225,26 +225,6 @@ public class BookController : ControllerBase
             book.Tags = existingTags.Concat(newTags).ToList();
         }
 
-        // enrich book via openlibraryclient
-        OpenLibraryBookDto? metadata = null;
-        if (!string.IsNullOrWhiteSpace(book.Title))
-        {
-            metadata = await _openLibraryClient.LookupByTitleAsync(book.Title);
-        }
-
-        // fill in only missing fields from metadata
-        if (metadata != null)
-        {
-            if (string.IsNullOrWhiteSpace(book.Author) && !string.IsNullOrWhiteSpace(metadata.Author))
-                book.Author = metadata.Author;
-
-            if (!book.PublishedDate.HasValue && metadata.PublishedDate.HasValue)
-                book.PublishedDate = metadata.PublishedDate;
-
-            if (string.IsNullOrWhiteSpace(book.ISBN) && !string.IsNullOrWhiteSpace(metadata.ISBN))
-                book.ISBN = metadata.ISBN;
-        }
-
         if (book.FileId.HasValue)
         {
             var response = await _httpClient.GetAsync($"{_fileServiceBaseUrl}/api/files/{book.FileId}");
