@@ -33,6 +33,5 @@ namespace MyBooks.CatalogService.Models
         public ICollection<Tag>? Tags { get; set; }
 
         public int? FileId { get; set; }
-        public int? MasterBookId { get; set; }
     }
 }

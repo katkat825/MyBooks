@@ -31,7 +31,6 @@ namespace MyBooks.CatalogService.Data
         public DbSet<Genre> Genres { get; set; }
         public DbSet<AgeCategory> AgeCategories { get; set; }
         public DbSet<Series> Series { get; set; }
-        public DbSet<MasterBook> MasterBooks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,7 +39,6 @@ namespace MyBooks.CatalogService.Data
             modelBuilder.Entity<AgeCategory>().ToTable("AgeCategories");
             modelBuilder.Entity<Book>().ToTable("Books");
             modelBuilder.Entity<Genre>().ToTable("Genres");
-            modelBuilder.Entity<MasterBook>().ToTable("MasterBooks");
             modelBuilder.Entity<Series>().ToTable("Series");
             modelBuilder.Entity<Tag>().ToTable("Tags");
 
@@ -142,7 +140,7 @@ namespace MyBooks.CatalogService.Data
                 var entityType = entry.Entity.GetType();
 
                 // prevent any modification of system-set entities
-                if (entityType == typeof(AgeCategory) || entityType == typeof(MasterBook))
+                if (entityType == typeof(AgeCategory))
                 {
                     throw new InvalidOperationException($"{entityType.Name} cannot be deleted or modified.");
                 }
