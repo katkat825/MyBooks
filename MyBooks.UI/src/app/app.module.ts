@@ -23,6 +23,7 @@ import { GoogleDriveFolderComponent } from './owner/integrations/google-drive-fo
 import { AddGoogleDriveFolderComponent } from './owner/integrations/add-google-drive-folder/add-google-drive-folder.component';
 import { BulkImportComponentComponent } from './owner/bulk-import.component/bulk-import.component.component';
 import { BulkImportComponent } from './owner/bulk-import/bulk-import.component';
+import { BulkImportTableComponent } from './owner/bulk-import/bulk-import-table/bulk-import-table.component';
 
 @NgModule({
   imports: [
@@ -52,7 +53,8 @@ import { BulkImportComponent } from './owner/bulk-import/bulk-import.component';
     GoogleDriveFolderComponent,
     AddGoogleDriveFolderComponent,
     BulkImportComponentComponent,
-    BulkImportComponent
+    BulkImportComponent,
+    BulkImportTableComponent
   ]
 })
 export class AppModule { }

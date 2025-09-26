@@ -142,14 +142,13 @@ public class GoogleIntegrationController : ControllerBase
     }
 
     [HttpGet("{id}/folders")]
-    public async Task<IActionResult> GetFolders([FromQuery] string? parentId = "root")
+    public async Task<IActionResult> GetFolders(int id, [FromQuery] string? parentId = "root")
     {
         var tenantId = _context.GetCurrentTenantId();
         var integration = await _context.GoogleIntegrations
-            .FirstOrDefaultAsync(g => g.TenantId == tenantId && g.IsActive);
+            .FirstOrDefaultAsync(g => g.TenantId == tenantId && g.IsActive && g.Id == id);
         if (integration == null)
-            return BadRequest("Google Drive not configured for this account.");
-
+            return BadRequest("Integration not found.");
 
         var files = await _googleDriveClient.ListFoldersAsync(parentId ?? "root", integration.RefreshToken);
 
@@ -161,9 +160,6 @@ public class GoogleIntegrationController : ControllerBase
             Name = f.Name,
             IsSelected = selectedIds.Contains(f.Id)
         }).ToList();
-
-        //debugging 
-        Console.WriteLine($"[Controller] Returning {folders.Count} folders to client.");
 
         return Ok(folders);
     }

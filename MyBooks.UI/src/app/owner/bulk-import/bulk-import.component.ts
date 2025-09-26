@@ -1,23 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
-import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+
 import { IntegrationService } from '../../services/integration.service';
 import { BookService } from '../../services/book.service';
 import { BulkImportService, BulkImportStartDto, BulkImportFileOverrideDto } from '../../services/bulk-import.service';
 import { BulkImportJobsDialogComponent } from './bulk-import-dialog/bulk-import-dialog.component';
 import { ConfirmDialogComponent } from '../../components/shared/confirmation.component';
-import { MatDialog } from '@angular/material/dialog';
 import { ToastService } from '../../services/toast.service';
 import { ToastComponent } from '../../components/shared/toast.component';
 import { GlobalLoadingService } from '../../services/global-loading.service';
+
+import { BulkImportTableComponent } from './bulk-import-table/bulk-import-table.component';
 
 @Component({
   selector: 'app-bulk-import',
@@ -27,26 +30,31 @@ import { GlobalLoadingService } from '../../services/global-loading.service';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     MatFormFieldModule,
     MatSelectModule,
     MatCheckboxModule,
     MatButtonModule,
-    MatTableModule,
-    FormsModule,
-    MatSnackBarModule,
     MatIconModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
     ToastComponent,
-    MatProgressSpinnerModule
+    BulkImportTableComponent,
+    MatDividerModule
   ]
 })
 export class BulkImportComponent implements OnInit {
   form!: FormGroup;
   integrations: any[] = [];
   folders: any[] = [];
-  files: any[] = []; // holds selection + overrides
+  files: any[] = [];
   genres: any[] = [];
   ageCategories: any[] = [];
   selectedIntegrationId!: number;
+
+  // track current global values from child table
+  globalGenreId!: number;
+  globalAgeCategoryId!: number;
 
   constructor(
     private fb: FormBuilder,
@@ -61,9 +69,7 @@ export class BulkImportComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.fb.group({
       integrationId: [null, Validators.required],
-      folderId: [null],
-      genreId: [null, Validators.required],
-      ageCategoryId: [null, Validators.required]
+      folderId: [null]
     });
 
     this.loadIntegrations();
@@ -77,19 +83,28 @@ export class BulkImportComponent implements OnInit {
   }
 
   private loadLookups(): void {
-    this.bookService.getGenres().subscribe((genres: any[]) => this.genres = genres);
-    this.bookService.getAgeCategories().subscribe((cats: any[]) => this.ageCategories = cats);
+    this.bookService.getGenres().subscribe((genres: any[]) => {
+      this.genres = genres;
+      if (this.genres.length > 0 && !this.globalGenreId) {
+        this.globalGenreId = this.genres[0].id;
+      }
+    });
+    this.bookService.getAgeCategories().subscribe((cats: any[]) => {
+      this.ageCategories = cats;
+      if (!this.globalAgeCategoryId) {
+        this.globalAgeCategoryId = 3;
+      }
+    });
   }
 
   onIntegrationSelected(integrationId: number): void {
     this.selectedIntegrationId = integrationId;
 
-    // reset folderId and clear folders/files on change
-    this.form.patchValue({folderId: null});
+    this.form.patchValue({ folderId: null });
     this.folders = [];
     this.files = [];
-    
-    this.integrationService.getImportableFiles(this.selectedIntegrationId).subscribe((files: any[]) => { 
+
+    this.integrationService.getImportableFiles(this.selectedIntegrationId).subscribe((files: any[]) => {
       this.files = files.map(f => ({
         id: f.id,
         name: f.name,
@@ -98,34 +113,34 @@ export class BulkImportComponent implements OnInit {
         overrideAgeCategoryId: null
       }));
     });
-    
+
     this.integrationService.getFolders(integrationId).subscribe((folders: any[]) => {
       this.folders = folders;
     });
   }
 
   onFolderSelected(folderId: string | null): void {
-    if (!folderId){
-      this.integrationService.getImportableFiles(this.selectedIntegrationId).subscribe((files: any[]) => { 
-        this.files = files.map(f => ({
-          id: f.id,
-          name: f.name,
-          selected: false,
-          overrideGenreId: null,
-          overrideAgeCategoryId: null
-        }));
-      });
-    } else {
-      this.integrationService.getImportableFiles(this.selectedIntegrationId, folderId).subscribe((files: any[]) => { 
-        this.files = files.map(f => ({
-          id: f.id,
-          name: f.name,
-          selected: false,
-          overrideGenreId: null,
-          overrideAgeCategoryId: null
-        }));
-      });
-    }
+    const loader = folderId
+      ? this.integrationService.getImportableFiles(this.selectedIntegrationId, folderId)
+      : this.integrationService.getImportableFiles(this.selectedIntegrationId);
+
+    loader.subscribe((files: any[]) => {
+      this.files = files.map(f => ({
+        id: f.id,
+        name: f.name,
+        selected: false,
+        overrideGenreId: null,
+        overrideAgeCategoryId: null
+      }));
+    });
+  }
+
+  onGlobalGenreChanged(newGenreId: number): void {
+    this.globalGenreId = newGenreId;
+  }
+
+  onGlobalAgeChanged(newAgeId: number): void {
+    this.globalAgeCategoryId = newAgeId;
   }
 
   submit(): void {
@@ -152,17 +167,20 @@ export class BulkImportComponent implements OnInit {
         const fileIds = selected.map(f => f.id);
 
         const overrides: BulkImportFileOverrideDto[] = selected
-          .filter(f => f.overrideGenreId || f.overrideAgeCategoryId)
+          .filter(f =>
+            f.overrideGenreId !== this.globalGenreId ||
+            f.overrideAgeCategoryId !== this.globalAgeCategoryId
+          )
           .map(f => ({
             fileId: f.id,
-            genreId: f.overrideGenreId || undefined,
-            ageCategoryId: f.overrideAgeCategoryId || undefined
+            genreId: f.overrideGenreId,
+            ageCategoryId: f.overrideAgeCategoryId
           }));
 
         const dto: BulkImportStartDto = {
           fileIds,
-          genreId: this.form.value.genreId,
-          ageCategoryId: this.form.value.ageCategoryId,
+          genreId: this.globalGenreId,
+          ageCategoryId: this.globalAgeCategoryId,
           integrationId: this.form.value.integrationId,
           overrides: overrides.length > 0 ? overrides : undefined
         };
@@ -170,11 +188,11 @@ export class BulkImportComponent implements OnInit {
         this.globalLoading.show("Setting up your bulk import... Don't leave this page until setup finishes");
         this.bulkImportService.startBulkImport(dto).subscribe({
           next: () => {
-            this.toastService.show('Bulk import now running in the background')
+            this.toastService.show('Bulk import now running in the background');
             this.resetForm();
             this.globalLoading.hide();
           },
-          error: (err) => {
+          error: err => {
             console.error('Error starting bulk import:', err);
             this.toastService.show('Failed to start bulk import');
             this.globalLoading.hide();
@@ -199,18 +217,5 @@ export class BulkImportComponent implements OnInit {
     this.form.reset();
     this.folders = [];
     this.files = [];
-  }
-
-  isAllSelected(): boolean {
-    return this.files.length > 0 && this.files.every(f => f.selected);
-  }
-
-  isIndeterminate(): boolean {
-    return this.files.some(f => f.selected) && !this.isAllSelected();
-  }
-
-  toggleAllSelection(event: any): void {
-    const checked = event.checked;
-    this.files.forEach(f => f.selected = checked);
   }
 }
