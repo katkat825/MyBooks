@@ -37,8 +37,6 @@ public class OpenLibraryClient
 
             var docs = doc.RootElement.GetProperty("docs");
 
-            Console.WriteLine("Preferred authors: " + string.Join(", ", dto.PreferredAuthors));
-
             // first try exact title match with author preference
             var match = docs.EnumerateArray()
                 .FirstOrDefault(d =>

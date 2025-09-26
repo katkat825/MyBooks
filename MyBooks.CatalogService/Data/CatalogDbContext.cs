@@ -105,6 +105,7 @@ namespace MyBooks.CatalogService.Data
         {
             SoftDelete();
             ApplyAuditInformation();
+            NormalizeBookFields();
             return base.SaveChanges();
         }
 
@@ -112,6 +113,7 @@ namespace MyBooks.CatalogService.Data
         {
             SoftDelete();
             ApplyAuditInformation();
+            NormalizeBookFields();
             return await base.SaveChangesAsync(cancellationToken);
         }
         
@@ -128,8 +130,46 @@ namespace MyBooks.CatalogService.Data
                     }
                 }             
             }
+            SoftDelete();
+            NormalizeBookFields();
             
             return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        public void NormalizeBookFields()
+        {
+            foreach (var entry in ChangeTracker.Entries<Book>()
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified))
+            {
+                var book = entry.Entity;
+                if (!string.IsNullOrWhiteSpace(book.Title))
+                {
+                    book.Title = NormalizeField(book.Title);
+                }
+                if (!string.IsNullOrWhiteSpace(book.Author))
+                {
+                    book.Author = NormalizeField(book.Author);
+                }
+            }
+        }
+
+        public string NormalizeField(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return input;
+            }
+
+            // Trim whitespace and convert to title case
+            var trimmed = input.Trim();
+            var words = trimmed.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            trimmed = string.Join(' ', words);
+
+            if (trimmed.ToUpperInvariant() == trimmed || trimmed.ToLowerInvariant() == trimmed)
+            {
+                trimmed = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(trimmed.ToLower());
+            }
+            return trimmed;
         }
 
         public void SoftDelete()
