@@ -75,8 +75,10 @@ public class BulkImportProcessor
             return;
         }
 
+        var accessToken = await _googleDriveClient.RefreshAccessTokenAsync(integration.RefreshToken);
+
         // process items - first run
-        await ProcessItemsAsync(job, integration, scanDto);
+        await ProcessItemsAsync(job, integration, scanDto, accessToken);
 
         if (job.Items.All(i => i.Status == "Success"))
         {
@@ -105,7 +107,7 @@ public class BulkImportProcessor
             await _context.SaveChangesAsSystemAsync();
 
             // retry fails - second run
-            await ProcessItemsAsync(job, integration, scanDto);
+            await ProcessItemsAsync(job, integration, scanDto, accessToken);
 
             if (job.Items.All(i => i.Status == "Success"))
                 job.Status = "Completed";
@@ -118,13 +120,13 @@ public class BulkImportProcessor
         await _context.SaveChangesAsSystemAsync();
     }
 
-    private async Task ProcessItemsAsync(BulkImportJob job, GoogleIntegration integration, FileScanDto scanDto)
+    private async Task ProcessItemsAsync(BulkImportJob job, GoogleIntegration integration, FileScanDto scanDto, string accessToken)
     {
         foreach (var item in job.Items.Where(i => i.Status == "Pending"))
         {
             try
             {
-                var file = await _googleDriveClient.GetFileAsync(item.FileId, integration.RefreshToken);
+                var file = await _googleDriveClient.GetFileAsync(item.FileId, accessToken);
                 if (file == null)
                 {
                     item.Status = "Failed";
@@ -134,7 +136,7 @@ public class BulkImportProcessor
 
                 item.FileName = _sanitizer.Sanitize(file.Name);
 
-                using var stream = await _googleDriveClient.GetFileStreamAsync(item.FileId, integration.RefreshToken);
+                using var stream = await _googleDriveClient.GetFileStreamAsync(item.FileId, accessToken);
 
                 string title;
                 string? author;

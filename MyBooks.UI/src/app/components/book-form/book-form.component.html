@@ -1,9 +1,4 @@
 <div class="stepper-container" style="position: relative;">
-  <div class="overlay" *ngIf="isFinalizing">
-    <mat-spinner class="mat-spinner"></mat-spinner>
-    <p>Please wait while we finalize this step. This may take several minutes...</p>
-  </div>
-
   <mat-stepper linear>
     <!-- Step 1: Required Info -->
     <mat-step [stepControl]="bookForm.controls['step1']">

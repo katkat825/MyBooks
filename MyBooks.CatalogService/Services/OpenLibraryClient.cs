@@ -12,6 +12,7 @@ public class OpenLibraryClient
 {
     private readonly HttpClient _httpClient;
     private readonly HtmlSanitizationService _sanitizer;
+    private static readonly SemaphoreSlim _semaphore = new(2, 2);
 
     public OpenLibraryClient(HttpClient httpClient, HtmlSanitizationService sanitizer)
     {
@@ -20,12 +21,13 @@ public class OpenLibraryClient
         _sanitizer = sanitizer;
     }
     
-    public async Task<OpenLibraryBookDto?> LookupByTitleAsync(string title)
+    public async Task<OpenLibraryBookDto?> LookupByTitleAsync(OpenLibraryLookupDto dto)
     {
-        var url = $"search.json?title={Uri.EscapeDataString(title)}";
-
+        await _semaphore.WaitAsync();
         try
         {
+            var url = $"search.json?title={Uri.EscapeDataString(dto.Title)}";
+        
             var response = await _httpClient.GetAsync(url);
             if (!response.IsSuccessStatusCode)
                 return null;
@@ -35,11 +37,24 @@ public class OpenLibraryClient
 
             var docs = doc.RootElement.GetProperty("docs");
 
-            // first try exact title match (case-insensitive)
+            Console.WriteLine("Preferred authors: " + string.Join(", ", dto.PreferredAuthors));
+
+            // first try exact title match with author preference
             var match = docs.EnumerateArray()
                 .FirstOrDefault(d =>
                     d.TryGetProperty("title", out var t) &&
-                    string.Equals(t.GetString(), title, StringComparison.OrdinalIgnoreCase));
+                    string.Equals(t.GetString(), dto.Title, StringComparison.OrdinalIgnoreCase) &&
+                    d.TryGetProperty("author_name", out var authors) &&
+                    authors.ValueKind == JsonValueKind.Array &&
+                    authors.EnumerateArray().Any(a =>
+                        dto.PreferredAuthors.Contains(a.GetString(), StringComparer.OrdinalIgnoreCase)));
+
+            // fallback: exact title (no author filter)
+            if (match.ValueKind == JsonValueKind.Undefined)
+                match = docs.EnumerateArray()
+                    .FirstOrDefault(d =>
+                        d.TryGetProperty("title", out var t) &&
+                        string.Equals(t.GetString(), dto.Title, StringComparison.OrdinalIgnoreCase));
 
             // fallback: take first result
             if (match.ValueKind == JsonValueKind.Undefined)
@@ -49,7 +64,11 @@ public class OpenLibraryClient
                 return null;
 
             var isbn = match.TryGetProperty("isbn", out var isbns) && isbns.ValueKind == JsonValueKind.Array
-                ? isbns.EnumerateArray().Select(x => x.GetString()).FirstOrDefault(IsbnHelper.IsPlausibleIsbn)
+                ? isbns.EnumerateArray()
+                    .Select(x => x.GetString())
+                    .Where(s => !string.IsNullOrWhiteSpace(s) && IsbnHelper.IsPlausibleIsbn(s))
+                    .OrderByDescending(s => s!.Length) // prefer ISBN-13 over ISBN-10
+                    .FirstOrDefault()
                 : null;
 
             var result = new OpenLibraryBookDto
@@ -69,6 +88,10 @@ public class OpenLibraryClient
         catch
         {
             return null;
+        }
+        finally
+        {
+            _semaphore.Release();
         }
     }
 }

@@ -46,17 +46,23 @@ public class GoogleDriveClient
         return (string)obj.access_token;
     }
 
+    // user-facing
     public async Task<Stream?> GetFileStreamAsync(string fileId, string refreshToken)
     {
         var accessToken = await RefreshAccessTokenAsync(refreshToken);
-        var service = CreateService(accessToken);
+        return await GetFileStreamAsSystemAsync(fileId, accessToken);
+    }
 
+    // system-facing: reuse cached access token
+    public async Task<Stream?> GetFileStreamAsSystemAsync(string fileId, string accessToken)
+    {
+        var service = CreateService(accessToken);
         var request = service.Files.Get(fileId);
         var stream = new MemoryStream();
         await request.DownloadAsync(stream);
         stream.Position = 0;
         return stream;
-    }
+    }        
 
     public async Task<string> UploadFileAsync(string fileName, Stream content, string mimeType, string folderId, string refreshToken)
     {
@@ -160,14 +166,19 @@ public class GoogleDriveClient
         return result.Files;
     }
 
-    public async Task<IList<Google.Apis.Drive.v3.Data.File>> ListFilesAsync(
+    public async Task<IList<Google.Apis.Drive.v3.Data.File>> ListFilesAsync(string parentId, string refreshToken)
+    {
+        var accessToken = await RefreshAccessTokenAsync(refreshToken);
+        return await ListFilesAsSystemAsync(parentId, accessToken);
+    }
+
+    public async Task<IList<Google.Apis.Drive.v3.Data.File>> ListFilesAsSystemAsync(
         string parentId,
-        string refreshToken)
+        string accessToken)
     {
         if (string.IsNullOrWhiteSpace(parentId))
             parentId = "root";
 
-        var accessToken = await RefreshAccessTokenAsync(refreshToken);
         var service = CreateService(accessToken);
 
         var request = service.Files.List();

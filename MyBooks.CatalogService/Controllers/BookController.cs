@@ -108,11 +108,23 @@ public class BookController : ControllerBase
         if (!string.IsNullOrWhiteSpace(book.ISBN) && !IsbnHelper.IsPlausibleIsbn(book.ISBN))
             book.ISBN = null;
 
+        var preferredAuthors = _context.Books
+            .Where(b => b.TenantId == _context.GetCurrentTenantId() && !string.IsNullOrEmpty(b.Author))
+            .Select(b => b.Author)
+            .Distinct()
+            .ToList();
+
+        var lookupDto = new OpenLibraryLookupDto
+        {
+            Title = book.Title,
+            PreferredAuthors = preferredAuthors
+        };
+
         // enrich book via openlibraryclient
         OpenLibraryBookDto? metadata = null;
         if (!string.IsNullOrWhiteSpace(book.Title))
         {
-            metadata = await _openLibraryClient.LookupByTitleAsync(book.Title);
+            metadata = await _openLibraryClient.LookupByTitleAsync(lookupDto);
         }
 
         // fill in only missing fields from metadata

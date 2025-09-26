@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBooks.CatalogService.Data;
 using MyBooks.CatalogService.Models;
+using MyBooks.CatalogService.Services;
 using MyBooks.Common.BaseClasses;
 using MyBooks.Common.Dtos;
 using MyBooks.Common.Services;
@@ -17,13 +18,16 @@ namespace MyBooks.CatalogService.Controllers
     {
         private readonly CatalogDbContext _context;
         private readonly HtmlSanitizationService _htmlSanitizationService;
+        private readonly OpenLibraryClient _openLibraryClient;
 
         public BookImportController(
             CatalogDbContext context,
-            HtmlSanitizationService htmlSanitizationService)
+            HtmlSanitizationService htmlSanitizationService,
+            OpenLibraryClient openLibraryClient)
         {
             _context = context;
             _htmlSanitizationService = htmlSanitizationService;
+            _openLibraryClient = openLibraryClient;
         }
 
         // Create a new Book during bulk import
@@ -56,6 +60,39 @@ namespace MyBooks.CatalogService.Controllers
                 CreatedDate = DateTime.UtcNow,
                 IsActive = false
             };
+
+            var preferredAuthors = await _context.Books
+                .Where(b => b.TenantId == dto.TenantId && !string.IsNullOrEmpty(b.Author))
+                .Select(b => b.Author)
+                .Distinct()
+                .ToListAsync();
+
+            var lookupDto = new OpenLibraryLookupDto
+            {
+                Title = book.Title,
+                PreferredAuthors = preferredAuthors
+            };
+
+            // enrich book via openlibraryclient
+            OpenLibraryBookDto? metadata = null;
+            if (!string.IsNullOrWhiteSpace(book.Title))
+            {
+                metadata = await _openLibraryClient.LookupByTitleAsync(lookupDto);
+            }
+
+            // fill in only missing fields from metadata
+            if (metadata != null)
+            {
+                if (string.IsNullOrWhiteSpace(book.Author) && !string.IsNullOrWhiteSpace(metadata.Author))
+                    book.Author = metadata.Author;
+
+                if (!book.PublishedDate.HasValue && metadata.PublishedDate.HasValue)
+                    book.PublishedDate = metadata.PublishedDate;
+
+                if (string.IsNullOrWhiteSpace(book.ISBN) && !string.IsNullOrWhiteSpace(metadata.ISBN))
+                    book.ISBN = metadata.ISBN;
+            }
+
 
             _context.Books.Add(book);
             await _context.SaveChangesAsSystemAsync();

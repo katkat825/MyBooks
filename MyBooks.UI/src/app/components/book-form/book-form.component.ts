@@ -18,6 +18,7 @@ import { UserService } from '../../services/user.service';
 import { ConfirmDialogComponent } from '../../components/shared/confirmation.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { publish } from 'rxjs';
+import { GlobalLoadingService, LoadingContext } from '../../services/global-loading.service';
 
 @Component({
   selector: 'app-book-form',
@@ -49,7 +50,6 @@ export class BookFormComponent implements OnInit {
   seriesList: any[] = [];
   newSeries: boolean = false;
   fileId?: number;
-  isFinalizing: boolean = false;
   currentUser: any = null;
 
   constructor(
@@ -58,7 +58,8 @@ export class BookFormComponent implements OnInit {
     private userService: UserService,
     private router: Router,
     private route: ActivatedRoute,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private globalLoading: GlobalLoadingService
   ) { }
 
   ngOnInit(): void {
@@ -223,7 +224,7 @@ export class BookFormComponent implements OnInit {
       return;
     }
 
-    this.isFinalizing = true;
+    this.globalLoading.show("Finalizing Step 1...",LoadingContext.BookViewer);
 
     const bookData = {
       id: this.bookId,
@@ -233,10 +234,10 @@ export class BookFormComponent implements OnInit {
 
     if (this.bookId) {
       this.bookService.updateBook(this.bookId, bookData).subscribe({
-        next: () => this.isFinalizing = false,
+        next: () => this.globalLoading.hide(),
         error: (error) => {
           console.error("Error updating book: ", error);
-          this.isFinalizing = false;
+          this.globalLoading.hide();
         }
       });
     } else {
@@ -252,11 +253,11 @@ export class BookFormComponent implements OnInit {
               publishedDate: response.publishedDate ? new Date(response.publishedDate).getFullYear() : null
             }              
           });
-          this.isFinalizing = false;
+          this.globalLoading.hide();
         },
         error: (error) => {
           console.error("Error creating book: ", error);
-          this.isFinalizing = false;
+          this.globalLoading.hide();
         }
       });
     }
@@ -265,7 +266,7 @@ export class BookFormComponent implements OnInit {
   saveStep2() {
     if (!this.bookId) return;
 
-    this.isFinalizing = true;
+    this.globalLoading.show("Finalizing Step 2...", LoadingContext.BookViewer);
     const bookData = {
       id: this.bookId,
       ...this.step1.value,
@@ -278,10 +279,10 @@ export class BookFormComponent implements OnInit {
     }
 
     this.bookService.updateBook(this.bookId, bookData).subscribe({
-      next: () => this.isFinalizing = false,
+      next: () => this.globalLoading.hide(),
       error: (error) => {
         console.error('Error updating book: ', error);
-        this.isFinalizing = false;
+        this.globalLoading.hide();
       }
     });
   }
@@ -324,7 +325,7 @@ export class BookFormComponent implements OnInit {
 
   private doUpload() {
     const bookTitle = this.bookForm.get('step1')?.get('title')?.value;
-    this.isFinalizing = true;  
+    this.globalLoading.show("Uploading file...Don't leave this page until upload is complete", LoadingContext.BulkImport);
 
     this.bookService.uploadFile(this.selectedFile!, this.bookId, bookTitle).subscribe({
       next: (response) => {
@@ -332,27 +333,27 @@ export class BookFormComponent implements OnInit {
           this.fileId = response.fileId;
 
           if (!this.fileId) { //yes I know it's redundant, but I can't get updateBookFileId to work without it
-            this.isFinalizing = false;
+            this.globalLoading.hide();
             return;
           }
           this.bookService.updateBookFileId(this.bookId, this.fileId).subscribe({
             next: () => {
-              this.isFinalizing = false;
+              this.globalLoading.hide();
               this.router.navigate(['/']);
             },
             error: (error) => {
               console.error("Failed to update book with FileId", error);
-              this.isFinalizing = false;
+              this.globalLoading.hide();
             }
           });
         } else {
           console.warn("no file id returned from api");
-          this.isFinalizing = false;
+          this.globalLoading.hide();
         }
       },
       error: (error) => {
         console.error('error uploading file', error);
-        this.isFinalizing = false;
+        this.globalLoading.hide();
       }
     });
   }

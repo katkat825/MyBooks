@@ -7,3 +7,9 @@ public class OpenLibraryBookDto
     public DateTime? PublishedDate { get; set; }
     public string? ISBN { get; set; }
 }
+
+public class OpenLibraryLookupDto
+{
+    public string Title { get; set; } = null!;
+    public List<string> PreferredAuthors { get; set; } = new();
+}
