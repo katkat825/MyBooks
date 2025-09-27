@@ -46,6 +46,10 @@ mat-icon {
   min-width: 300px;
 }
 
+.action-buttons {
+  margin: 20px;
+}
+
 .info-row {
   display: flex;
   align-items: flex-start;
@@ -58,3 +62,4 @@ mat-icon {
 .clickable-name {
   cursor: pointer;
 }
+

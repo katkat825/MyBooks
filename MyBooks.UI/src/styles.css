@@ -125,6 +125,48 @@ input, select {
   color: var(--subtitle-color) !important;
 }
 
+.breadcrumb {
+  position: sticky;
+  top: 0;
+  padding: 0.6rem;
+  gap: 20px;
+  z-index: 100;
+  display: flex;
+  flex-wrap: wrap;
+  align-self: flex-start !important;
+}
+/* links */
+.breadcrumb a {
+  text-decoration: none;
+  color: var(--title-color);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+/* arrow separators instead of slash */
+.breadcrumb .separator {
+  margin: 0 4px;
+  color: var(--subtitle-color);
+  font-size: 1rem;
+}
+
+/* dim previous crumbs */
+.breadcrumb a:not(:last-child) {
+  color: var(--subtitle-color);
+  font-weight: 400;
+}
+
+/* last crumb = current folder */
+.breadcrumb a:last-child {
+  font-weight: 500;
+  color: var(--title-color);
+}
+
 .owner-container {
   width: 80%;
   margin: 0 auto;
@@ -347,7 +389,8 @@ mat-tab {
   display: none;
 }
 
-@media (max-width: 768px) {
+/* phones */
+@media (max-width: 767px) {
   .hide-mobile {
     display: none;
   }
@@ -360,8 +403,8 @@ mat-tab {
     display: block;                 /* allow scroll */
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    width: 100%;
-    min-width: 700px;        
+    width: 100%;  
+    min-width: 700px;   
   }
 
   td.file-name-cell, th.file-name-cell {
@@ -388,4 +431,35 @@ mat-tab {
   .bulk-th-dropdown {
     width: auto;
   }
+  
+  .dialog-container {
+    max-width: fit-content !important;
+  }
+
+  .dialog-table {
+    width: 100%;
+    overflow-x: auto;
+    align-self: flex-start !important;
+    margin: 0;
+  }
 }
+
+/* tablets */
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* tablet styles */
+}
+
+/* laptops */
+@media (min-width: 1024px) and (max-width: 1499px) {
+  .breadcrumb {
+    margin-left: 24px; 
+  }
+}
+
+/* large desktops */
+@media (min-width: 1500px) {
+  .breadcrumb {
+    margin-left: 10%;
+  }  
+}
+

@@ -183,10 +183,12 @@ public class GoogleDriveClient
 
         var request = service.Files.List();
 
-        // Only return supported book types (PDF + EPUB)
-        request.Q = $"'{parentId}' in parents " +
-                    $"and trashed = false " +
-                    $"and (mimeType = 'application/pdf' or mimeType = 'application/epub+zip')";
+        // Only return supported book types (PDF + EPUB) and folders
+         request.Q = $"'{parentId}' in parents " +
+                $"and trashed = false " +
+                $"and (mimeType = 'application/pdf' " +
+                $"or mimeType = 'application/epub+zip' " +
+                $"or mimeType = 'application/vnd.google-apps.folder')";
         request.Fields = "files(id, name, size, mimeType)";
         request.PageSize = 100;
 

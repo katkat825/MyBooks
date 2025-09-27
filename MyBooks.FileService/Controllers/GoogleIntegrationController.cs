@@ -5,6 +5,7 @@ using MyBooks.FileService.Data;
 using MyBooks.FileService.Models;
 using MyBooks.FileService.Services;
 using MyBooks.Common.BaseClasses;
+using MyBooks.Common.Dtos;
 using System.Formats.Asn1;
 
 namespace MyBooks.FileService.Controllers;
@@ -203,9 +204,11 @@ public class GoogleIntegrationController : ControllerBase
         return NoContent();
     }
 
-    // list all importable files
+    // list all importable files and folders in a given folder
     [HttpGet("{id}/importable-files")]
-    public async Task<IActionResult> GetImportableFiles(int id, [FromQuery] string? folderId = "root")
+    public async Task<ActionResult<IEnumerable<ImportableItemDto>>> GetImportableFiles(
+        int id,
+        [FromQuery] string? folderId = "root")
     {
         var tenantId = _context.GetCurrentTenantId();
 
@@ -215,8 +218,10 @@ public class GoogleIntegrationController : ControllerBase
         if (integration == null)
             return NotFound("Integration not found.");
 
-        var allFiles = await _googleDriveClient.ListFilesAsync(folderId ?? "root", integration.RefreshToken);
+        // get all items (files + folders)
+        var allItems = await _googleDriveClient.ListFilesAsync(folderId ?? "root", integration.RefreshToken);
 
+        // reserved files (don’t block folders)
         var reservedFileIds = await _context.Files
             .Where(f => f.TenantId == tenantId && f.IsActive)
             .Select(f => f.FilePath)
@@ -229,10 +234,23 @@ public class GoogleIntegrationController : ControllerBase
             .Distinct()
             .ToListAsync();
 
-        var availableFiles = allFiles
-            .Where(f => !reservedFileIds.Contains(f.Id))
+        // include folders always, include PDF/EPUB files only if not reserved
+        var available = allItems
+            .Where(f =>
+                f.MimeType == "application/vnd.google-apps.folder" ||
+                (
+                    (f.MimeType == "application/pdf" || f.MimeType == "application/epub+zip") &&
+                    !reservedFileIds.Contains(f.Id)
+                )
+            )
+            .Select(f => new ImportableItemDto
+            {
+                Id = f.Id,
+                Name = f.Name,
+                IsFolder = f.MimeType == "application/vnd.google-apps.folder"
+            })
             .ToList();
 
-        return Ok(availableFiles);
+        return Ok(available);
     }
 }

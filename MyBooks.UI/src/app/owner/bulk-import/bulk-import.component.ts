@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormArray } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -10,6 +10,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTableModule } from '@angular/material/table';
 
 import { IntegrationService } from '../../services/integration.service';
 import { BookService } from '../../services/book.service';
@@ -19,8 +21,6 @@ import { ConfirmDialogComponent } from '../../components/shared/confirmation.com
 import { ToastService } from '../../services/toast.service';
 import { ToastComponent } from '../../components/shared/toast.component';
 import { GlobalLoadingService } from '../../services/global-loading.service';
-
-import { BulkImportTableComponent } from './bulk-import-table/bulk-import-table.component';
 
 @Component({
   selector: 'app-bulk-import',
@@ -39,22 +39,26 @@ import { BulkImportTableComponent } from './bulk-import-table/bulk-import-table.
     MatSnackBarModule,
     MatProgressSpinnerModule,
     ToastComponent,
-    BulkImportTableComponent,
-    MatDividerModule
+    MatDividerModule,
+    MatMenuModule,
+    MatTableModule
   ]
 })
 export class BulkImportComponent implements OnInit {
   form!: FormGroup;
   integrations: any[] = [];
-  folders: any[] = [];
   files: any[] = [];
   genres: any[] = [];
   ageCategories: any[] = [];
   selectedIntegrationId!: number;
 
-  // track current global values from child table
   globalGenreId!: number;
   globalAgeCategoryId!: number;
+
+  private originalGlobalGenreId: number | null = null;
+  private originalGlobalAgeCategoryId: number | null = null;
+
+  breadcrumb: { id: string | null, name: string }[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -69,7 +73,7 @@ export class BulkImportComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.fb.group({
       integrationId: [null, Validators.required],
-      folderId: [null]
+      files: this.fb.array([])
     });
 
     this.loadIntegrations();
@@ -97,50 +101,122 @@ export class BulkImportComponent implements OnInit {
     });
   }
 
+  private loadFolderContents(folderId: string | null): void {
+    this.integrationService.getImportableFiles(this.selectedIntegrationId, folderId ? folderId : undefined).subscribe((files: any[]) => {
+      this.files = files.map(f => ({
+        id: f.id,
+        name: f.name,
+        isFolder: f.isFolder,
+        selected: false,
+        overrideGenreId: null,
+        overrideAgeCategoryId: null
+      }))
+      .sort((a, b) => {
+        if (a.isFolder && !b.isFolder) return -1;
+        if (!a.isFolder && b.isFolder) return 1;
+        return a.name.localeCompare(b.name);
+      });
+
+      this.applyGlobalAge();
+      this.applyGlobalGenre();
+    });
+  }
+
+  private addFileToForm(file: any): void {
+    const filesArray = this.form.get('files') as FormArray;
+    filesArray.push(this.fb.group({
+      fileId: [file.id],
+      fileName: [file.name],
+      genreId: [this.globalGenreId, Validators.required],
+      ageCategoryId: [this.globalAgeCategoryId, Validators.required]
+    }));
+  }
+
+  private removeFileFromForm(fileId: string): void {
+    const filesArray = this.form.get('files') as FormArray;
+    const index = filesArray.controls.findIndex(ctrl => ctrl.get('fileId')?.value === fileId);
+    if (index !== -1) {
+      filesArray.removeAt(index);
+    }
+  }
+
   onIntegrationSelected(integrationId: number): void {
     this.selectedIntegrationId = integrationId;
+    this.form.get('integrationId')?.setValue(integrationId);
+    this.breadcrumb = [{ id: null, name: 'Root' }];
+    this.loadFolderContents(null);
+  }
 
-    this.form.patchValue({ folderId: null });
-    this.folders = [];
-    this.files = [];
+  onFolderClick(folder: any): void {
+    const last = this.breadcrumb[this.breadcrumb.length - 1];
+    if (last && last.id === folder.id) return; // already here
+    this.breadcrumb.push({ id: folder.id, name: folder.name });
+    this.loadFolderContents(folder.id);
+  }
 
-    this.integrationService.getImportableFiles(this.selectedIntegrationId).subscribe((files: any[]) => {
-      this.files = files.map(f => ({
-        id: f.id,
-        name: f.name,
-        selected: false,
-        overrideGenreId: null,
-        overrideAgeCategoryId: null
-      }));
-    });
+  navigateTo(index: number, event: Event): void {
+    event.preventDefault();
+    const crumb = this.breadcrumb[index];
+    this.breadcrumb = this.breadcrumb.slice(0, index + 1);
+    this.loadFolderContents(crumb.id);
+  }
 
-    this.integrationService.getFolders(integrationId).subscribe((folders: any[]) => {
-      this.folders = folders;
+  // table helpers
+  isAllSelected(): boolean {
+    const fileItems = this.files.filter(f => !f.isFolder);
+    if (fileItems.length === 0) return false;
+    return fileItems.length > 0 && fileItems.every(f => f.selected);
+  }
+
+  isIndeterminate(): boolean {
+    const fileItems = this.files.filter(f => !f.isFolder);
+    if (fileItems.length === 0) return false;
+    return fileItems.some(f => f.selected) && !this.isAllSelected();
+  }
+
+  toggleAllSelection(event: any): void {
+    const checked = event.checked;
+    this.files.forEach(f => {
+      if (!f.isFolder) {
+        f.selected = checked;
+        if (!checked) {
+          this.removeFileFromForm(f.id);
+        } else {
+          this.addFileToForm(f);
+        }
+      }
     });
   }
 
-  onFolderSelected(folderId: string | null): void {
-    const loader = folderId
-      ? this.integrationService.getImportableFiles(this.selectedIntegrationId, folderId)
-      : this.integrationService.getImportableFiles(this.selectedIntegrationId);
+  toggleFileSelection(file: any): void {
+    if (file.isFolder) {
+      this.onFolderClick(file);
+    } else {
+      file.selected = !file.selected;
+      if (file.selected) {
+        this.addFileToForm(file);
+      } else {
+        this.removeFileFromForm(file.id);
+      }
+    }
+  }
 
-    loader.subscribe((files: any[]) => {
-      this.files = files.map(f => ({
-        id: f.id,
-        name: f.name,
-        selected: false,
-        overrideGenreId: null,
-        overrideAgeCategoryId: null
-      }));
+  applyGlobalGenre(): void {
+    this.files.forEach(f => {
+      if (f.overrideGenreId == null || f.overrideGenreId === this.originalGlobalGenreId) {
+        f.overrideGenreId = this.globalGenreId;
+      }
     });
+    this.originalGlobalGenreId = this.globalGenreId;
   }
 
-  onGlobalGenreChanged(newGenreId: number): void {
-    this.globalGenreId = newGenreId;
-  }
-
-  onGlobalAgeChanged(newAgeId: number): void {
-    this.globalAgeCategoryId = newAgeId;
+  applyGlobalAge(): void {
+    this.files.forEach(f => {
+      if (f.overrideAgeCategoryId == null || f.overrideAgeCategoryId === this.originalGlobalAgeCategoryId) {
+        f.overrideAgeCategoryId = this.globalAgeCategoryId;
+      }
+    });
+    this.originalGlobalAgeCategoryId = this.globalAgeCategoryId;
   }
 
   submit(): void {
@@ -181,7 +257,7 @@ export class BulkImportComponent implements OnInit {
           fileIds,
           genreId: this.globalGenreId,
           ageCategoryId: this.globalAgeCategoryId,
-          integrationId: this.form.value.integrationId,
+          integrationId: this.selectedIntegrationId,
           overrides: overrides.length > 0 ? overrides : undefined
         };
 
@@ -215,7 +291,7 @@ export class BulkImportComponent implements OnInit {
 
   private resetForm(): void {
     this.form.reset();
-    this.folders = [];
+    this.breadcrumb = [];
     this.files = [];
   }
 }

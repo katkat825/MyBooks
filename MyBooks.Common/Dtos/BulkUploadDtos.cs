@@ -49,3 +49,10 @@ public class FileScanDto
     public int IntegrationId { get; set; }
     public BulkImportStartDto BulkImportStart { get; set; }
 }
+
+public class ImportableItemDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public bool IsFolder { get; set; }
+}
