@@ -17,12 +17,14 @@ namespace MyBooks.AuthService.Controllers
         private readonly AuthDbContext _context;
         private readonly IConfiguration _config;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly string tenantServiceUrl;
 
         public LoginController(AuthDbContext context, IConfiguration config, IHttpClientFactory httpClientFactory)
         {
             _context = context;
             _config = config;
             _httpClientFactory = httpClientFactory;
+            tenantServiceUrl = _config["ServiceUrls:TenantService"];
         }
 
         [HttpPost]
@@ -44,7 +46,7 @@ namespace MyBooks.AuthService.Controllers
 
             var httpClient = _httpClientFactory.CreateClient();
             var tenantResponse = await httpClient.GetAsync(
-                $"https://localhost:5005/api/tenant/by-id/{user.TenantId}");
+                $"{tenantServiceUrl}/api/tenant/by-id/{user.TenantId}");
 
             if (!tenantResponse.IsSuccessStatusCode)
                 return Unauthorized("Account lookup failed.");

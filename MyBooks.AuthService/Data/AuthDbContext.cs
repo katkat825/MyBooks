@@ -33,6 +33,7 @@ namespace MyBooks.AuthService.Data
             base.OnModelCreating(modelBuilder);
             modelBuilder.HasDefaultSchema("auth");
             modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<Invitation>().ToTable("Invitations");
 
             modelBuilder.Entity<User>()
                 .HasQueryFilter(u => u.TenantId == GetCurrentTenantId() && u.IsVisible);

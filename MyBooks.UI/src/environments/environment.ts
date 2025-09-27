@@ -6,6 +6,6 @@ export const environment = {
   tenantApiUrl: `https://localhost:5005/api`, // TenantService
   integrationApiUrl: `https://localhost:7142/api`,
   authBaseUrl: 'https://localhost:7254',
-  emailServiceUrl: 'https://localhost:5005/api',
+  emailServiceUrl: 'https://localhost:5006/api',
   fileBaseUrl: 'https://localhost:7142/'
 };

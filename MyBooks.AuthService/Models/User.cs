@@ -22,5 +22,4 @@ namespace MyBooks.AuthService.Models
         public bool AcceptedAup { get; set; } = false; // Acceptable Use Policy
         public DateTime LastAcceptedAup { get; set; }
     }
-
 }
