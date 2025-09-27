@@ -83,6 +83,11 @@ export class BulkImportComponent implements OnInit {
   private loadIntegrations(): void {
     this.integrationService.getIntegrations().subscribe((integrations: any[]) => {
       this.integrations = integrations;
+
+      // auto-select if only one
+      if (this.integrations.length === 1) {
+        this.onIntegrationSelected(this.integrations[0].id);
+      }
     });
   }
 
@@ -102,7 +107,8 @@ export class BulkImportComponent implements OnInit {
   }
 
   private loadFolderContents(folderId: string | null): void {
-    this.integrationService.getImportableFiles(this.selectedIntegrationId, folderId ? folderId : undefined).subscribe((files: any[]) => {
+    this.integrationService.getImportableFiles(this.selectedIntegrationId, folderId ? folderId : undefined).subscribe({
+      next: (files: any[]) => {
       this.files = files.map(f => ({
         id: f.id,
         name: f.name,
@@ -119,6 +125,11 @@ export class BulkImportComponent implements OnInit {
 
       this.applyGlobalAge();
       this.applyGlobalGenre();
+    },
+      error: err => {
+        console.error('Error loading folder contents:', err);
+        this.toastService.show('Failed to load folder contents');
+      }
     });
   }
 
@@ -143,7 +154,7 @@ export class BulkImportComponent implements OnInit {
   onIntegrationSelected(integrationId: number): void {
     this.selectedIntegrationId = integrationId;
     this.form.get('integrationId')?.setValue(integrationId);
-    this.breadcrumb = [{ id: null, name: 'Root' }];
+    this.breadcrumb = [{ id: null, name: 'My Drive' }];
     this.loadFolderContents(null);
   }
 

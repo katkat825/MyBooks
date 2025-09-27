@@ -3,20 +3,25 @@
   <!-- breadcrumb navigation -->
   <nav class="breadcrumb" style="align-items: left !important; text-align: left !important;">
 
-    <a href="" [matMenuTriggerFor]="integrationMenu" (click)="$event.preventDefault()" class="breadcrumb-link" *ngIf="selectedIntegrationId">
-      Change Drive
-      <mat-icon inline>arrow_drop_down</mat-icon>
-    </a>
+    <div *ngIf="selectedIntegrationId && integrations.length > 1">
+      <a href="" [matMenuTriggerFor]="integrationMenu" 
+        (click)="$event.preventDefault()" 
+        class="breadcrumb-link">
+        Change Drive
+        <mat-icon inline>arrow_drop_down</mat-icon>
+      </a>
+      <mat-menu #integrationMenu="matMenu">
+        <button mat-menu-item *ngFor="let integration of integrations" (click)="onIntegrationSelected(integration.id)">
+          {{ integration.accountEmail }}
+        </button>
+      </mat-menu>
 
-    <mat-menu #integrationMenu="matMenu">
-      <button mat-menu-item *ngFor="let integration of integrations" (click)="onIntegrationSelected(integration.id)">
-        {{ integration.accountEmail }}
-      </button>
-    </mat-menu>
+      <mat-icon inline *ngIf="breadcrumb.length > 0">chevron_right</mat-icon>
+    </div>
 
     <!-- if 3 or fewer folder crumbs -->
     <ng-container *ngIf="breadcrumb.length <= 3">
-      <mat-icon inline *ngIf="breadcrumb.length > 0">chevron_right</mat-icon>
+      
       <ng-container *ngFor="let crumb of breadcrumb; let i = index">
         <span class="separator" *ngIf="i > 0"><mat-icon inline>chevron_right</mat-icon></span>
         <a href="#" (click)="navigateTo(i, $event)">{{ crumb.name }}</a>
@@ -25,6 +30,11 @@
 
     <!-- if more than 3 folder crumbs -->
     <ng-container *ngIf="breadcrumb.length > 3">
+      <div *ngIf="selectedIntegrationId && integrations.length === 1" class="me-2">
+        <a href="#" (click)="navigateTo(0, $event)" class="breadcrumb-link">
+          {{ breadcrumb[0]?.name }}
+        </a>
+      </div>
       <span class="separator"><mat-icon inline>chevron_right</mat-icon></span>
       <span class="ellipsis">…</span>
       <ng-container *ngFor="let crumb of breadcrumb.slice(-3); let i = index">
@@ -148,10 +158,6 @@
     <mat-icon>cloud_download</mat-icon>Start Import
   </button>
   <br>
-
-  <div style="font-size:12px; color:gray;">
-    form.valid = {{ form.valid }} | files.length = {{ files.length }} | noFilesSelected = {{ noFilesSelected }}
-  </div>
 
   <div class="info-row">  
     <mat-icon class="me-1">info</mat-icon>
