@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
+import { GlobalLoadingService } from '../../services/global-loading.service';
 
 @Component({
   selector: 'app-acceptable-use-policy',
@@ -8,7 +9,11 @@ import { UserService } from '../../services/user.service';
   styleUrls: ['./acceptable-use-policy.component.css']
 })
 export class AcceptableUsePolicyComponent {
-  constructor(private userService: UserService, private router: Router) { }
+  constructor(private userService: UserService, private router: Router, private globalLoading: GlobalLoadingService) { }
+
+  ngOnInit() {
+    this.globalLoading.hide();
+  }
 
   acceptPolicy() {
     this.userService.acceptAup().subscribe({

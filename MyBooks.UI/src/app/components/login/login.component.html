@@ -14,5 +14,9 @@
     <button mat-button type="submit" [disabled]="loginForm.invalid">Login</button>
   </form>
 
+  <div class="reset-pwd">
+    <a routerLink="/reset-password">Forgot password...</a>
+  </div>
+
   <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
 </div>

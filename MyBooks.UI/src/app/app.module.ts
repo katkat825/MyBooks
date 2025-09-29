@@ -24,6 +24,7 @@ import { AddGoogleDriveFolderComponent } from './owner/integrations/add-google-d
 import { BulkImportComponentComponent } from './owner/bulk-import.component/bulk-import.component.component';
 import { BulkImportComponent } from './owner/bulk-import/bulk-import.component';
 import { BulkImportTableComponent } from './owner/bulk-import/bulk-import-table/bulk-import-table.component';
+import { CompleteInviteComponent } from './components/complete-invite/complete-invite.component';
 
 @NgModule({
   imports: [
@@ -54,7 +55,8 @@ import { BulkImportTableComponent } from './owner/bulk-import/bulk-import-table/
     AddGoogleDriveFolderComponent,
     BulkImportComponentComponent,
     BulkImportComponent,
-    BulkImportTableComponent
+    BulkImportTableComponent,
+    CompleteInviteComponent
   ]
 })
 export class AppModule { }

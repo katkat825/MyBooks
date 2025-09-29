@@ -1,0 +1,34 @@
+<div class="account-settings-container">
+  <h2>Set a New Password</h2>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <!-- email shown as read-only username -->
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Email (Username)</mat-label>
+      <input matInput [value]="email" disabled>
+    </mat-form-field>
+
+    <!-- new password -->
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>New Password</mat-label>
+      <input matInput type="password" formControlName="password" required>
+    </mat-form-field>
+
+    <!-- confirm password -->
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Confirm Password</mat-label>
+      <input matInput type="password" formControlName="confirmPassword" required>
+      <mat-error *ngIf="form.hasError('mismatch')">
+        Passwords do not match
+      </mat-error>
+    </mat-form-field>
+
+    <!-- error from API -->
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+    <!-- submit -->
+    <button mat-raised-button color="primary" type="submit" [disabled]="loading || form.invalid">
+      {{ loading ? 'Saving...' : 'Set Password' }}
+    </button>
+  </form>
+</div>

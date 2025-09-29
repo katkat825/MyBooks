@@ -59,7 +59,6 @@ export class AccountUsersComponent {
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
       role: ['', Validators.required],
       ageCategoryId: ['', Validators.required]
     });

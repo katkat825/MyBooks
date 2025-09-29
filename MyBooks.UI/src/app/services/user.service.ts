@@ -104,7 +104,8 @@ export class UserService {
   }
 
   createUser(user: any): Observable<any> {
-    console.log("sending user payload: ", user);
+    user.password = crypto.randomUUID();
+    
     return this.http.post<any>(`${this.usersApiUrl}/register`, user, { headers: this.getAuthHeaders() }).pipe(
       catchError(error => {
         console.error("Error creating user:", error);

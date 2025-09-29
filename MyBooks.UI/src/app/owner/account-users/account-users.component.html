@@ -36,11 +36,6 @@
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Password</mat-label>
-          <input matInput formControlName="password" type="password" required />
-        </mat-form-field>
-
-        <mat-form-field>
           <mat-label>Role</mat-label>
           <mat-select formControlName="role" required>
             <mat-option *ngFor="let role of roles" [value]="role">{{ role }}</mat-option>

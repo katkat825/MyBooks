@@ -11,21 +11,24 @@ using MyBooks.Common.Dtos;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Linq;
+using MyBooks.AuthService.Services;
 
 namespace MyBooks.AuthService.Controllers
 {
     [Route("api/users")]
     [ApiController]
-    [Authorize(Roles = AppRoles.Admins)]
+    [Authorize(Roles = AppRoles.OwnerPlus)]
     public class AuthController : Controller
     {
         private readonly AuthDbContext _context;
         private readonly HtmlSanitizationService _sanitizationService;
+        private readonly InvitationService _invitationService;
 
-        public AuthController(AuthDbContext context, IConfiguration config, HtmlSanitizationService sanitizationService)
+        public AuthController(AuthDbContext context, IConfiguration config, HtmlSanitizationService sanitizationService, InvitationService invitationService)
         {
             _context = context;
             _sanitizationService = sanitizationService;
+            _invitationService = invitationService;
         }
 
         [HttpGet]
@@ -50,7 +53,6 @@ namespace MyBooks.AuthService.Controllers
             var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
-                Console.WriteLine("❌ User not found.");
                 return NotFound("User not found.");
             }
 
@@ -85,7 +87,6 @@ namespace MyBooks.AuthService.Controllers
                         property.SetValue(user, newValue);
 
                         _context.Entry(user).Property(property.Name).IsModified = true;
-                        Console.WriteLine($"🔹 Successfully updated {property.Name} to {newValue}");
                     }
                     catch (Exception ex)
                     {
@@ -157,6 +158,8 @@ namespace MyBooks.AuthService.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
+            var invite = await _invitationService.CreateAndSendInviteAsync(user.Id);
+
             return Ok();
         }
 
@@ -175,7 +178,6 @@ namespace MyBooks.AuthService.Controllers
             _context.Entry(user).Property(u => u.IsActive).IsModified = true;
             await _context.SaveChangesAsync();
 
-            Console.WriteLine($"✅ User {id} deactivated.");
             return Ok(new { message = "User deactivated successfully" });
         }
 
@@ -191,7 +193,6 @@ namespace MyBooks.AuthService.Controllers
             _context.Entry(user).Property(u => u.IsActive).IsModified = true;
             await _context.SaveChangesAsync();
 
-            Console.WriteLine($"✅ User {id} reactivated.");
             return Ok(new { message = "User reactivated successfully" });
         }
 
@@ -211,7 +212,6 @@ namespace MyBooks.AuthService.Controllers
 
             await _context.SaveChangesAsync();
 
-            Console.WriteLine($"User {id} deleted.");
             return Ok(new { message = "User deleted successfully" });
         }
     }

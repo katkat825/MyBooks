@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
@@ -21,7 +21,8 @@ import { GlobalLoadingService, LoadingContext } from '../../services/global-load
     MatInputModule,
     ReactiveFormsModule,
     CommonModule,
-    MatProgressSpinner
+    MatProgressSpinner,
+    RouterLink
   ]
 })
 export class LoginComponent {

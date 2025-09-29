@@ -17,6 +17,8 @@ import { RemovedGuard } from './utilities/removed.guard';
 import { AccountUsersComponent } from './owner/account-users/account-users.component';
 import { GoogleDriveComponent } from './owner/integrations/google-drive/google-drive.component';
 import { BulkImportComponent } from './owner/bulk-import/bulk-import.component';
+import { CompleteInviteComponent } from './components/complete-invite/complete-invite.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 
 export const routes: Routes = [
   { path: '', component: BookListComponent, canActivate: [AupGuard, AuthGuard] },
@@ -37,5 +39,8 @@ export const routes: Routes = [
       { path: 'bulk-import', component: BulkImportComponent },
       { path: '', redirectTo: 'users', pathMatch: 'full' }
     ]
-  }
+  },
+  { path: 'invite/:token', component: CompleteInviteComponent },
+  { path: 'reset/:token', component: CompleteInviteComponent },
+  { path:'reset-password', component: ResetPasswordComponent }
 ];

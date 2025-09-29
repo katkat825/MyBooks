@@ -15,14 +15,15 @@ namespace MyBooks.AuthService.Data
             _contextAccessor = httpContextAccessor;
         }
         public DbSet<User> Users { get; set; }
+        public DbSet<Invitation> Invitations { get; set; }
 
-        private string GetCurrentUserId()
+        public string GetCurrentUserId()
         {
             var user = _contextAccessor.HttpContext?.User;
             return user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         }
 
-        private int GetCurrentTenantId()
+        public int GetCurrentTenantId()
         {
             var tenantId = _contextAccessor.HttpContext?.User?.FindFirst("TenantId")?.Value;
             return int.TryParse(tenantId, out var id) ? id : 0;

@@ -11,6 +11,7 @@ using MyBooks.Common.BaseClasses;
 using MyBooks.Common.Configuration;
 using System.Text;
 using System.Security.Claims;
+using MyBooks.AuthService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +42,7 @@ builder.Services.AddDbContext<AuthDbContext>(options =>
 
 //add security services from Common
 builder.Services.AddSingleton<HtmlSanitizationService>();
+builder.Services.AddScoped<InvitationService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
