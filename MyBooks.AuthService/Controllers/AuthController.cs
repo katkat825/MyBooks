@@ -13,206 +13,229 @@ using System.Text.Json;
 using System.Linq;
 using MyBooks.AuthService.Services;
 
-namespace MyBooks.AuthService.Controllers
+namespace MyBooks.AuthService.Controllers;
+
+[Route("api/users")]
+[ApiController]
+[Authorize(Roles = AppRoles.OwnerPlus)]
+public class AuthController : Controller
 {
-    [Route("api/users")]
-    [ApiController]
-    [Authorize(Roles = AppRoles.OwnerPlus)]
-    public class AuthController : Controller
+    private readonly AuthDbContext _context;
+    private readonly HtmlSanitizationService _sanitizationService;
+    private readonly InvitationService _invitationService;
+
+    public AuthController(AuthDbContext context, IConfiguration config, HtmlSanitizationService sanitizationService, InvitationService invitationService)
     {
-        private readonly AuthDbContext _context;
-        private readonly HtmlSanitizationService _sanitizationService;
-        private readonly InvitationService _invitationService;
+        _context = context;
+        _sanitizationService = sanitizationService;
+        _invitationService = invitationService;
+    }
 
-        public AuthController(AuthDbContext context, IConfiguration config, HtmlSanitizationService sanitizationService, InvitationService invitationService)
+    [HttpGet]
+    public async Task<IActionResult> GetUsers()
+    {
+        var users = await _context.Users.ToListAsync();
+        return Ok(users);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetUser(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null) return NotFound("User not found.");
+
+        return Ok(user);
+    }
+
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> PatchUser(int id, [FromBody] Dictionary<string, object> updates)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
         {
-            _context = context;
-            _sanitizationService = sanitizationService;
-            _invitationService = invitationService;
+            return NotFound("User not found.");
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetUsers()
+        foreach (var key in updates.Keys)
         {
-            var users = await _context.Users.ToListAsync();
-            return Ok(users);
-        }
+            var property = typeof(User).GetProperties()
+                .FirstOrDefault(p => string.Equals(p.Name, key, StringComparison.OrdinalIgnoreCase));
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null) return NotFound("User not found.");
-
-            return Ok(user);
-        }
-
-        [HttpPatch("{id}")]
-        public async Task<IActionResult> PatchUser(int id, [FromBody] Dictionary<string, object> updates)
-        {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
+            if (property != null && property.Name != "PasswordHash" && property.Name != "CreatedBy" && property.Name != "CreatedDate" && property.Name != "LastModifiedBy" && property.Name != "LastModifiedDate")
             {
-                return NotFound("User not found.");
-            }
-
-            foreach (var key in updates.Keys)
-            {
-                var property = typeof(User).GetProperties()
-                    .FirstOrDefault(p => string.Equals(p.Name, key, StringComparison.OrdinalIgnoreCase));
-
-                if (property != null && property.Name != "PasswordHash" && property.Name != "CreatedBy" && property.Name != "CreatedDate" && property.Name != "LastModifiedBy" && property.Name != "LastModifiedDate")
+                try
                 {
-                    try
-                    {
-                        Type targetType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
-                        object newValue = updates[key] is JsonElement jsonElement
-                            ? JsonElementToObject(jsonElement, targetType)
-                            : Convert.ChangeType(updates[key], targetType);
+                    Type targetType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+                    object newValue = updates[key] is JsonElement jsonElement
+                        ? JsonElementToObject(jsonElement, targetType)
+                        : Convert.ChangeType(updates[key], targetType);
 
-                        if (string.Equals(property.Name, nameof(user.Role), StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(property.Name, nameof(user.Role), StringComparison.OrdinalIgnoreCase))
+                    {
+                        var newRole = newValue?.ToString();
+
+                        bool touchesPrivileged =
+                            user.Role == AppRoles.SuperAdmin || user.Role == AppRoles.Owner ||
+                            newRole == AppRoles.SuperAdmin || newRole == AppRoles.Owner;
+
+                        if (touchesPrivileged && !User.IsInRole(AppRoles.SuperAdmin))
                         {
-                            var newRole = newValue?.ToString();
-
-                            bool touchesPrivileged =
-                                user.Role == AppRoles.SuperAdmin || user.Role == AppRoles.Owner ||
-                                newRole == AppRoles.SuperAdmin || newRole == AppRoles.Owner;
-
-                            if (touchesPrivileged && !User.IsInRole(AppRoles.SuperAdmin))
-                            {
-                                return Forbid("You are not authorized to change this user's role.");
-                            }
+                            return Forbid("You are not authorized to change this user's role.");
                         }
-
-                        property.SetValue(user, newValue);
-
-                        _context.Entry(user).Property(property.Name).IsModified = true;
                     }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"❌ Failed to update {property.Name}: {ex.Message}");
-                    }
+
+                    property.SetValue(user, newValue);
+
+                    _context.Entry(user).Property(property.Name).IsModified = true;
                 }
-                else
+                catch (Exception ex)
                 {
-                    Console.WriteLine($"⚠ Skipping invalid field: {key}");
+                    Console.WriteLine($"❌ Failed to update {property.Name}: {ex.Message}");
                 }
             }
-
-            _context.Entry(user).State = EntityState.Modified;
-
-            await _context.SaveChangesAsync();
-
-            var updatedUser = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
-
-            return Ok(new { message = "User updated successfully", updatedUser });
-        }
-
-        private static object JsonElementToObject(JsonElement element, Type targetType)
-        {
-            try
+            else
             {
-                return targetType == typeof(int) ? element.GetInt32() :
-                       targetType == typeof(string) ? element.GetString() :
-                       targetType == typeof(bool) ? element.GetBoolean() :
-                       targetType == typeof(double) ? element.GetDouble() :
-                       targetType == typeof(DateTime) ? element.GetDateTime() :
-                       Convert.ChangeType(element.ToString(), targetType);
-            }
-            catch
-            {
-                return null;
+                Console.WriteLine($"⚠ Skipping invalid field: {key}");
             }
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(UserDto request)
+        _context.Entry(user).State = EntityState.Modified;
+
+        await _context.SaveChangesAsync();
+
+        var updatedUser = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+
+        return Ok(new { message = "User updated successfully", updatedUser });
+    }
+
+    private static object JsonElementToObject(JsonElement element, Type targetType)
+    {
+        try
         {
-            //sanitize inputs
-            request.FirstName = _sanitizationService.Sanitize(request.FirstName);
-            request.LastName = _sanitizationService.Sanitize(request.LastName);
-            request.Email = _sanitizationService.Sanitize(request.Email, true);
+            return targetType == typeof(int) ? element.GetInt32() :
+                    targetType == typeof(string) ? element.GetString() :
+                    targetType == typeof(bool) ? element.GetBoolean() :
+                    targetType == typeof(double) ? element.GetDouble() :
+                    targetType == typeof(DateTime) ? element.GetDateTime() :
+                    Convert.ChangeType(element.ToString(), targetType);
+        }
+        catch
+        {
+            return null;
+        }
+    }
 
-            //check if email in use
-            if (await _context.Users.AnyAsync(u => u.Email == request.Email)) return BadRequest("Email already in use.");
+    [HttpPost("register")]
+    public async Task<IActionResult> Register(UserDto request)
+    {
+        //sanitize inputs
+        request.FirstName = _sanitizationService.Sanitize(request.FirstName);
+        request.LastName = _sanitizationService.Sanitize(request.LastName);
+        request.Email = _sanitizationService.Sanitize(request.Email, true);
 
-            var requestedRole = request.Role;
+        var existingUser = await _context.Users
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(u => u.Email == request.Email && u.TenantId == _context.GetCurrentTenantId());
 
-            if (!AppRoles.AllRoles.Contains(requestedRole)) return BadRequest("Invalid role.");
-
-            if (!AppRoles.AssignableRoles.Contains(requestedRole) && !User.IsInRole(AppRoles.SuperAdmin))
-                return Forbid("You are not authorized to assign this role.");
-
-            var user = new User
+        if (existingUser != null)
+        {
+            if (!existingUser.IsVisible)
             {
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                Email = request.Email,
-                Role = request.Role,
-                AgeCategoryId = request.AgeCategoryId,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                IsActive = true,
-                AcceptedAup = false
-            };
+                existingUser.IsVisible = true;
+                existingUser.IsActive = true;
+                existingUser.FirstName = request.FirstName;
+                existingUser.LastName = request.LastName;
+                existingUser.AgeCategoryId = request.AgeCategoryId;
+                existingUser.Role = request.Role;
+                existingUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+                _context.Users.Update(existingUser);
+                await _context.SaveChangesAsync();
 
-            var invite = await _invitationService.CreateAndSendInviteAsync(user.Id);
+                var reinvite = await _invitationService.CreateAndSendInviteAsync(existingUser.Id);
 
-            return Ok();
+                return Ok();
+            }
+
+            return BadRequest("Email already in use");
         }
 
-        [HttpPatch("deactivate/{id}")]
-        [Authorize(Roles = AppRoles.Admins)]
-        public async Task<IActionResult> DeactivateUser(int id)
+        var requestedRole = request.Role;
+
+        if (!AppRoles.AllRoles.Contains(requestedRole)) return BadRequest("Invalid role.");
+
+        if (!AppRoles.AssignableRoles.Contains(requestedRole) && !User.IsInRole(AppRoles.SuperAdmin))
+            return Forbid("You are not authorized to assign this role.");
+
+        var user = new User
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-                return NotFound("User not found.");
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            Email = request.Email,
+            Role = request.Role,
+            AgeCategoryId = request.AgeCategoryId,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            IsActive = true,
+            AcceptedAup = false
+        };
 
-            if (user.Role == AppRoles.SuperAdmin || user.Role == AppRoles.Owner)
-                return Forbid("Cannot deactivate a MyBookCatalog Support user or Owner user.");
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
 
-            user.IsActive = false;
-            _context.Entry(user).Property(u => u.IsActive).IsModified = true;
-            await _context.SaveChangesAsync();
+        var invite = await _invitationService.CreateAndSendInviteAsync(user.Id);
 
-            return Ok(new { message = "User deactivated successfully" });
-        }
+        return Ok();
+    }
 
-        [HttpPatch("reactivate/{id}")]
-        [Authorize(Roles = AppRoles.Admins)]
-        public async Task<IActionResult> ReactivateUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-                return NotFound("User not found.");
+    [HttpPatch("deactivate/{id}")]
+    [Authorize(Roles = AppRoles.Admins)]
+    public async Task<IActionResult> DeactivateUser(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+            return NotFound("User not found.");
 
-            user.IsActive = true;
-            _context.Entry(user).Property(u => u.IsActive).IsModified = true;
-            await _context.SaveChangesAsync();
+        if (user.Role == AppRoles.SuperAdmin || user.Role == AppRoles.Owner)
+            return Forbid("Cannot deactivate a MyBookCatalog Support user or Owner user.");
 
-            return Ok(new { message = "User reactivated successfully" });
-        }
+        user.IsActive = false;
+        _context.Entry(user).Property(u => u.IsActive).IsModified = true;
+        await _context.SaveChangesAsync();
 
-        [HttpPatch("delete/{id}")]
-        [Authorize(Roles = AppRoles.Admins)]
-        public async Task<IActionResult> DeleteUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-                return NotFound("User not found.");
+        return Ok(new { message = "User deactivated successfully" });
+    }
 
-            if (user.Role == AppRoles.SuperAdmin || user.Role == AppRoles.Owner)
-                return Forbid("Cannot delete a MyBookCatalog Support user or Owner user.");
+    [HttpPatch("reactivate/{id}")]
+    [Authorize(Roles = AppRoles.Admins)]
+    public async Task<IActionResult> ReactivateUser(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+            return NotFound("User not found.");
 
-            user.IsVisible = false;
-            _context.Entry(user).Property(u => u.IsVisible).IsModified = true;
+        user.IsActive = true;
+        _context.Entry(user).Property(u => u.IsActive).IsModified = true;
+        await _context.SaveChangesAsync();
 
-            await _context.SaveChangesAsync();
+        return Ok(new { message = "User reactivated successfully" });
+    }
 
-            return Ok(new { message = "User deleted successfully" });
-        }
+    [HttpPatch("delete/{id}")]
+    [Authorize(Roles = AppRoles.Admins)]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+            return NotFound("User not found.");
+
+        if (user.Role == AppRoles.SuperAdmin || user.Role == AppRoles.Owner)
+            return Forbid("Cannot delete a MyBookCatalog Support user or Owner user.");
+
+        user.IsVisible = false;
+        _context.Entry(user).Property(u => u.IsVisible).IsModified = true;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "User deleted successfully" });
     }
 }
