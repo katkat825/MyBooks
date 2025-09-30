@@ -37,7 +37,7 @@ namespace MyBooks.AuthService.Data
             modelBuilder.Entity<Invitation>().ToTable("Invitations");
 
             modelBuilder.Entity<User>()
-                .HasQueryFilter(u => u.TenantId == GetCurrentTenantId() && u.IsVisible);
+                .HasQueryFilter(u => u.TenantId == GetCurrentTenantId() && u.IsVisible && u.Role != AppRoles.SuperAdmin);
         }
 
         public override int SaveChanges()

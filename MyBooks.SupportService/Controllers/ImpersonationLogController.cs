@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyBooks.Common.BaseClasses;
+using MyBooks.Common.Dtos;
 using MyBooks.SupportService.Data;
 using MyBooks.SupportService.Models;
 using System.Security.Claims;
@@ -9,7 +10,7 @@ namespace MyBooks.SupportService.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = AppRoles.SuperAdmin)]
+[Authorize(Roles = AppRoles.AuthService)]
 public class ImpersonationLogController : ControllerBase
 {
     private readonly SupportDbContext _context;
@@ -23,17 +24,12 @@ public class ImpersonationLogController : ControllerBase
 
     // start impersonation
     [HttpPost("start")]
-    public async Task<IActionResult> Start(int targetUserId)
+    public async Task<IActionResult> Start(ImpersonationDto dto)
     {
-        var impersonatingUserId = int.Parse(
-            _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
-            ?? throw new InvalidOperationException("Authenticated user id not found")
-        );
-
         var log = new ImpersonationLog
         {
-            TargetUserId = targetUserId,
-            ImpersonatingUserId = impersonatingUserId,
+            TargetUserId = dto.TargetUserId,
+            ImpersonatingUserId = dto.ImpersonatingUserId,
             StartTime = DateTime.UtcNow
         };
 

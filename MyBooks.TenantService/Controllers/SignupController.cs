@@ -64,6 +64,35 @@ public class SignupController : ControllerBase
         _context.Tenants.Add(tenant);
         await _context.SaveChangesAsSystemAsync();
 
+        // create support user for this tenant
+        try
+        {
+            var supportEmail = $"support+{tenant.Id}@mybookcatalog.com";
+
+            var supportUser = new UserDto
+            {
+                FirstName = "Support",
+                LastName = "User",
+                Email = supportEmail,
+                Password = Guid.NewGuid().ToString("N"),
+                Role = AppRoles.SuperAdmin,
+                AgeCategoryId = 3,
+                IsActive = true
+            };
+
+            var suppoerUserId = await _auth.CreateUserAsync(supportUser);
+
+            await _auth.AssignTenantAsync(new AssignTenantDto
+            {
+                UserId = suppoerUserId,
+                TenantId = tenant.Id
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[WARN] Failed to create support user for tenant {tenant.Id}: {ex.Message}");
+        }
+
         // try seeding default genres
         try
         {
