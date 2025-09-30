@@ -8,6 +8,7 @@ import { PDFViewer, PDFLinkService, EventBus } from 'pdfjs-dist/web/pdf_viewer';
 import ePub from 'epubjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
@@ -17,7 +18,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
   templateUrl: './book-viewer.component.html',
   styleUrls: ['./book-viewer.component.css'],
   imports: [MatProgressSpinnerModule,
-  CommonModule]
+  CommonModule,
+  MatIconModule]
 })
 export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   fileId!: number;
@@ -30,9 +32,12 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   rendition: any;
   scrollSub!: Subscription;
   isLoading: boolean = true;
+  zoomLevel: number = 1.0;
 
   private currentEpubContents: any;
   private themeObserver: MutationObserver | null = null;
+  private pdfViewer?: PDFViewer;
+  private readonly ZOOM_KEY = "bookViewerZoom";
 
   constructor(
     private route: ActivatedRoute,
@@ -41,6 +46,11 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   ) { }  
 
   ngOnInit(): void {
+    const savedZoom = localStorage.getItem(this.ZOOM_KEY);
+    if (savedZoom) {
+      this.zoomLevel = parseFloat(savedZoom);
+    }
+
     this.fileId = Number(this.route.snapshot.paramMap.get('fileId'));
 
     this.bookService.getFileMetadata(this.fileId).subscribe({
@@ -103,6 +113,25 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  zoomIn(): void {
+    this.setZoom(this.zoomLevel + 0.25);
+  }
+
+  zoomOut(): void {
+    this.setZoom(Math.max(0.5, this.zoomLevel - 0.25));
+  }
+
+  private setZoom(level: number): void {
+    this.zoomLevel = level;
+    localStorage.setItem(this.ZOOM_KEY, this.zoomLevel.toString());
+
+    if(this.fileType === 'pdf' && this.pdfViewer) {
+      (this.pdfViewer as any).currentScale = this.zoomLevel;
+    } else if (this.fileType === 'epub' && this.rendition) {
+      this.rendition.themes.fontSize(`${this.zoomLevel * 100}%`);
+    }
+  }
+
   loadFile(): void {
     this.bookService.downloadFile(this.fileId).subscribe({
       next: (fileBlob) => {
@@ -139,16 +168,17 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const eventBus = new EventBus();
     const pdfLinkService = new PDFLinkService({ eventBus });
-    const pdfViewer = new PDFViewer({
+    this.pdfViewer = new PDFViewer({
       container: container,
       viewer: viewer,
       eventBus,
       linkService: pdfLinkService
     });
-    pdfLinkService.setViewer(pdfViewer);
-    pdfViewer.setDocument(this.pdfDocument);
+    pdfLinkService.setViewer(this.pdfViewer);
+    this.pdfViewer.setDocument(this.pdfDocument);
 
     eventBus.on('pagesinit', () => {
+      (this.pdfViewer as any).currentScale = this.zoomLevel;
       this.bookService.getReadingProgress(this.fileId).subscribe({
         next: (progressData) => {
           const progressPercent = progressData && (progressData.ProgressPercent || progressData.progressPercent) || 0;
@@ -214,6 +244,8 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       height: '90%',
       allowScriptedContent: true
     });
+    
+    this.rendition.themes.fontSize(`${this.zoomLevel * 100}%`)
 
     this.rendition.hooks.content.register((contents: any) => {
       this.currentEpubContents = contents;

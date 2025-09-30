@@ -1,13 +1,21 @@
-<div style="position: relative; height: 80vh;">
+<div class="book-viewer-wrapper" style="position: relative; height: 80vh;">
   <div class="spinner-overlay" *ngIf="isLoading">
     <mat-spinner class="mat-spinner"></mat-spinner>
     <p>Please wait while we load your book...</p>
   </div>
+
   <div #viewerContainer class="viewer-container">
     <div #pdfViewer class="pdfViewer"></div>
   </div>
+
+  <div class="zoom-controls">
+    <mat-icon id="zoom-out" (click)="zoomOut()">text_decrease</mat-icon>
+    <mat-icon id="zoom-in" (click)="zoomIn()">text_increase</mat-icon> 
+  </div>
+
   <div class="epub-controls"*ngIf="fileType === 'epub'">
-    <button mat-button (click)="prevPage()">Previous</button>
-    <button mat-button (click)="nextPage()">Next</button>
+    <button mat-button id="book-viewer-prev" (click)="prevPage()">Previous</button>
+    <button mat-button id="book-viewer-next" (click)="nextPage()">Next</button>
   </div>
 </div>
+
