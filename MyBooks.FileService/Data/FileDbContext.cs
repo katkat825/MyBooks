@@ -101,6 +101,14 @@ public class FileDbContext : DbContext
                 
         return await base.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<int> SaveChangesAsSupportAsync(CancellationToken cancellationToken = default)
+    {
+        ApplyAuditInformation(preserveSetTenant: true);
+        EnforceSecurityRules();
+
+        return await base.SaveChangesAsync(cancellationToken);
+    }
     
     public async Task<int> SaveChangesAsSystemAsync(CancellationToken cancellationToken = default)
     {
@@ -129,7 +137,7 @@ public class FileDbContext : DbContext
         return await base.SaveChangesAsync(cancellationToken);
     }
 
-    public void ApplyAuditInformation()
+    public void ApplyAuditInformation(bool preserveSetTenant = false)
     {
         if (_contextAccessor.HttpContext == null)
             return;
@@ -141,7 +149,13 @@ public class FileDbContext : DbContext
         foreach (var entry in ChangeTracker.Entries()
             .Where(e => e.State == EntityState.Added && e.Entity.GetType().GetProperty("TenantId") != null))
         {
-            entry.Entity.GetType().GetProperty("TenantId")?.SetValue(entry.Entity, currentTenant);
+            var tenantProp = entry.Entity.GetType().GetProperty("TenantId");
+            var existingTenantId = (int?)tenantProp?.GetValue(entry.Entity);
+            
+            if (!preserveSetTenant || existingTenantId == null || existingTenantId == 0)
+            {
+                entry.Entity.GetType().GetProperty("TenantId")?.SetValue(entry.Entity, currentTenant);
+            }            
         }
 
         foreach (var entry in ChangeTracker.Entries<AuditableEntity>())

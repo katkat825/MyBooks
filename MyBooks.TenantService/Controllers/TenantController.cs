@@ -27,6 +27,7 @@ namespace MyBooks.TenantService.Controllers
         public async Task<ActionResult<IEnumerable<Tenant>>> GetAllTenants()
         {
             return await _context.Tenants
+                .IgnoreQueryFilters()
                 .Include(t => t.BillingPlan)
                 .AsNoTracking()
                 .ToListAsync();
@@ -118,7 +119,7 @@ namespace MyBooks.TenantService.Controllers
 
         // deactivate
         [HttpPatch("{id}/deactivate")]
-        [Authorize(Roles = AppRoles.OwnerPlus)]
+        [Authorize(Roles = AppRoles.SuperAdmin)]
         public async Task<ActionResult<Tenant>> DeactivateTenant(int id)
         {
             var tenant = await _context.Tenants.FindAsync(id);
@@ -144,11 +145,15 @@ namespace MyBooks.TenantService.Controllers
         [Authorize(Roles = AppRoles.SuperAdmin)]
         public async Task<ActionResult<Tenant>> ActivateTenant(int id)
         {
-            var tenant = await _context.Tenants.FindAsync(id);
+            var tenant = await _context.Tenants
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(t => t.Id == id);
+
             if (tenant == null)
             {
                 return NotFound();
             }
+
             tenant.IsActive = true;
             await _context.SaveChangesAsync();
 
