@@ -30,25 +30,42 @@ public class SupportDbContext : DbContext
 
     public override int SaveChanges()
     {
-        PreventDeletes(ChangeTracker);
+        PreventInvalidChanges(ChangeTracker);
         ApplyAuditInformation(ChangeTracker);
         return base.SaveChanges();
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        PreventDeletes(ChangeTracker);
+        PreventInvalidChanges(ChangeTracker);
         ApplyAuditInformation(ChangeTracker);
         return await base.SaveChangesAsync(cancellationToken);
     }
 
-    private void PreventDeletes(ChangeTracker changeTracker)
+    private void PreventInvalidChanges(ChangeTracker changeTracker)
     {
-        foreach (var entry in changeTracker.Entries<AuditableEntity>())
+        // prevent deletes of any items
+        foreach (var entry in changeTracker.Entries())
         {
             if (entry.State == EntityState.Deleted)
             {
                 throw new InvalidOperationException("Delete operation not allowed");
+            }
+        }
+
+        // prevent updating impersonation log except endtime
+        foreach (var entry in changeTracker.Entries<ImpersonationLog>())
+        {
+            if (entry.State == EntityState.Modified)
+            {
+                // allow only EndTime to change
+                foreach (var prop in entry.Properties)
+                {
+                    if (prop.IsModified && prop.Metadata.Name != nameof(ImpersonationLog.EndTime))
+                    {
+                        throw new InvalidOperationException("Only EndTime can be modified for ImpersonationLog records.");
+                    }
+                }
             }
         }
     }
