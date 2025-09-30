@@ -3,6 +3,8 @@
   height: 100vh;          /* fill the screen */
   width: 100%;            /* take full width */
   display: flex;
+  background: var(--bg-color);
+  color: var(--text-color);
 }
 
 .support-header {

@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { observableToBeFn } from 'rxjs/internal/testing/TestScheduler';
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +25,11 @@ export class SupportUserService {
 
   // impersonation
   impersonate(userId: number): Observable<{ token: string; logId: number }> {
+    const currentToken = localStorage.getItem('token');
+    if(currentToken) {
+      localStorage.setItem('originalToken', currentToken);
+    }
+
     return this.http.post<{ token: string; logId: number }>(
       `${this.authBaseUrl}/api/Impersonation/${userId}`, {}, { headers: this.getAuthHeaders() }
     );
@@ -38,6 +42,11 @@ export class SupportUserService {
   }
 
   impersonateAccount(tenantId: number): Observable<{ token: string; logId: number }> {
+    const currentToken = localStorage.getItem('token');
+    if(currentToken) {
+      localStorage.setItem('originalToken', currentToken);
+    }
+
     return this.http.post<{ token: string; logId: number }>(
       `${this.authBaseUrl}/api/Impersonation/tenant/${tenantId}`, {}, { headers: this.getAuthHeaders() }
     );
@@ -100,5 +109,12 @@ export class SupportUserService {
 
   activateTenant(id: number): Observable<void> {
     return this.http.patch<void>(`${this.tenantApiUrl}/tenant/${id}/activate`, {}, { headers: this.getAuthHeaders() });
+  }
+
+  // users
+  getAllUsers(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.authBaseUrl}/api/users/all-users`, {
+      headers: this.getAuthHeaders(),
+    });
   }
 }

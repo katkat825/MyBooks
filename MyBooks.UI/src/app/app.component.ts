@@ -13,6 +13,7 @@ import { ToastComponent } from './components/shared/toast.component';
 import { ToastService } from './services/toast.service';
 import { GlobalLoadingService } from './services/global-loading.service';
 import { Observable } from 'rxjs';
+import { SupportUserService } from './services/support-user.service';
 
 @Component({
   selector: 'app-root',
@@ -49,7 +50,8 @@ export class AppComponent {
     private router: Router, 
     public userService: UserService,
     private toastService: ToastService,
-    private loadingService: GlobalLoadingService
+    private loadingService: GlobalLoadingService,
+    private supportService: SupportUserService
   ) { 
     this.globalLoading$ = this.loadingService.isVisible$;
     this.globalMessage$ = this.loadingService.message$;
@@ -94,6 +96,32 @@ export class AppComponent {
 
   isAuthenticated(): boolean {
     return !!localStorage.getItem('token');
+  }
+
+  endSupportSession() {
+    const token = localStorage.getItem('token');
+    const originalToken = localStorage.getItem('originalToken');
+
+    if (this.userService.isImpersonating && token && originalToken) {
+      const decoded: any = this.userService['jwtHelper'].decodeToken(token);
+      const logId = decoded?.ImpersonationLogId;
+
+      if (logId) {
+        // swap back to original superadmin token
+        localStorage.setItem('token', originalToken);
+
+        this.supportService.stopImpersonation(Number(logId)).subscribe({
+          next: () => console.log(`Stopped impersonation log ${logId}`),
+          error: err => console.warn('Failed to stop impersonation:', err),
+          complete: () => {
+            localStorage.removeItem('originalToken');
+            this.userService.loadProfile(); // reload profile as SuperAdmin
+            this.isSupportUser = false;
+            this.router.navigate(['/']); 
+          }
+        });
+      }
+    }
   }
 
   logout() {

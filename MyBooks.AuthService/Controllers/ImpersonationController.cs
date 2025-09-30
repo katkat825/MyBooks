@@ -39,7 +39,7 @@ public class ImpersonationController : ControllerBase
 
         return await systemHelper.GetSystemTokenAsync(
             "AuthService",
-            _config["ServiceSecrets:AuthService"] 
+            _config["ServiceSecrets:AuthService"]
         );
     }
 

@@ -75,7 +75,7 @@ public class SignupController : ControllerBase
                 LastName = "User",
                 Email = supportEmail,
                 Password = Guid.NewGuid().ToString("N"),
-                Role = "Support",
+                Role = AppRoles.Support,
                 AgeCategoryId = 3,
                 IsActive = true
             };

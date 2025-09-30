@@ -38,6 +38,18 @@ public class AuthController : Controller
         return Ok(users);
     }
 
+    [HttpGet("all-users")]
+    [Authorize(Roles = AppRoles.SuperAdmin)]
+    public async Task<IActionResult> GetAllUsers()
+    {
+        var users = await _context.Users
+            .IgnoreQueryFilters()
+            .Where(u => u.Role != AppRoles.Support)
+            .ToArrayAsync();
+
+        return Ok(users);
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUser(int id)
     {
@@ -188,7 +200,6 @@ public class AuthController : Controller
     }
 
     [HttpPatch("deactivate/{id}")]
-    [Authorize(Roles = AppRoles.Admins)]
     public async Task<IActionResult> DeactivateUser(int id)
     {
         var user = await _context.Users.FindAsync(id);
@@ -206,7 +217,6 @@ public class AuthController : Controller
     }
 
     [HttpPatch("reactivate/{id}")]
-    [Authorize(Roles = AppRoles.Admins)]
     public async Task<IActionResult> ReactivateUser(int id)
     {
         var user = await _context.Users.FindAsync(id);
@@ -221,7 +231,6 @@ public class AuthController : Controller
     }
 
     [HttpPatch("delete/{id}")]
-    [Authorize(Roles = AppRoles.Admins)]
     public async Task<IActionResult> DeleteUser(int id)
     {
         var user = await _context.Users.FindAsync(id);

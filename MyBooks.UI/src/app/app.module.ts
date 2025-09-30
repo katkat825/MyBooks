@@ -29,6 +29,7 @@ import { LayoutComponent } from './support-user/layout/layout.component';
 import { SupportLayoutComponent } from './support-user/support-layout/support-layout.component';
 import { SupportHomeComponent } from './support-user/support-home/support-home.component';
 import { TenantsComponent } from './support-user/components/tenants/tenants.component';
+import { UsersComponent } from './support-user/components/users/users.component';
 
 @NgModule({
   imports: [
@@ -64,7 +65,8 @@ import { TenantsComponent } from './support-user/components/tenants/tenants.comp
     LayoutComponent,
     SupportLayoutComponent,
     SupportHomeComponent,
-    TenantsComponent
+    TenantsComponent,
+    UsersComponent
   ]
 })
 export class AppModule { }

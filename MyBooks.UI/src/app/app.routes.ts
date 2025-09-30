@@ -22,6 +22,7 @@ import { ResetPasswordComponent } from './components/reset-password/reset-passwo
 import { SupportLayoutComponent } from './support-user/support-layout/support-layout.component';
 import { SupportHomeComponent } from './support-user/support-home/support-home.component';
 import { TenantsComponent } from './support-user/components/tenants/tenants.component';
+import { SupportUsersComponent } from './support-user/components/users/users.component';
 
 export const routes: Routes = [
   { path: '', component: BookListComponent, canActivate: [AupGuard, AuthGuard] },
@@ -50,7 +51,8 @@ export const routes: Routes = [
       { path: '', component: SupportHomeComponent },
       { path: 'tenants', component: TenantsComponent, 
         children: [ { path: 'new', component: SignupComponent } ]
-      }
+      },
+      { path: 'users', component: SupportUsersComponent}
     ]
   }
 ];
