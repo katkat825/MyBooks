@@ -1,0 +1,30 @@
+.support-layout,
+.sidenav-container {
+  height: 100vh;          /* fill the screen */
+  width: 100%;            /* take full width */
+  display: flex;
+}
+
+.support-header {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    padding: 8px 16px;
+}
+
+.sidenav {
+  width: 220px;           /* fixed width for side nav */
+}
+
+mat-sidenav-content {
+  padding: 16px;          /* breathing room around content */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.support-content {
+  flex: 1;                /* content area grows */
+  padding: 16px;
+}

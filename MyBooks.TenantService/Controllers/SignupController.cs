@@ -75,16 +75,16 @@ public class SignupController : ControllerBase
                 LastName = "User",
                 Email = supportEmail,
                 Password = Guid.NewGuid().ToString("N"),
-                Role = AppRoles.SuperAdmin,
+                Role = "Support",
                 AgeCategoryId = 3,
                 IsActive = true
             };
 
-            var suppoerUserId = await _auth.CreateUserAsync(supportUser);
+            var supportUserId = await _auth.CreateUserAsync(supportUser);
 
             await _auth.AssignTenantAsync(new AssignTenantDto
             {
-                UserId = suppoerUserId,
+                UserId = supportUserId,
                 TenantId = tenant.Id
             });
         }

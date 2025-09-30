@@ -22,7 +22,7 @@ export class OwnerGuard implements CanActivate {
             take(1),
             map(user => {
                 const role = user.role ?? user.Role ?? '';
-                const allowed = role === 'SuperAdmin' || role === 'Owner';
+                const allowed = role === 'SuperAdmin' || role === 'Owner' || role === 'Support';
                 return allowed ? true : this.router.createUrlTree(['/']);
             }),
             catchError(() => of(this.router.createUrlTree(['/login'])))

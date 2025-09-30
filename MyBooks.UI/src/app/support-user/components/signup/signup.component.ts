@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { SignupRequest, SignupResponse, SignupService } from '../../services/signup.service';
+import { SignupRequest, SignupResponse, SignupService } from '../../../services/signup.service';
 import { AbstractControl, AsyncValidatorFn } from '@angular/forms';
 import { map, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -11,6 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { NgIf } from '@angular/common';
 import { Router } from '@angular/router';
+import { GlobalLoadingService, LoadingContext } from '../../../services/global-loading.service';
 
 @Component({
   selector: 'app-signup',
@@ -27,14 +28,14 @@ import { Router } from '@angular/router';
   styleUrls: ['./signup.component.css'],
 })
 export class SignupComponent {
-  isSubmitting = false;
   errorMessage: string | null = null;
   form!: FormGroup;
   
   constructor(
     private fb: FormBuilder, 
     private signupService: SignupService,
-    private router: Router) {}
+    private router: Router,
+    private globalLoading: GlobalLoadingService) {}
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -47,8 +48,7 @@ export class SignupComponent {
 
   submit(){
     if (this.form.invalid) return;
-
-    this.isSubmitting = true;
+    this.globalLoading.show("Creating new tenant...", LoadingContext.Login);
     this.errorMessage = null;
 
     const payload: SignupRequest = {
@@ -58,13 +58,14 @@ export class SignupComponent {
 
     this.signupService.createTenant(payload).subscribe({
       next: (resp: SignupResponse) => {
-        this.isSubmitting = false;
+        this.globalLoading.hide();
         this.errorMessage = null;
         console.log("tenant created successfully: " + resp.tenantId);
+        this.router.navigate(['/support/tenants']);
       },
       error: (err) => {
         this.errorMessage = err.error?.message ?? 'Signup failed';
-        this.isSubmitting = false;
+        this.globalLoading.hide();
       }
     })
   }

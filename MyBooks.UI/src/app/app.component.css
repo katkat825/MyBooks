@@ -35,6 +35,20 @@
     color: var(--text-color);
 }
 
+.impersonation-banner {
+  background-color: var(--warn);
+  text-align: center;
+  color: var(--bg-color);
+  padding: 10px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  z-index: 2000;
+}
+
 .app-title {
   font-size: 1.5rem;
   font-weight: bold;

@@ -25,6 +25,10 @@ import { BulkImportComponentComponent } from './owner/bulk-import.component/bulk
 import { BulkImportComponent } from './owner/bulk-import/bulk-import.component';
 import { BulkImportTableComponent } from './owner/bulk-import/bulk-import-table/bulk-import-table.component';
 import { CompleteInviteComponent } from './components/complete-invite/complete-invite.component';
+import { LayoutComponent } from './support-user/layout/layout.component';
+import { SupportLayoutComponent } from './support-user/support-layout/support-layout.component';
+import { SupportHomeComponent } from './support-user/support-home/support-home.component';
+import { TenantsComponent } from './support-user/components/tenants/tenants.component';
 
 @NgModule({
   imports: [
@@ -56,7 +60,11 @@ import { CompleteInviteComponent } from './components/complete-invite/complete-i
     BulkImportComponentComponent,
     BulkImportComponent,
     BulkImportTableComponent,
-    CompleteInviteComponent
+    CompleteInviteComponent,
+    LayoutComponent,
+    SupportLayoutComponent,
+    SupportHomeComponent,
+    TenantsComponent
   ]
 })
 export class AppModule { }

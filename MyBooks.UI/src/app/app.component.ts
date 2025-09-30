@@ -38,6 +38,7 @@ export class AppComponent {
   isLightTheme = true;
   userRole: string = '';
   currentUrl = window.location.href;
+  isSupportUser: boolean = false;
 
   globalLoading$: Observable<boolean>;
   globalMessage$: Observable<string>;
@@ -53,6 +54,7 @@ export class AppComponent {
     this.globalLoading$ = this.loadingService.isVisible$;
     this.globalMessage$ = this.loadingService.message$;
     this.globalFunMessage$ = this.loadingService.funMessage$;
+    this.isSupportUser = this.userService.isImpersonating;
   }
 
   ngOnInit() { 
@@ -96,6 +98,7 @@ export class AppComponent {
 
   logout() {
     this.userService.clearSession();
+    this.isSupportUser = false;
     this.router.navigate(['/login']);
   } 
 }

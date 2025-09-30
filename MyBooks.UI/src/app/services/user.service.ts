@@ -3,27 +3,42 @@ import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http
 import { Observable, catchError, throwError, tap, map, BehaviorSubject, shareReplay, EMPTY, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
+  private jwtHelper = new JwtHelperService();
   private usersApiUrl = `${environment.authServiceUrl}/users`;
   private accountApiUrl = `${environment.authServiceUrl}/account`;
   private userSubject = new BehaviorSubject<any>(null);
   user$ = this.userSubject.asObservable();
 
   canAccessAdmin$ = this.user$.pipe(
-    map(u => !!u && (u.role === 'Admin' || u.role === 'Editor' || u.role === 'SuperAdmin' || u.role === 'Owner')),
+    map(u => !!u && (u.role === 'Admin' || u.role === 'Editor' || u.role === 'SuperAdmin' || u.role === 'Owner' || u.role === 'Support')),
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
   canAccessOwner$ = this.user$.pipe(
-    map(u => !!u && (u.role === 'SuperAdmin' || u.role === 'Owner')),
+    map(u => !!u && (u.role === 'SuperAdmin' || u.role === 'Owner' || u.role === 'Support')),
     shareReplay({ bufferSize: 1, refCount: true})
   );
 
+  canAccessSupport$ = this.user$.pipe(
+    map(u => !!u && u.role === 'SuperAdmin'),
+    shareReplay({ bufferSize: 1, refCount: true })
+  );
+
   constructor(private http: HttpClient, private router: Router) { }
+
+  get isImpersonating(): boolean {
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+
+    const decoded = this.jwtHelper.decodeToken(token);
+    return decoded?.IsImpersonating === 'true';
+  }
 
   public getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
@@ -76,7 +91,7 @@ export class UserService {
   private isSupportAccount(u: any): boolean {
     if (!u) return false;
     // Hide by role…
-    if (u.role === 'SuperAdmin') return true;
+    if (u.role === 'SuperAdmin' || u.role === 'Support') return true;
     // …and/or by service email convention (adjust if you picked a different prefix)
     const email = String(u.email || '').toLowerCase();
     return email.startsWith('svc+') && email.endsWith('@mybookcatalog.com');

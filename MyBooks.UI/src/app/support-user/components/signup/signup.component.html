@@ -1,8 +1,4 @@
 <div style="position: relative;" class="form-container">
-  <div class="overlay" *ngIf="isSubmitting">
-    <mat-spinner class="mat-spinner"></mat-spinner>
-    <p>Please wait while we get things set up for you...</p>
-  </div>
   
   <form [formGroup]="form" (ngSubmit)="submit()" class="card">
     <h3>Create Your Account</h3>
@@ -30,7 +26,7 @@
         </mat-error>
     </mat-form-field>
 
-    <button mat-button id="create-account" type="submit" [disabled]="form.invalid || isSubmitting">Create</button>
+    <button mat-button id="create-account" type="submit" [disabled]="form.invalid">Create</button>
 
     <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
   </form>

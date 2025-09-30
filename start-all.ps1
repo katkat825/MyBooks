@@ -4,6 +4,7 @@ Start-Process "dotnet" "run --project ./MyBooks.CatalogService/MyBooks.CatalogSe
 Start-Process "dotnet" "run --project ./MyBooks.FileService/MyBooks.FileService.csproj"
 Start-Process "dotnet" "run --project ./MyBooks.TenantService/MyBooks.TenantService.csproj"
 Start-Process "dotnet" "run --project ./MyBooks.EmailService/MyBooks.EmailService.csproj"
+Start-Process "dotnet" "run --project ./MyBooks.SupportService/MyBooks.SupportService.csproj"
 
 # Run Angular UI (ng serve --open is equivalent to npm start in your esproj setup)
 Start-Process "cmd.exe" "/c npm run start --prefix ./MyBooks.UI"

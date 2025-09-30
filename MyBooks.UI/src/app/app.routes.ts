@@ -11,14 +11,17 @@ import { AdminGuard } from './utilities/admin.guard';
 import { AupGuard } from './utilities/aup.guard';
 import { OwnerGuard } from './utilities/owner.guard';
 import { ReportAbuseComponent } from './components/report-abuse/report-abuse.component';
-import { SignupComponent } from './components/signup/signup.component';
+import { SignupComponent } from './support-user/components/signup/signup.component';
 import { AuthGuard } from './utilities/auth.guard';
-import { RemovedGuard } from './utilities/removed.guard';
+import { SupportUserGuard } from './utilities/support-user.guard';
 import { AccountUsersComponent } from './owner/account-users/account-users.component';
 import { GoogleDriveComponent } from './owner/integrations/google-drive/google-drive.component';
 import { BulkImportComponent } from './owner/bulk-import/bulk-import.component';
 import { CompleteInviteComponent } from './components/complete-invite/complete-invite.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { SupportLayoutComponent } from './support-user/support-layout/support-layout.component';
+import { SupportHomeComponent } from './support-user/support-home/support-home.component';
+import { TenantsComponent } from './support-user/components/tenants/tenants.component';
 
 export const routes: Routes = [
   { path: '', component: BookListComponent, canActivate: [AupGuard, AuthGuard] },
@@ -31,7 +34,6 @@ export const routes: Routes = [
   { path: 'book-viewer/:fileId', component: BookViewerComponent, canActivate: [AupGuard, AuthGuard] },
   { path: 'aup', component: AcceptableUsePolicyComponent},
   { path: 'report-abuse', component: ReportAbuseComponent},
-  { path: 'signup', component: SignupComponent, canActivate: [RemovedGuard]},
   { path: 'account', canActivate: [OwnerGuard, AupGuard, AuthGuard], 
     children: [
       { path: 'users', component: AccountUsersComponent },
@@ -42,5 +44,13 @@ export const routes: Routes = [
   },
   { path: 'invite/:token', component: CompleteInviteComponent },
   { path: 'reset/:token', component: CompleteInviteComponent },
-  { path:'reset-password', component: ResetPasswordComponent }
+  { path:'reset-password', component: ResetPasswordComponent },
+  { path: 'support', component: SupportLayoutComponent, canActivate: [SupportUserGuard],
+    children: [
+      { path: '', component: SupportHomeComponent },
+      { path: 'tenants', component: TenantsComponent, 
+        children: [ { path: 'new', component: SignupComponent } ]
+      }
+    ]
+  }
 ];

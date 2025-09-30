@@ -29,6 +29,9 @@
           <button mat-menu-item id="owner-menu" *ngIf="userService.canAccessOwner$ | async" [matMenuTriggerFor]="ownerMenu">
             <mat-icon>settings</mat-icon> Account Settings
           </button>
+          <button mat-menu-item id="support-user" *ngIf="userService.canAccessSupport$ | async" [routerLink]="'/support'">
+            <mat-icon>badge</mat-icon> MBC Support
+          </button>
 
           <button mat-menu-item id="login-btn" *ngIf="!isAuthenticated()" [routerLink]="'/login'">
             <mat-icon>login</mat-icon> Login
@@ -71,8 +74,12 @@
   <router-outlet></router-outlet>
 </main>
 
-<footer class="footer">
+<footer *ngIf="!isSupportUser" class="footer">
   <span>&copy; 2025 My Books</span>
   <a routerLink="/aup">Acceptable Use Policy</a>
   <a id="report-abuse-btn" routerLink="/report-abuse" [queryParams]="{ url: currentUrl }">Report Abuse</a>
+</footer>
+
+<footer *ngIf="isSupportUser" class="impersonation-banner">
+  <span (click)="logout()">You are current impersonating a user or tenant support user. Click here to end Support session.</span>
 </footer>

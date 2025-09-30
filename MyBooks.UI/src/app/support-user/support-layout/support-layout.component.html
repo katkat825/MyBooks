@@ -1,0 +1,30 @@
+<div class="support-layout">
+  <!-- side nav -->
+  <mat-sidenav-container class="sidenav-container">
+    <mat-sidenav #drawer [mode]="'side'" [(opened)]="menuOpen" class="sidenav">
+      <mat-nav-list>
+        <a mat-list-item routerLink="/support">Support Home</a>
+        <a mat-list-item routerLink="/support/tenants">Tenants</a>
+        <a mat-list-item routerLink="/support/users">Users</a>
+        <a mat-list-item routerLink="/support/books">Books</a>
+        <a mat-list-item routerLink="/support/files">Files</a>
+        <a mat-list-item routerLink="/support/report-logs">Report Logs</a>
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <!-- content area -->
+    <mat-sidenav-content>
+      <div class="support-header">
+        <button mat-icon-button (click)="toggleMenu()">
+          <mat-icon>menu</mat-icon>
+        </button>
+
+        <h2>MBC Support</h2>
+      </div>
+      
+      <div class="support-content">
+        <router-outlet></router-outlet>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

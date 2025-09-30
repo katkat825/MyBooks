@@ -8,6 +8,7 @@ using MyBooks.Common.Services;
 using MyBooks.Common.Dtos;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authorization;
+using MyBooks.AuthService.Services;
 
 namespace MyBooks.AuthService.Controllers;
 
@@ -18,11 +19,13 @@ public class InternalUsersController : ControllerBase
 {
     private readonly AuthDbContext _context;
     private readonly HtmlSanitizationService _sanitizationService;
+    private readonly InvitationService _invitationService;
 
-    public InternalUsersController(AuthDbContext context, HtmlSanitizationService sanitizationService)
+    public InternalUsersController(AuthDbContext context, HtmlSanitizationService sanitizationService, InvitationService invitationService)
     {
         _context = context;
         _sanitizationService = sanitizationService;
+        _invitationService = invitationService;
     }
 
     // new user, no tenant yet
@@ -32,12 +35,14 @@ public class InternalUsersController : ControllerBase
         if (await _context.Users.AnyAsync(u => u.Email == request.Email))
             return Conflict(new { message = "Email already in use." });
 
+        var userRole = string.IsNullOrEmpty(request.Role) ? AppRoles.Owner : request.Role;
+
         var user = new User
         {
             FirstName = request.FirstName,
             LastName = request.LastName,
             Email = request.Email,
-            Role = AppRoles.Owner,
+            Role = userRole,
             AgeCategoryId = 3,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             IsActive = true,
@@ -48,6 +53,8 @@ public class InternalUsersController : ControllerBase
 
         _context.Users.Add(user);
         await _context.SaveChangesAsSystemAsync();
+
+        await _invitationService.CreateAndSendNewAccountEmailAsync(user.Id);
 
         return Ok(new CreatedUserResponseDto
         {

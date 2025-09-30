@@ -7,5 +7,6 @@ export const environment = {
   integrationApiUrl: `https://localhost:7142/api`,
   authBaseUrl: 'https://localhost:7254',
   emailServiceUrl: 'https://localhost:5006/api',
-  fileBaseUrl: 'https://localhost:7142/'
+  fileBaseUrl: 'https://localhost:7142/',
+  supportBaseUrl: 'https://localhost:7221'
 };
