@@ -1,9 +1,5 @@
 <div class="book-viewer-wrapper" style="position: relative; height: 80vh;">
-  <div class="spinner-overlay" *ngIf="isLoading">
-    <mat-spinner class="mat-spinner"></mat-spinner>
-    <p>Please wait while we load your book...</p>
-  </div>
-
+  
   <div #viewerContainer class="viewer-container">
     <div #pdfViewer class="pdfViewer"></div>
   </div>

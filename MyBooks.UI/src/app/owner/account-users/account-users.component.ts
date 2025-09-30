@@ -13,6 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { UserService } from '../../services/user.service';
 import { ConfirmDialogComponent } from '../../components/shared/confirmation.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { GlobalLoadingService } from '../../services/global-loading.service';
 
 
 @Component({
@@ -51,7 +52,8 @@ export class AccountUsersComponent {
     private userService: UserService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private globalLoading: GlobalLoadingService
   ) { }
 
   ngOnInit(): void {
@@ -194,14 +196,18 @@ export class AccountUsersComponent {
   addUser() {
     if (this.userForm.invalid) return;
 
+    this.globalLoading.show("Please wait while we create this user...")
+
     this.userService.createUser(this.userForm.value).subscribe({
       next: () => {
         this.userForm.reset();
         this.showAddUserForm = false;
         this.showSavedSnack();
+        this.globalLoading.hide();
         this.loadUsers();
       },
       error: (error) => {
+        this.globalLoading.hide();
         console.error("error creating user: ", error);
         alert("Failed to create user");
       },

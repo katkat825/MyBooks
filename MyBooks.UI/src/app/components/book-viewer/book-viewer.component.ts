@@ -6,9 +6,9 @@ import { debounce, debounceTime } from 'rxjs/operators';
 import * as pdfjsLib from 'pdfjs-dist';
 import { PDFViewer, PDFLinkService, EventBus } from 'pdfjs-dist/web/pdf_viewer';
 import ePub from 'epubjs';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { GlobalLoadingService, LoadingContext } from '../../services/global-loading.service';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
@@ -17,7 +17,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
   standalone: true,
   templateUrl: './book-viewer.component.html',
   styleUrls: ['./book-viewer.component.css'],
-  imports: [MatProgressSpinnerModule,
+  imports: [
   CommonModule,
   MatIconModule]
 })
@@ -31,7 +31,6 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   epubBook: any;
   rendition: any;
   scrollSub!: Subscription;
-  isLoading: boolean = true;
   zoomLevel: number = 1.0;
 
   private currentEpubContents: any;
@@ -42,10 +41,12 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private bookService: BookService,
-    private router: Router
+    private router: Router,
+    private globalLoading: GlobalLoadingService
   ) { }  
 
   ngOnInit(): void {
+    this.globalLoading.show("Loading your book...", LoadingContext.BookViewer);
     const savedZoom = localStorage.getItem(this.ZOOM_KEY);
     if (savedZoom) {
       this.zoomLevel = parseFloat(savedZoom);
@@ -58,7 +59,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
         if (!metadata) {
           alert('File not found.');
           this.router.navigate(['/']);
-          this.isLoading = false;
+          this.globalLoading.hide();
           return;
         }
 
@@ -68,7 +69,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
             if (book.isRestricted) {
               alert('This book is currently under investigation and cannot be viewed.');
               this.router.navigate(['/book', metadata.bookId]);
-              this.isLoading = false;
+              this.globalLoading.hide();
               return;
             }
 
@@ -87,14 +88,14 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
           error: (err) => {
             console.error('Error fetching book details', err);
             this.router.navigate(['/']);
-            this.isLoading = false;
+            this.globalLoading.hide();
           }
         });
       },
       error: (err) => {
         console.error('Error fetching file metadata', err);
         this.router.navigate(['/']);
-        this.isLoading = false; 
+        this.globalLoading.hide();
       }
     });
   }
@@ -143,7 +144,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       error: (error) => {
         console.error("error downloading file: ", error);
-        this.isLoading = false;
+        this.globalLoading.hide();
         alert('Error downloading file.');
       }
     });
@@ -157,7 +158,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       this.renderPdf();
     }).catch((error: any) => {
       console.error("error loading pdf: ", error);
-      this.isLoading = false;
+      this.globalLoading.hide();
       alert('Error loading PDF document.');
     });
   }
@@ -184,11 +185,11 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
           const progressPercent = progressData && (progressData.ProgressPercent || progressData.progressPercent) || 0;
           const totalScrollable = container.scrollHeight - container.clientHeight;
           container.scrollTop = (progressPercent / 100) * totalScrollable;
-          this.isLoading = false;
+          this.globalLoading.hide();
         },
         error: (error) => {
           console.error("Error fetching reading progress:", error);
-          this.isLoading = false;
+          this.globalLoading.hide();
         }
       });
     });
@@ -266,7 +267,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
           this.updateProgress(progress);
         } else {
           console.warn("Unable to calculate EPUB progress.");
-          this.isLoading = false;
+          this.globalLoading.hide();
         }
       });
 
@@ -292,18 +293,18 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
           });
           this.themeObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
-          this.isLoading = false;
+          this.globalLoading.hide();
         },
         error: (error) => {
           console.error("Error fetching reading progress:", error);
           this.rendition.display();
-          this.isLoading = false;
+          this.globalLoading.hide();
         }
       });
 
     }).catch((err: any) => {
       console.error('Error generating locations:', err);
-      this.isLoading = false;
+      this.globalLoading.hide();
       alert('Error loading EPUB document.');
     });      
   }
