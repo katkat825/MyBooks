@@ -1,7 +1,7 @@
 .support-layout,
 .sidenav-container {
-  height: 100vh;          /* fill the screen */
-  width: 100%;            /* take full width */
+  height: 80vh;        
+  width: 100%;          
   display: flex;
   background: var(--bg-color);
   color: var(--text-color);

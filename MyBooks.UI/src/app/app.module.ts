@@ -30,6 +30,8 @@ import { SupportLayoutComponent } from './support-user/support-layout/support-la
 import { SupportHomeComponent } from './support-user/support-home/support-home.component';
 import { TenantsComponent } from './support-user/components/tenants/tenants.component';
 import { UsersComponent } from './support-user/components/users/users.component';
+import { SupportBooksComponent } from './support-user/components/support-books/support-books.component';
+import { BookViewerDialogComponent } from './support-user/components/support-books/book-viewer-dialog/book-viewer-dialog.component';
 
 @NgModule({
   imports: [
@@ -66,7 +68,9 @@ import { UsersComponent } from './support-user/components/users/users.component'
     SupportLayoutComponent,
     SupportHomeComponent,
     TenantsComponent,
-    UsersComponent
+    UsersComponent,
+    SupportBooksComponent,
+    BookViewerDialogComponent
   ]
 })
 export class AppModule { }

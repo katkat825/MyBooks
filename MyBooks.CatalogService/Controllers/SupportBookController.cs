@@ -90,7 +90,7 @@ public class SupportBookController : ControllerBase
         book.IsRestricted = restricted;
         _context.Entry(book).State = EntityState.Modified;
 
-        await _context.SaveChangesAsync();
+        await _context.SaveFlipRestrictedAsync();
         return NoContent();
     }
 }

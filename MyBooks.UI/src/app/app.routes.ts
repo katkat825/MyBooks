@@ -23,6 +23,9 @@ import { SupportLayoutComponent } from './support-user/support-layout/support-la
 import { SupportHomeComponent } from './support-user/support-home/support-home.component';
 import { TenantsComponent } from './support-user/components/tenants/tenants.component';
 import { SupportUsersComponent } from './support-user/components/users/users.component';
+import { SupportBooksComponent } from './support-user/components/support-books/support-books.component';
+import { BookService } from './services/book.service';
+import { SupportUserService } from './services/support-user.service';
 
 export const routes: Routes = [
   { path: '', component: BookListComponent, canActivate: [AupGuard, AuthGuard] },
@@ -32,7 +35,7 @@ export const routes: Routes = [
   { path: 'book/:id', component: BookDetailsComponent, canActivate: [AupGuard, AuthGuard] },
   { path: 'admin', component: AdminComponent, canActivate: [AdminGuard, AupGuard, AuthGuard] },
   { path: 'profile', component: MyProfileComponent },
-  { path: 'book-viewer/:fileId', component: BookViewerComponent, canActivate: [AupGuard, AuthGuard] },
+  { path: 'book-viewer/:fileId', component: BookViewerComponent, canActivate: [AupGuard, AuthGuard], providers: [{ provide: 'ViewerService', useClass: BookService }] },
   { path: 'aup', component: AcceptableUsePolicyComponent},
   { path: 'report-abuse', component: ReportAbuseComponent},
   { path: 'account', canActivate: [OwnerGuard, AupGuard, AuthGuard], 
@@ -46,13 +49,15 @@ export const routes: Routes = [
   { path: 'invite/:token', component: CompleteInviteComponent },
   { path: 'reset/:token', component: CompleteInviteComponent },
   { path:'reset-password', component: ResetPasswordComponent },
+  { path: 'support/book-viewer/:fileId', component: BookViewerComponent, providers: [{ provide: 'ViewerService', useClass: SupportUserService }] },
   { path: 'support', component: SupportLayoutComponent, canActivate: [SupportUserGuard],
     children: [
       { path: '', component: SupportHomeComponent },
       { path: 'tenants', component: TenantsComponent, 
         children: [ { path: 'new', component: SignupComponent } ]
       },
-      { path: 'users', component: SupportUsersComponent}
+      { path: 'users', component: SupportUsersComponent},
+      { path: 'books', component:SupportBooksComponent},
     ]
   }
 ];

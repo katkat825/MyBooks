@@ -22,7 +22,7 @@ export interface BulkImportStartDto {
 })
 
 export class BulkImportService {
-  private readonly baseUrl = `${environment.fileBaseUrl}api/bulk-import`;
+  private readonly baseUrl = `${environment.fileBaseUrl}/api/bulk-import`;
 
   constructor(private http: HttpClient) {}
 

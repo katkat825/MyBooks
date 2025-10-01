@@ -9,6 +9,7 @@ import ePub from 'epubjs';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { GlobalLoadingService, LoadingContext } from '../../services/global-loading.service';
+import { SupportUserService } from '../../services/support-user.service';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
@@ -41,12 +42,26 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private bookService: BookService,
+    private supportService: SupportUserService,
     private router: Router,
     private globalLoading: GlobalLoadingService
   ) { }  
 
+  // swap bookService or supportService depending on route
+  get viewerService() {
+    const url = this.router.url;
+    const service = url.startsWith('/support') ? this.supportService : this.bookService;
+    return service;
+  }
+
+  get isSupportService() {
+    const url = this.router.url;
+    return url.startsWith('/support');
+  }
+
   ngOnInit(): void {
     this.globalLoading.show("Loading your book...", LoadingContext.BookViewer);
+
     const savedZoom = localStorage.getItem(this.ZOOM_KEY);
     if (savedZoom) {
       this.zoomLevel = parseFloat(savedZoom);
@@ -54,7 +69,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.fileId = Number(this.route.snapshot.paramMap.get('fileId'));
 
-    this.bookService.getFileMetadata(this.fileId).subscribe({
+    this.viewerService.getFileMetadata(this.fileId).subscribe({
       next: (metadata) => {
         if (!metadata) {
           alert('File not found.');
@@ -64,7 +79,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         // check if book is restricted
-        this.bookService.getBook(metadata.bookId).subscribe({
+        this.viewerService.getBook(metadata.bookId).subscribe({
           next: (book) => {
             if (book.isRestricted) {
               alert('This book is currently under investigation and cannot be viewed.');
@@ -134,7 +149,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadFile(): void {
-    this.bookService.downloadFile(this.fileId).subscribe({
+    this.viewerService.downloadFile(this.fileId).subscribe({
       next: (fileBlob) => {
         if (this.fileType === 'pdf') {
           this.loadPdf(fileBlob);
@@ -180,7 +195,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     eventBus.on('pagesinit', () => {
       (this.pdfViewer as any).currentScale = this.zoomLevel;
-      this.bookService.getReadingProgress(this.fileId).subscribe({
+      this.viewerService.getReadingProgress(this.fileId).subscribe({
         next: (progressData) => {
           const progressPercent = progressData && (progressData.ProgressPercent || progressData.progressPercent) || 0;
           const totalScrollable = container.scrollHeight - container.clientHeight;
@@ -272,7 +287,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
       //get reading progress
-      this.bookService.getReadingProgress(this.fileId).subscribe({
+      this.viewerService.getReadingProgress(this.fileId).subscribe({
         next: (progressData) => {
           const progressPercent = progressData && (progressData.ProgressPercent || progressData.progressPercent) || 0;
 
@@ -310,7 +325,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   updateProgress(progress: number): void {
-    this.bookService.updateReadingProgress(this.fileId, progress).subscribe({
+    this.viewerService.updateReadingProgress(this.fileId, progress).subscribe({
       error: (error) => console.error('Error updating progress: ', error)
     });
   }

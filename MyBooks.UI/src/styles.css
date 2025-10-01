@@ -182,6 +182,14 @@ input, select {
   border-collapse: collapse;
 }
 
+.support-active-icon {
+    color: var(--primary);
+}
+
+.support-inactive-icon {
+    color: var(--warn);
+}
+
 .mat-mdc-no-data-row td {
   padding-top: 12px;   /* space between header line and "no data" message */
   text-align: center;

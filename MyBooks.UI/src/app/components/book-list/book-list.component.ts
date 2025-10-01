@@ -62,7 +62,7 @@ export class BookListComponent {
 
   hasCreatePermission(): boolean {
     if (!this.currentUser) return false;
-    return ['owner', 'superadmin'].includes(this.currentUser.role.toLowerCase());
+    return ['owner', 'superadmin', 'support'].includes(this.currentUser.role.toLowerCase());
   }
 
   loadBooks() {

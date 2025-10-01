@@ -1,6 +1,14 @@
 .book-viewer-wrapper {
   position: relative;
   height: 100%;
+  width: 100%;
+}
+
+.book-viewer-wrapper.support-viewer {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 90%;
+  margin: 0 auto;
 }
 
 .viewer-container {

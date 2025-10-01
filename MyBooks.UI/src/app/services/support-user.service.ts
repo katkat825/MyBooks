@@ -10,7 +10,7 @@ import { Observable } from 'rxjs';
 export class SupportUserService {
   private authBaseUrl = environment.authBaseUrl;
   private catalogApiUrl = environment.apiUrl;
-  private fileApiUrl = environment.fileApiUrl;
+  private fileApiUrl = `${environment.fileBaseUrl}/api/support/files`;
   private tenantApiUrl = environment.tenantApiUrl;
 
   constructor(private http: HttpClient) {}
@@ -52,24 +52,41 @@ export class SupportUserService {
     );
   }
 
-  // books
-  getAllBooks(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.catalogApiUrl}/support/book`, { headers: this.getAuthHeaders() });
+  //book-viewer component requirements
+  getBook(id: number): Observable<any> {
+    return this.http.get<any>(`${this.catalogApiUrl}/support/supportbook/${id}`, { headers: this.getAuthHeaders() });
   }
 
-  getBookById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.catalogApiUrl}/support/book/${id}`, { headers: this.getAuthHeaders() });
+  downloadFile(fileId: number): Observable<Blob> {
+    return this.http.get(`${this.fileApiUrl}/${fileId}`, { responseType: 'blob', headers: this.getAuthHeaders() });
+  }
+
+  getFileMetadata(fileId: number) {
+    return this.http.get(`${this.fileApiUrl}/metadata/${fileId}`, { headers: this.getAuthHeaders() });
+  }
+
+  getReadingProgress(fileId: number): Observable<any> {
+    return this.http.get(`${this.fileApiUrl}/progress/${fileId}`, { headers: this.getAuthHeaders() });
+  }
+
+  updateReadingProgress(fileId: number, progress: number): Observable<any> {
+    return this.http.post(`${this.fileApiUrl}/progress/${fileId}`, { ProgressPercent: progress }, { headers: this.getAuthHeaders() });
+  }
+
+  // books
+  getAllBooks(): Observable<any> {
+    return this.http.get<any>(`${this.catalogApiUrl}/support/supportbook`, { headers: this.getAuthHeaders() });
   }
 
   toggleBookRestricted(id: number, restricted: boolean): Observable<void> {
     return this.http.patch<void>(
-      `${this.catalogApiUrl}/support/book/${id}/restricted?restricted=${restricted}`, {}, { headers: this.getAuthHeaders() }
+      `${this.catalogApiUrl}/support/supportbook/${id}/restricted?restricted=${restricted}`, {}, { headers: this.getAuthHeaders() }
     );
   }
 
   updateBookFileLink(bookId: number, fileId: number): Observable<void> {
     return this.http.patch<void>(
-      `${this.catalogApiUrl}/support/book/${bookId}/file`,
+      `${this.catalogApiUrl}/support/supportbook/${bookId}/file`,
       { bookId, fileId },
       { headers: this.getAuthHeaders() }
     );
@@ -77,7 +94,7 @@ export class SupportUserService {
 
   // files
   getAllFilesForBook(bookId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.fileApiUrl}/support/file/book/${bookId}`, { headers: this.getAuthHeaders() });
+    return this.http.get<any[]>(`${this.fileApiUrl}/book/${bookId}`, { headers: this.getAuthHeaders() });
   }
 
   activateFile(fileId: number): Observable<void> {

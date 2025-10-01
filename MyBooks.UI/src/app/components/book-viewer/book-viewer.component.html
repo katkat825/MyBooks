@@ -1,4 +1,6 @@
-<div class="book-viewer-wrapper" style="position: relative; height: 80vh;">
+<div class="book-viewer-wrapper" 
+  [class.support-viewer]="isSupportService"
+  style="position: relative; height: 80vh;">
   
   <div #viewerContainer class="viewer-container">
     <div #pdfViewer class="pdfViewer"></div>

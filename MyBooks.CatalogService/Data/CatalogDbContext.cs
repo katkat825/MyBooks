@@ -136,6 +136,24 @@ namespace MyBooks.CatalogService.Data
             return await base.SaveChangesAsync(cancellationToken);
         }
 
+        public async Task<int> SaveFlipRestrictedAsync(CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker.Entries<Book>().ToList();
+
+            if (entries.Count != 1)
+                throw new InvalidOperationException("This save method expects exactly one Book entity to be modified.");
+
+            var entry = entries.Single();
+            var book = entry.Entity;
+
+            // flip only IsRestricted — ignore other modifications
+            entry.CurrentValues.SetValues(entry.OriginalValues);
+            book.IsRestricted = !book.IsRestricted;
+
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+
         public void NormalizeBookFields()
         {
             foreach (var entry in ChangeTracker.Entries<Book>()
