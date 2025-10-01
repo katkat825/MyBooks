@@ -110,22 +110,35 @@ input, select {
   color: var(--text-color) !important;
 }
 
-/* globally override option text */
 .mat-mdc-option .mdc-list-item__primary-text {
   color: var(--text-color) !important;
 }
 
-/* optional: tweak hover + selected states */
 .mat-mdc-option.mdc-list-item--selected .mdc-list-item__primary-text,
 .mat-mdc-option.mdc-list-item--activated .mdc-list-item__primary-text {
   color: var(--text-color) !important;
   font-weight: 500;
 }
 
-.mat-mdc-option:hover .mdc-list-item__primary-text {
-  color: var(--bg-color) !important;
-  background-color: var(--text-color) !important;
+.sidenav {
+  background-color: var(--surface-bg) !important;
+  color: var(--title-color) !important;
 }
+
+.sidenav .mat-mdc-nav-list,
+.sidenav .mat-mdc-list-item {
+  background-color: var(--surface-bg) !important;
+  color: var(--title-color) !important;
+}
+
+.sidenav .mat-mdc-list-item .mdc-list-item__primary-text {
+  color: var(--title-color) !important;
+}
+
+.sidenav .mat-mdc-list-item:hover {
+  background-color: color-mix(in srgb, var(--surface-bg) 90%, black) !important; 
+}
+
 
 ::placeholder {
   color: var(--text-color);
