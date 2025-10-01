@@ -36,7 +36,7 @@
           <button mat-menu-item id="login-btn" *ngIf="!isAuthenticated()" [routerLink]="'/login'">
             <mat-icon>login</mat-icon> Login
           </button>
-          <button mat-menu-item id="logout-btn" *ngIf="isAuthenticated()" (click)="logout()">
+          <button mat-menu-item id="logout-btn" *ngIf="isAuthenticated() && !isSupportUser" (click)="logout()">
             <mat-icon>exit_to_app</mat-icon> Logout
           </button>
         </mat-menu>

@@ -81,7 +81,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
         // check if book is restricted
         this.viewerService.getBook(metadata.bookId).subscribe({
           next: (book) => {
-            if (book.isRestricted) {
+            if (book.isRestricted && !this.isSupportService) {
               alert('This book is currently under investigation and cannot be viewed.');
               this.router.navigate(['/book', metadata.bookId]);
               this.globalLoading.hide();
