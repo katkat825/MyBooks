@@ -1,5 +1,36 @@
 <div class="support-container">
-  <table mat-table [dataSource]="books" class="mat-elevation-z2 full-width">
+
+  <!-- search and filters -->
+  <div class="filters">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Search Books</mat-label>
+      <input matInput placeholder="Search by title..." [(ngModel)]="searchTerm" (input)="applyFilters()" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>    
+
+    <div class="filter-action">
+      <mat-checkbox [(ngModel)]="showOnlyActive" (change)="applyFilters()">
+        Show only Active
+      </mat-checkbox>
+
+      <mat-checkbox [(ngModel)]="showOnlyRestricted" (change)="applyFilters()">
+        Show only Restricted
+      </mat-checkbox>
+
+      <!-- tenant dropdown -->
+      <mat-form-field>
+        <mat-label>Filter by Tenant</mat-label>
+        <mat-select [(ngModel)]="selectedTenant" (selectionChange)="applyFilters()" panelClass="dropdown-select-panel">
+          <mat-option [value]="null">All Tenants</mat-option>
+          <mat-option *ngFor="let tenant of tenants" [value]="tenant">
+            {{ tenant }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <table mat-table [dataSource]="filteredBooks" class="mat-elevation-z2 full-width">
 
     <!-- ID -->
     <ng-container matColumnDef="id">

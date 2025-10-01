@@ -1,0 +1,9 @@
+.filter-action {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 3rem;
+    margin-bottom: 1rem;
+    color: var(--text-color) !important;
+}
+

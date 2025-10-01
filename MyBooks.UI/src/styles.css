@@ -106,6 +106,27 @@ input, select {
   color: var(--text-color) !important;
 }
 
+.mat-mdc-checkbox .mdc-label {
+  color: var(--text-color) !important;
+}
+
+/* globally override option text */
+.mat-mdc-option .mdc-list-item__primary-text {
+  color: var(--text-color) !important;
+}
+
+/* optional: tweak hover + selected states */
+.mat-mdc-option.mdc-list-item--selected .mdc-list-item__primary-text,
+.mat-mdc-option.mdc-list-item--activated .mdc-list-item__primary-text {
+  color: var(--text-color) !important;
+  font-weight: 500;
+}
+
+.mat-mdc-option:hover .mdc-list-item__primary-text {
+  color: var(--bg-color) !important;
+  background-color: var(--text-color) !important;
+}
+
 ::placeholder {
   color: var(--text-color);
   opacity: 0.7;
