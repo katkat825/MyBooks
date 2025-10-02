@@ -12,13 +12,14 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { BookService } from '../../services/book.service';
 import { UserService } from '../../services/user.service';
 import { ConfirmDialogComponent } from '../../components/shared/confirmation.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { publish } from 'rxjs';
 import { GlobalLoadingService, LoadingContext } from '../../services/global-loading.service';
+import { IntegrationService } from '../../services/integration.service';
 
 @Component({
   selector: 'app-book-form',
@@ -38,7 +39,8 @@ import { GlobalLoadingService, LoadingContext } from '../../services/global-load
     MatProgressSpinnerModule,
     MatDialogModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    RouterModule
   ]
 })
 export class BookFormComponent implements OnInit {
@@ -51,6 +53,7 @@ export class BookFormComponent implements OnInit {
   newSeries: boolean = false;
   fileId?: number;
   currentUser: any = null;
+  hasIntegration: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -59,10 +62,20 @@ export class BookFormComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private dialog: MatDialog,
-    private globalLoading: GlobalLoadingService
+    private globalLoading: GlobalLoadingService,
+    private integrationService: IntegrationService
   ) { }
 
   ngOnInit(): void {
+    this.integrationService.getIntegrations().subscribe({
+      next: (integrations) => {
+        this.hasIntegration = integrations && integrations.length > 0;
+      },
+      error: () => {
+        this.hasIntegration = false;
+      }
+    });
+
     this.bookForm = this.fb.group({
       step1: this.fb.group({
         title: ['', Validators.required],
@@ -157,7 +170,10 @@ export class BookFormComponent implements OnInit {
           });
         }
       },
-      error: (error) => console.error('Error loading book: ', error)
+      error: (error) => {
+        console.error('Error loading book: ', error);
+        alert("Error loading this book");
+      }
     });
   }
 
@@ -237,6 +253,7 @@ export class BookFormComponent implements OnInit {
         next: () => this.globalLoading.hide(),
         error: (error) => {
           console.error("Error updating book: ", error);
+          alert("Error updating your book");
           this.globalLoading.hide();
         }
       });
@@ -258,6 +275,7 @@ export class BookFormComponent implements OnInit {
         error: (error) => {
           console.error("Error creating book: ", error);
           this.globalLoading.hide();
+          alert("Error creating your book");
         }
       });
     }
@@ -283,6 +301,7 @@ export class BookFormComponent implements OnInit {
       error: (error) => {
         console.error('Error updating book: ', error);
         this.globalLoading.hide();
+        alert("Error updating this book");
       }
     });
   }
@@ -298,6 +317,7 @@ export class BookFormComponent implements OnInit {
   uploadFileWithBookId() {
     if (!this.selectedFile || !this.bookId) {
       console.warn("No file selected or bookId missing.");
+      alert("No file selected");
       return;
     }
 
@@ -332,8 +352,9 @@ export class BookFormComponent implements OnInit {
         if (response && response.fileId) {
           this.fileId = response.fileId;
 
-          if (!this.fileId) { //yes I know it's redundant, but I can't get updateBookFileId to work without it
+          if (!this.fileId) { 
             this.globalLoading.hide();
+            alert("Redundant fileId check failed. I don't know how");
             return;
           }
           this.bookService.updateBookFileId(this.bookId, this.fileId).subscribe({
@@ -343,16 +364,19 @@ export class BookFormComponent implements OnInit {
             },
             error: (error) => {
               console.error("Failed to update book with FileId", error);
+              alert("Failed to upload file.");
               this.globalLoading.hide();
             }
           });
         } else {
           console.warn("no file id returned from api");
+          alert("Failed to upload file");
           this.globalLoading.hide();
         }
       },
       error: (error) => {
         console.error('error uploading file', error);
+        alert("Error uploading file");
         this.globalLoading.hide();
       }
     });

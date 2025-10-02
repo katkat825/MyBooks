@@ -109,12 +109,19 @@
     <!-- Step 3: File Upload -->
     <mat-step [stepControl]="step3">
       <h3>Step 3: Upload File for {{ step1.get('title')?.value }}</h3>
-      <input type="file" (change)="onFileSelected($event)">
+      <input type="file" (change)="onFileSelected($event)" *ngIf="hasIntegration">
       <p *ngIf="selectedFile">{{ selectedFile.name }}</p>
 
+      <span *ngIf="!hasIntegration" class="no-integration">
+        <p>This book has been saved, but you cannot upload any files at this time.</p>
+        <p>To be able to upload files, first connect your cloud storage</p>
+        <button mat-button id="connect-drive" [routerLink]="['/account/integrations']">Connect Storage</button>
+      </span>
+
       <button mat-button matStepperPrevious>Back</button>
-      <button mat-button id="upload-file" (click)="uploadFileWithBookId()" matStepperNext>Upload</button>
-      <button mat-button id="skip-file" (click)="skipFile()">Skip</button>
+      <button mat-button id="upload-file" (click)="uploadFileWithBookId()" *ngIf="hasIntegration" matStepperNext>Upload</button>
+      <button mat-button id="skip-file" (click)="skipFile()" *ngIf="hasIntegration">Skip</button>
+      <button mat-button id="skip-file-no-integration" (click)="skipFile()" *ngIf="!hasIntegration">Finalize</button>
     </mat-step>
   </mat-stepper>
 </div>
