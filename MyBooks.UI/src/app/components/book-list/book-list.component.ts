@@ -81,11 +81,16 @@ export class BookListComponent {
 
   filterBooks() {
     const query = this.searchQuery.toLowerCase().trim();
+    if(!query) {
+      this.filteredBooks = [...this.books];
+    }
+
     this.filteredBooks = this.books
       .filter(book =>
         book.title.toLowerCase().includes(query) ||
-        (book.author && book.author.toLowerCase().includes(query)) ||
-        (book.series && book.series.name && book.series.name.toLowerCase().includes(query))
+        book.author?.toLowerCase().includes(query) ||
+        book.series?.name?.toLowerCase().includes(query) ||
+        book.genre?.name?.toLowerCase().includes(query)
       )
       .sort((a, b) => a.title.localeCompare(b.title));
   }

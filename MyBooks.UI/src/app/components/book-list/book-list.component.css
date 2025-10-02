@@ -4,6 +4,7 @@
 
 .book-wrapper {
   position: relative;
+  margin-top: 20px;
 }
 
 #add-book {
