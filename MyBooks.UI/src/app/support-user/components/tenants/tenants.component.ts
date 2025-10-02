@@ -5,20 +5,25 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { SupportUserService } from '../../../services/support-user.service';
-import { Router, RouterModule, RouterOutlet } from '@angular/router';
+import { Router } from '@angular/router';
 import { GlobalLoadingService } from '../../../services/global-loading.service';
+import { ConfirmDialogComponent } from '../../../components/shared/confirmation.component';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { ToastService } from '../../../services/toast.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-tenants',
   standalone: true,
   imports: [
-    RouterModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    MatSlideToggleModule,
     CommonModule,
-    RouterOutlet
+    FormsModule
   ],
   templateUrl: './tenants.component.html',
   styleUrls: ['./tenants.component.css']
@@ -31,7 +36,9 @@ export class TenantsComponent implements OnInit {
   constructor(
     private supportService: SupportUserService,
     private router: Router,
-    private globalLoading: GlobalLoadingService
+    private globalLoading: GlobalLoadingService,
+    private toast: ToastService,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {
@@ -47,13 +54,44 @@ export class TenantsComponent implements OnInit {
       },
       error: () => {
         this.globalLoading.hide();
-        alert("Error loading tenants");
+        this.toast.show("Error loading tenants");
       }
     });
   }
 
   createAccount(): void {
     this.router.navigate(['/support/tenants/new']);
+  }
+
+  toggleActive(tenant: any): void {
+    const newValue = !tenant.isActive;
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Change Active Status',
+        itemType: 'Tenant',
+        itemSpecific: `${tenant.id}`,
+        message: `Are you sure you want to change the active status for ${tenant.id}?`,
+        confirmText: 'Change It',
+        permenant: false
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if(result) {
+        this.supportService.toggleTenantActiveStatus(tenant.id, newValue).subscribe({
+          next: () => {
+            tenant.isActive = newValue;
+            this.toast.show('Tenant updated successfully');
+          },
+          error: err => {
+            console.error('Failed to update tenant status', err);
+            this.toast.show('Failed to update tenant status');
+          }
+        });
+      } else {
+        this.loadTenants();
+      }
+    });
   }
 
   jumpIntoAccount(tenantId: number): void {

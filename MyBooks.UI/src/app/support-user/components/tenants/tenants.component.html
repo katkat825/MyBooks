@@ -30,9 +30,11 @@
     <ng-container matColumnDef="isActive">
       <th mat-header-cell *matHeaderCellDef> Active </th>
       <td mat-cell *matCellDef="let tenant">
-        <mat-icon class="{{ tenant.isActive ? 'support-active-icon' : 'support-inactive-icon' }}">
-          {{ tenant.isActive ? 'check_circle' : 'cancel' }}
-        </mat-icon>
+        <mat-slide-toggle 
+          class="{{ tenant.isActive ? 'support-active-icon' : 'support-inactive-icon' }}"
+          [ngModel]="tenant.isActive"
+          (ngModelChange)="toggleActive(tenant)">
+        </mat-slide-toggle>
       </td>
     </ng-container>
 

@@ -117,9 +117,26 @@ namespace MyBooks.TenantService.Controllers
             return NoContent();
         }
 
+        [HttpPatch("{id}/status")]
+        [Authorize(Roles = AppRoles.SuperAdmin)]
+        public async Task<IActionResult> UpdateTenantActiveStatus(int id, [FromBody] bool isActive)
+        {
+            var tenant = await _context.Tenants
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (tenant == null)
+                return NotFound();
+
+            tenant.IsActive = isActive;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         // deactivate
         [HttpPatch("{id}/deactivate")]
-        [Authorize(Roles = AppRoles.SuperAdmin)]
+        [Authorize(Roles = AppRoles.OwnerPlus)]
         public async Task<ActionResult<Tenant>> DeactivateTenant(int id)
         {
             var tenant = await _context.Tenants.FindAsync(id);
@@ -142,7 +159,7 @@ namespace MyBooks.TenantService.Controllers
 
         // reactivate
         [HttpPatch("{id}/activate")]
-        [Authorize(Roles = AppRoles.SuperAdmin)]
+        [Authorize(Roles = AppRoles.OwnerPlus)]
         public async Task<ActionResult<Tenant>> ActivateTenant(int id)
         {
             var tenant = await _context.Tenants

@@ -161,12 +161,8 @@ export class SupportUserService {
     return this.http.put<void>(`${this.tenantApiUrl}/tenant/${id}`, dto, { headers: this.getAuthHeaders() });
   }
 
-  deactivateTenant(id: number): Observable<void> {
-    return this.http.patch<void>(`${this.tenantApiUrl}/tenant/${id}/deactivate`, {}, { headers: this.getAuthHeaders() });
-  }
-
-  activateTenant(id: number): Observable<void> {
-    return this.http.patch<void>(`${this.tenantApiUrl}/tenant/${id}/activate`, {}, { headers: this.getAuthHeaders() });
+  toggleTenantActiveStatus(id: number, isActive: boolean): Observable<void> {
+    return this.http.patch<void>(`${this.tenantApiUrl}/tenant/${id}/status`, isActive, { headers: this.getAuthHeaders() });
   }
 
   // users
