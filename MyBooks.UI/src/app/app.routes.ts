@@ -29,7 +29,6 @@ import { SupportUserService } from './services/support-user.service';
 import { ReportListComponent } from './support-user/components/report-log/report-list/report-list.component';
 import { ReportCreateFormComponent } from './support-user/components/report-log/report-create-form/report-create-form.component';
 import { ReportUpdateFormComponent } from './support-user/components/report-log/report-update-form/report-update-form.component';
-import { ReportDetailsComponent } from './support-user/components/report-log/report-details/report-details.component';
 
 export const routes: Routes = [
   { path: '', component: BookListComponent, canActivate: [AupGuard, AuthGuard] },
@@ -38,16 +37,16 @@ export const routes: Routes = [
   { path: 'create/:id', component: BookFormComponent, canActivate: [AupGuard, AuthGuard, OwnerGuard] },
   { path: 'book/:id', component: BookDetailsComponent, canActivate: [AupGuard, AuthGuard] },
   { path: 'admin', component: AdminComponent, canActivate: [AdminGuard, AupGuard, AuthGuard] },
-  { path: 'profile', component: MyProfileComponent },
+  { path: 'profile', component: MyProfileComponent, canActivate:[AuthGuard] },
   { path: 'book-viewer/:fileId', component: BookViewerComponent, canActivate: [AupGuard, AuthGuard], providers: [{ provide: 'ViewerService', useClass: BookService }] },
   { path: 'aup', component: AcceptableUsePolicyComponent},
   { path: 'report-abuse', component: ReportAbuseComponent},
   { path: 'account', canActivate: [OwnerGuard, AupGuard, AuthGuard], 
     children: [
+      { path: '', redirectTo: 'users', pathMatch: 'full' },
       { path: 'users', component: AccountUsersComponent },
       { path: 'integrations', component: GoogleDriveComponent },
-      { path: 'bulk-import', component: BulkImportComponent },
-      { path: '', redirectTo: 'users', pathMatch: 'full' }
+      { path: 'bulk-import', component: BulkImportComponent }
     ]
   },
   { path: 'invite/:token', component: CompleteInviteComponent },
@@ -61,13 +60,9 @@ export const routes: Routes = [
       { path: 'tenants/new', component: SignupComponent },
       { path: 'users', component: SupportUsersComponent },
       { path: 'books', component: SupportBooksComponent },
-      { path: 'report-logs', component: ReportListComponent,
-        children: [
-          { path: 'new', component: ReportCreateFormComponent },
-          { path: 'update', component: ReportUpdateFormComponent },
-          { path: 'details/:reportId', component: ReportDetailsComponent }
-        ]
-       }
+      { path: 'report-logs', component: ReportListComponent },
+      { path: 'report-logs/new', component: ReportCreateFormComponent },
+      { path: 'report-logs/update', component: ReportUpdateFormComponent }
     ]
   }
 ];
