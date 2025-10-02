@@ -209,4 +209,17 @@ export class UserService {
     }
     return this.user$; 
   }
+
+  checkEmailExists(email: string, excludeUserId: number = 0): Observable<{ exists: boolean }> {
+    return this.http.get<{ exists: boolean }>(
+      `${this.usersApiUrl}/check-email?email=${encodeURIComponent(email)}&excludeUserId=${excludeUserId}`,
+      { headers: this.getAuthHeaders() }
+    ).pipe(
+      catchError(error => {
+        console.error("Error checking email:", error);
+        // fail-safe: if backend fails, treat as available
+        return of({ exists: false });
+      })
+    );
+  }
 }

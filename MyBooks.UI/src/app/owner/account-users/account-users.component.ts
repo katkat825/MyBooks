@@ -14,6 +14,7 @@ import { UserService } from '../../services/user.service';
 import { ConfirmDialogComponent } from '../../components/shared/confirmation.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { GlobalLoadingService } from '../../services/global-loading.service';
+import { emailExistsValidator } from '../../validators/email-exists.validator';
 
 
 @Component({
@@ -60,7 +61,11 @@ export class AccountUsersComponent {
     this.userForm = this.fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+      email: this.fb.control('', {
+        validators: [Validators.required, Validators.email],
+        asyncValidators: [emailExistsValidator(this.userService)],
+        updateOn: 'blur'
+      }),
       role: ['', Validators.required],
       ageCategoryId: ['', Validators.required]
     });
@@ -227,6 +232,27 @@ export class AccountUsersComponent {
       newValue = Number(newValue);
     }
 
+    if(field === "email"){
+      this.userService.checkEmailExists(newValue, user.id).subscribe({
+        next: (res) => {
+          if(res.exists) {
+            alert(`The email address ${newValue} is already in use`);
+            return;
+          }
+          this.applyUpdate(user, field, newValue);
+        },
+        error: (err) => {
+          console.error("Error checking email: ", err);
+          alert("Could not validate email address. Change not saved");
+          return;
+        }
+      });
+    } else {
+      this.applyUpdate(user, field, newValue);
+    }
+  }
+
+  private applyUpdate(user: any, field: string, newValue: any) {
     console.log(user.id, field, newValue);
     user[field] = newValue;
     const updates = { [field]: newValue };

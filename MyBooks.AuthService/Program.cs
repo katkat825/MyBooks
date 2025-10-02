@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Logging;
 using MyBooks.AuthService.Data;
 using MyBooks.AuthService.Models;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using MyBooks.Common.Services;
 using MyBooks.Common.BaseClasses;
 using MyBooks.Common.Configuration;
@@ -43,6 +45,7 @@ builder.Services.AddDbContext<AuthDbContext>(options =>
 //add security services from Common
 builder.Services.AddSingleton<HtmlSanitizationService>();
 builder.Services.AddScoped<InvitationService>();
+builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

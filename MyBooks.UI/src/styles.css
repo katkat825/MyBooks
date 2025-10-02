@@ -335,6 +335,10 @@ mat-tab {
   margin-top: 10px;
 }
 
+.validation-error {
+  color: var(--warn);
+}
+
 .overlay {
   position: absolute;
   top: 0;

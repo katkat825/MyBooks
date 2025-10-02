@@ -247,4 +247,23 @@ public class AuthController : Controller
 
         return Ok(new { message = "User deleted successfully" });
     }
+
+    // feedback since unique email is enforced across tenants
+    [HttpGet("check-email")]
+    [AllowAnonymous] 
+    public async Task<IActionResult> CheckEmail([FromQuery] string email, [FromQuery] int? excludeUserId = null)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            return BadRequest(new { exists = false, message = "Email is required." });
+
+        // sanitize the email input
+        email = _sanitizationService.Sanitize(email, true);
+
+        // check globally (ignore tenant filters)
+        var exists = await _context.Users
+                .IgnoreQueryFilters()
+                .AnyAsync(u => u.Email == email && u.Id != excludeUserId);
+
+        return Ok(new { exists });
+    }
 }

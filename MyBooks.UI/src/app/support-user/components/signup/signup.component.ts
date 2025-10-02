@@ -12,6 +12,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 import { GlobalLoadingService, LoadingContext } from '../../../services/global-loading.service';
+import { emailExistsValidator } from '../../../validators/email-exists.validator';
+import { UserService } from '../../../services/user.service';
 
 @Component({
   selector: 'app-signup',
@@ -34,12 +36,17 @@ export class SignupComponent {
   constructor(
     private fb: FormBuilder, 
     private signupService: SignupService,
+    private userService: UserService,
     private router: Router,
     private globalLoading: GlobalLoadingService) {}
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: this.fb.control('', {
+        validators: [Validators.required, Validators.email],
+        asyncValidators: [emailExistsValidator(this.userService)], 
+        updateOn: 'blur'
+      }),
       password: ['', [Validators.required, Validators.minLength(6)]],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required]

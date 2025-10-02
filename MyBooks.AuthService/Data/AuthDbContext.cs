@@ -37,6 +37,10 @@ namespace MyBooks.AuthService.Data
             modelBuilder.Entity<Invitation>().ToTable("Invitations");
 
             modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+            
+            modelBuilder.Entity<User>()
                 .HasQueryFilter(u => u.TenantId == GetCurrentTenantId() && u.IsVisible);
         }
 
