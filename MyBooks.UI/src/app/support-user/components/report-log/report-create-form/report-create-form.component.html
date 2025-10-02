@@ -6,12 +6,10 @@
       <input
         id="report-date-received"
         matInput
-        [max]="today"
-        [matDatepicker]="picker"
+        type="date"
+        [max]="today | date:'yyyy-MM-dd'"
         formControlName="dateReceived"
-      >
-      <mat-datepicker-toggle id="report-date-toggle" matSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-datepicker #picker id="report-date-picker"></mat-datepicker>
+      />
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="w-100">

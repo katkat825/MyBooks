@@ -1,1 +1,82 @@
-<p>report-update-form works!</p>
+<div *ngIf="report; else loading">
+
+  <!-- read-only details -->
+  <div class="report-details">
+    <p><strong>ID:</strong> {{ report.id }}</p>
+    <p><strong>Reported By:</strong> {{ report.reportedBy }}</p>
+    <p><strong>Report Type:</strong> {{ report.reportType }}</p>
+    <p><strong>Description:</strong> {{ report.description }}</p>
+    <p><strong>Date Received:</strong> {{ report.dateReceived | date }}</p>
+  </div>
+
+  <hr />
+
+  <!-- update form -->
+  <form [formGroup]="form" (ngSubmit)="save()">
+
+    <!-- Status -->
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status">
+        <mat-option *ngFor="let s of statusOptions" [value]="s">{{ s }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Resolution -->
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Resolution</mat-label>
+      <mat-select formControlName="resolution">
+        <mat-option [value]="null">-- None --</mat-option>
+        <mat-option *ngFor="let r of resolutionOptions" [value]="r">{{ r }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Resolution Notes -->
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Resolution Notes</mat-label>
+      <textarea matInput rows="4" formControlName="resolutionNotes"></textarea>
+    </mat-form-field>
+
+    <!-- Date Closed -->
+    <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Date Closed</mat-label>
+        <input 
+            matInput 
+            type="date" 
+            formControlName="dateClosed"
+            [max]="today | date:'yyyy-MM-dd'" 
+        />
+        <mat-error *ngIf="form.hasError('invalidDateClosed')">
+            Date Closed can only be set when status is Closed or Reopened.
+        </mat-error>
+        <mat-error *ngIf="form.get('dateClosed')?.hasError('futureDate')">
+            Date Closed cannot be later than today.
+        </mat-error>
+    </mat-form-field>
+
+    <!-- Target Info -->
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Target Type</mat-label>
+      <input matInput formControlName="targetType" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Target ID</mat-label>
+      <input matInput type="number" formControlName="targetId" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Target Created By</mat-label>
+      <input matInput formControlName="targetCreatedBy" />
+    </mat-form-field>
+
+    <!-- Save -->
+    <button mat-button type="submit">
+      Save Changes
+    </button>
+  </form>
+</div>
+
+<ng-template #loading>
+  <p>Loading report...</p>
+</ng-template>

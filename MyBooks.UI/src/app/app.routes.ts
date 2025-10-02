@@ -62,7 +62,7 @@ export const routes: Routes = [
       { path: 'books', component: SupportBooksComponent },
       { path: 'report-logs', component: ReportListComponent },
       { path: 'report-logs/new', component: ReportCreateFormComponent },
-      { path: 'report-logs/update', component: ReportUpdateFormComponent }
+      { path: 'report-logs/update/:id', component: ReportUpdateFormComponent }
     ]
   }
 ];

@@ -56,14 +56,20 @@ public class ReportLogController : ControllerBase
         var existing = await _context.ReportLogs.FindAsync(id);
         if (existing == null) return NotFound();
 
-        // only update the fields that are allowed in the DTO
-        if (dto.Status != null) existing.Status = dto.Status;
-        if (dto.Resolution != null) existing.Resolution = dto.Resolution;
-        if (dto.ResolutionNotes != null) existing.ResolutionNotes = dto.ResolutionNotes;
-        if (dto.DateClosed != null) existing.DateClosed = DateTime.Parse(dto.DateClosed);
-        if (dto.TargetType != null) existing.TargetType = dto.TargetType;
-        if (dto.TargetId.HasValue) existing.TargetId = dto.TargetId;
-        if (dto.TargetCreatedBy != null) existing.TargetCreatedBy = dto.TargetCreatedBy;
+        // status - keep old if not provided
+        existing.Status = dto.Status ?? existing.Status;
+
+        // these can be updated or cleared (set to null)
+        existing.Resolution = dto.Resolution;
+        existing.ResolutionNotes = dto.ResolutionNotes;
+        existing.TargetType = dto.TargetType;
+        existing.TargetId = dto.TargetId;
+        existing.TargetCreatedBy = dto.TargetCreatedBy;
+
+        // dateClosed: parse if provided, clear if null/empty
+        existing.DateClosed = string.IsNullOrEmpty(dto.DateClosed)
+            ? null
+            : DateTime.Parse(dto.DateClosed);
 
         await _context.SaveChangesAsync();
         return NoContent();

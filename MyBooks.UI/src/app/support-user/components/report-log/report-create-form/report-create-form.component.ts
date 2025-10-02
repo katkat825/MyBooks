@@ -4,8 +4,6 @@ import { SupportUserService, CreateReportLogDto } from '../../../../services/sup
 import { GlobalLoadingService } from '../../../../services/global-loading.service';
 import { ToastService } from '../../../../services/toast.service';
 import { CommonModule } from '@angular/common';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -18,8 +16,6 @@ import { MatButtonModule } from '@angular/material/button';
   styleUrls: ['./report-create-form.component.css'],
   imports: [
     CommonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
