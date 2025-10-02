@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { SupportUserService } from '../../../services/support-user.service';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { GlobalLoadingService } from '../../../services/global-loading.service';
 
 @Component({
@@ -17,7 +17,8 @@ import { GlobalLoadingService } from '../../../services/global-loading.service';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
-    CommonModule
+    CommonModule,
+    RouterOutlet
   ],
   templateUrl: './tenants.component.html',
   styleUrls: ['./tenants.component.css']

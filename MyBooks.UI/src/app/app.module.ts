@@ -32,6 +32,10 @@ import { TenantsComponent } from './support-user/components/tenants/tenants.comp
 import { UsersComponent } from './support-user/components/users/users.component';
 import { SupportBooksComponent } from './support-user/components/support-books/support-books.component';
 import { BookViewerDialogComponent } from './support-user/components/support-books/book-viewer-dialog/book-viewer-dialog.component';
+import { ReportFormComponent } from './support-use/components/report-log/report-form/report-form.component';
+import { ReportListComponent } from './support-user/components/report-log/report-list/report-list.component';
+import { ReportDetailsComponent } from './support-user/components/report-log/report-details/report-details.component';
+import { ReportUpdateFormComponent } from './support-user/components/report-log/report-update-form/report-update-form.component';
 
 @NgModule({
   imports: [
@@ -70,7 +74,11 @@ import { BookViewerDialogComponent } from './support-user/components/support-boo
     TenantsComponent,
     UsersComponent,
     SupportBooksComponent,
-    BookViewerDialogComponent
+    BookViewerDialogComponent,
+    ReportFormComponent,
+    ReportListComponent,
+    ReportDetailsComponent,
+    ReportUpdateFormComponent
   ]
 })
 export class AppModule { }

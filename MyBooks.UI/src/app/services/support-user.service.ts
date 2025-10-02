@@ -4,6 +4,42 @@ import { environment } from '../../environments/environment';
 import { HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface CreateReportLogDto {
+  dateReceived: string;
+  reportedBy: string;
+  reportType: string;
+  status: string;
+  description: string;
+  targetType?: string;
+  targetId?: number | null;
+  targetCreatedBy?: string;
+}
+
+export interface UpdateReportLogDto {
+  status?: string;
+  resolution?: string;
+  resolutionNotes?: string;
+  dateClosed?: string; 
+  targetType?: string;
+  targetId?: number | null;
+  targetCreatedBy?: string;  
+}
+
+export interface ReportLog {
+  id: number;
+  reportedBy: string;
+  reportType: string;
+  status: string;
+  description: string;
+  targetType?: string;
+  targetId?: number | null;
+  targetCreatedBy?: string;
+  dateReceived: string;
+  dateClosed?: string;
+  resolution?: string;
+  resolutionNotes?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -12,6 +48,11 @@ export class SupportUserService {
   private catalogApiUrl = environment.apiUrl;
   private fileApiUrl = `${environment.fileBaseUrl}/api/support/files`;
   private tenantApiUrl = environment.tenantApiUrl;
+  private reportLogUrl = `${environment.supportBaseUrl}/api/reportlog`;
+
+  public static statusOptions = ["Open", "In Review", "Closed"];
+  public static resolutionOptions = ["Item Removed", "No Violation Found", "Duplicate Report"];
+  public static reportTypes = ["Abuse", "DMCA"];
 
   constructor(private http: HttpClient) {}
 
@@ -133,5 +174,22 @@ export class SupportUserService {
     return this.http.get<any[]>(`${this.authBaseUrl}/api/users/all-users`, {
       headers: this.getAuthHeaders(),
     });
+  }
+
+  // abuse reports
+  getAllReports(): Observable<ReportLog[]> {
+    return this.http.get<ReportLog[]>(this.reportLogUrl, { headers: this.getAuthHeaders() });
+  }
+
+  getReportById(id: number): Observable<ReportLog> {
+    return this.http.get<ReportLog>(`${this.reportLogUrl}/${id}`, { headers: this.getAuthHeaders() });
+  }
+
+  createReport(dto: CreateReportLogDto): Observable<ReportLog> {
+    return this.http.post<ReportLog>(this.reportLogUrl, dto, { headers: this.getAuthHeaders() });
+  }
+
+  updateReport(id: number, dto: UpdateReportLogDto): Observable<void> {
+    return this.http.put<void>(`${this.reportLogUrl}/${id}`, dto,  { headers: this.getAuthHeaders() });
   }
 }

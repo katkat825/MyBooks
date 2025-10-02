@@ -26,6 +26,10 @@ import { SupportUsersComponent } from './support-user/components/users/users.com
 import { SupportBooksComponent } from './support-user/components/support-books/support-books.component';
 import { BookService } from './services/book.service';
 import { SupportUserService } from './services/support-user.service';
+import { ReportListComponent } from './support-user/components/report-log/report-list/report-list.component';
+import { ReportCreateFormComponent } from './support-user/components/report-log/report-create-form/report-create-form.component';
+import { ReportUpdateFormComponent } from './support-user/components/report-log/report-update-form/report-update-form.component';
+import { ReportDetailsComponent } from './support-user/components/report-log/report-details/report-details.component';
 
 export const routes: Routes = [
   { path: '', component: BookListComponent, canActivate: [AupGuard, AuthGuard] },
@@ -53,11 +57,17 @@ export const routes: Routes = [
   { path: 'support', component: SupportLayoutComponent, canActivate: [SupportUserGuard],
     children: [
       { path: '', component: SupportHomeComponent },
-      { path: 'tenants', component: TenantsComponent, 
-        children: [ { path: 'new', component: SignupComponent } ]
-      },
-      { path: 'users', component: SupportUsersComponent},
-      { path: 'books', component:SupportBooksComponent},
+      { path: 'tenants', component: TenantsComponent }, 
+      { path: 'tenants/new', component: SignupComponent },
+      { path: 'users', component: SupportUsersComponent },
+      { path: 'books', component: SupportBooksComponent },
+      { path: 'report-logs', component: ReportListComponent,
+        children: [
+          { path: 'new', component: ReportCreateFormComponent },
+          { path: 'update', component: ReportUpdateFormComponent },
+          { path: 'details/:reportId', component: ReportDetailsComponent }
+        ]
+       }
     ]
   }
 ];

@@ -1,0 +1,102 @@
+<div class="support-container">
+  <form [formGroup]="form" (ngSubmit)="submit()" class="report-form" id="report-create-form">
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Date Reported</mat-label>
+      <input
+        id="report-date-received"
+        matInput
+        [max]="today"
+        [matDatepicker]="picker"
+        formControlName="dateReceived"
+      >
+      <mat-datepicker-toggle id="report-date-toggle" matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker id="report-date-picker"></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Status</mat-label>
+      <mat-select id="report-status" formControlName="status" required>
+        <mat-option
+          *ngFor="let status of statusOptions"
+          [value]="status"
+          [id]="'report-status-' + status.replace(' ', '-').toLowerCase()"
+        >
+          {{ status }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Reported By</mat-label>
+      <input
+        id="report-reported-by"
+        matInput
+        formControlName="reportedBy"
+        placeholder="user id or email"
+        required
+      >
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Report Type</mat-label>
+      <mat-select id="report-type" formControlName="reportType" required>
+        <mat-option
+          *ngFor="let type of reportTypes"
+          [value]="type"
+          [id]="'report-type-' + type.replace(' ', '-').toLowerCase()"
+        >
+          {{ type }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Description</mat-label>
+      <textarea
+        id="report-description"
+        matInput
+        formControlName="description"
+        rows="4"
+        required
+      ></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Target Type</mat-label>
+      <mat-select id="report-target-type" formControlName="targetType">
+        <mat-option id="report-target-type-book" value="Book">Book</mat-option>
+        <mat-option id="report-target-type-file" value="File">File</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Target Id</mat-label>
+      <input
+        id="report-target-id"
+        matInput
+        type="number"
+        formControlName="targetId"
+      >
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Target Created By</mat-label>
+      <input
+        id="report-target-created-by"
+        matInput
+        formControlName="targetCreatedBy"
+      >
+    </mat-form-field>
+
+    <button
+      id="report-submit"
+      mat-button
+      color="primary"
+      type="submit"
+      [disabled]="form.invalid"
+    >
+      Submit Report
+    </button>
+  </form>
+</div>

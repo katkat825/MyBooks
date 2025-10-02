@@ -11,6 +11,7 @@ public class ReportLog : AuditableEntity
     public string Description { get; set; } // details of the report
     public string? TargetType { get; set; } // e.g. "Book", "File"
     public int? TargetId { get; set; }
+    public string? TargetCreatedBy { get; set; } // userId of user who created book or uploaded file
     public DateTime DateReceived { get; set; }
     public DateTime? DateClosed { get; set; }
     public string? Resolution { get; set; }

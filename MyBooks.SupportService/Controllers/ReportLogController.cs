@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MyBooks.SupportService.Data;
 using MyBooks.SupportService.Models;
 using MyBooks.Common.BaseClasses;
+using Microsoft.Identity.Client;
 
 namespace MyBooks.SupportService.Controllers;
 
@@ -40,9 +41,8 @@ public class ReportLogController : ControllerBase
 
     // create
     [HttpPost]
-    public async Task<ActionResult<ReportLog>> Create(ReportLog report)
+    public async Task<ActionResult<ReportLog>> Create([FromBody] ReportLog report)
     {
-        report.DateReceived = DateTime.UtcNow;
         _context.ReportLogs.Add(report);
         await _context.SaveChangesAsync();
 
@@ -51,7 +51,7 @@ public class ReportLogController : ControllerBase
 
     // update (status, resolution, notes, etc.)
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, ReportLog updatedReport)
+    public async Task<IActionResult> Update(int id, [FromBody] ReportLog updatedReport)
     {
         if (id != updatedReport.Id)
         {
@@ -68,6 +68,10 @@ public class ReportLogController : ControllerBase
         existing.Status = updatedReport.Status;
         existing.Resolution = updatedReport.Resolution;
         existing.ResolutionNotes = updatedReport.ResolutionNotes;
+        existing.DateClosed = updatedReport.DateClosed;
+        existing.TargetType = updatedReport.TargetType;
+        existing.TargetId = updatedReport.TargetId;
+        existing.TargetCreatedBy = updatedReport.TargetCreatedBy;
         existing.DateClosed = updatedReport.DateClosed;
 
         await _context.SaveChangesAsync();
