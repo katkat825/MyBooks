@@ -63,8 +63,8 @@ export class ReportListComponent implements OnInit {
     });
   }
 
-  viewReport(report: ReportLog): void {
-    this.router.navigate(['/support/report-logs/details', report.id]);
+  updateReport(report: ReportLog): void {
+    this.router.navigate(['/support/report-logs/update', report.id]);
   }
 
   createReport(): void {

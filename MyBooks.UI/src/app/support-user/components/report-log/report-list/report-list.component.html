@@ -2,7 +2,7 @@
   <h2>Abuse / DMCA Reports</h2>
 
   <div class="actions">
-    <button mat-raised-button color="primary" (click)="createReport()">
+    <button mat-button (click)="createReport()">
       Create New Report
     </button>
   </div>
@@ -31,8 +31,8 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef> Actions </th>
       <td mat-cell *matCellDef="let r">
-        <button mat-icon-button (click)="viewReport(r)" matTooltip="View details">
-          <mat-icon>visibility</mat-icon>
+        <button mat-icon-button (click)="updateReport(r)" matTooltip="Update report">
+          <mat-icon>edit</mat-icon>
         </button>
       </td>
     </ng-container>

@@ -50,8 +50,8 @@ export class SupportUserService {
   private tenantApiUrl = environment.tenantApiUrl;
   private reportLogUrl = `${environment.supportBaseUrl}/api/reportlog`;
 
-  public static statusOptions = ["Open", "In Review", "Closed"];
-  public static resolutionOptions = ["Item Removed", "No Violation Found", "Duplicate Report"];
+  public static statusOptions = ["New", "In Review", "Waiting on Info", "Closed", "Repoened"];
+  public static resolutionOptions = ["Item Removed", "No Violation Found", "Duplicate Report", "Invalid Report"];
   public static reportTypes = ["Abuse", "DMCA"];
 
   constructor(private http: HttpClient) {}

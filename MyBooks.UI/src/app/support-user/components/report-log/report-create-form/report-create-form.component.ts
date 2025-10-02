@@ -44,7 +44,7 @@ export class ReportCreateFormComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.fb.group({
       dateReceived: [new Date(), Validators.required],
-      status: ['Open', Validators.required],
+      status: ['New', Validators.required],
       reportedBy: ['', Validators.required],
       reportType: ['Abuse', Validators.required],
       description: ['', Validators.required],
@@ -77,7 +77,7 @@ export class ReportCreateFormComponent implements OnInit {
         this.toast.show('Report created successfully');
         this.form.reset({
           dateReceived: new Date(),
-          status: 'Open',
+          status: 'New',
           reportType: 'Abuse'
         });
       },

@@ -20,9 +20,11 @@ public class ReportLog : AuditableEntity
 
 public static class StatusOptions
 {
-    public const string Open = "Open";
+    public const string New = "New";
     public const string InReview = "In Review";
+    public const string WaitingOnInfo = "Waiting on Info";
     public const string Closed = "Closed";
+    public const string Reopened = "Reopened";
 }
 
 public static class ResolutionOptions
@@ -30,4 +32,16 @@ public static class ResolutionOptions
     public const string ItemRemoved = "Item Removed";
     public const string NoViolationFound = "No Violation Found";
     public const string DuplicateReport = "Duplicate Report";
+    public const string InvalidReport = "Invalid Report";
+}
+
+public class UpdateReportLogDto
+{
+    public string? Status { get; set; }
+    public string? Resolution { get; set; }
+    public string? ResolutionNotes { get; set; }
+    public string? DateClosed { get; set; }  // yyyy-MM-dd from Angular date input
+    public string? TargetType { get; set; }
+    public int? TargetId { get; set; }
+    public string? TargetCreatedBy { get; set; }
 }

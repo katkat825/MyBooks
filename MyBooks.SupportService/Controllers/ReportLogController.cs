@@ -51,28 +51,19 @@ public class ReportLogController : ControllerBase
 
     // update (status, resolution, notes, etc.)
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] ReportLog updatedReport)
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateReportLogDto dto)
     {
-        if (id != updatedReport.Id)
-        {
-            return BadRequest();
-        }
-
         var existing = await _context.ReportLogs.FindAsync(id);
-        if (existing == null)
-        {
-            return NotFound();
-        }
+        if (existing == null) return NotFound();
 
-        // update allowed fields
-        existing.Status = updatedReport.Status;
-        existing.Resolution = updatedReport.Resolution;
-        existing.ResolutionNotes = updatedReport.ResolutionNotes;
-        existing.DateClosed = updatedReport.DateClosed;
-        existing.TargetType = updatedReport.TargetType;
-        existing.TargetId = updatedReport.TargetId;
-        existing.TargetCreatedBy = updatedReport.TargetCreatedBy;
-        existing.DateClosed = updatedReport.DateClosed;
+        // only update the fields that are allowed in the DTO
+        if (dto.Status != null) existing.Status = dto.Status;
+        if (dto.Resolution != null) existing.Resolution = dto.Resolution;
+        if (dto.ResolutionNotes != null) existing.ResolutionNotes = dto.ResolutionNotes;
+        if (dto.DateClosed != null) existing.DateClosed = DateTime.Parse(dto.DateClosed);
+        if (dto.TargetType != null) existing.TargetType = dto.TargetType;
+        if (dto.TargetId.HasValue) existing.TargetId = dto.TargetId;
+        if (dto.TargetCreatedBy != null) existing.TargetCreatedBy = dto.TargetCreatedBy;
 
         await _context.SaveChangesAsync();
         return NoContent();
