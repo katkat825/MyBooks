@@ -243,6 +243,10 @@ public class AuthController : Controller
         user.IsVisible = false;
         _context.Entry(user).Property(u => u.IsVisible).IsModified = true;
 
+        // allow email to be re-used
+        var today = DateTime.UtcNow.ToString("yyyyMMdd");
+        user.Email = $"{user.Email}_old_{today}";
+
         await _context.SaveChangesAsync();
 
         return Ok(new { message = "User deleted successfully" });

@@ -101,6 +101,10 @@ namespace MyBooks.AuthService.Data
                 {
                     entry.State = EntityState.Modified;
                     entry.Entity.IsVisible = false;
+
+                    // allow email to be re-used 
+                    var today = DateTime.UtcNow.ToString("yyyyMMdd");
+                    entry.Entity.Email = $"{entry.Entity.Email}_old_{today}";
                 }
             }
 
