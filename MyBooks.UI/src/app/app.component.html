@@ -20,18 +20,19 @@
           <button id="theme-menu" mat-menu-item [matMenuTriggerFor]="themeMenu">
             <mat-icon>brightness_6</mat-icon> Theme
           </button>
+
           <button id="my-profile" mat-menu-item [routerLink]="'/profile'">
             <mat-icon>person</mat-icon> My Profile
           </button>
-          <button mat-menu-item id="admin-menu" *ngIf="userService.canAccessAdmin$ | async" [routerLink]="'/admin'">
-            <mat-icon>admin_panel_settings</mat-icon> Admin
-          </button>
+
           <button mat-menu-item id="owner-menu" *ngIf="userService.canAccessOwner$ | async" [matMenuTriggerFor]="ownerMenu">
-            <mat-icon>settings</mat-icon> Account Settings
+            <mat-icon>settings</mat-icon> Admin
           </button>
           <button mat-menu-item id="support-user" *ngIf="userService.canAccessSupport$ | async" [routerLink]="'/support'">
             <mat-icon>badge</mat-icon> MBC Support
           </button>
+
+          <mat-divider></mat-divider>
 
           <button mat-menu-item id="login-btn" *ngIf="!isAuthenticated()" [routerLink]="'/login'">
             <mat-icon>login</mat-icon> Login
@@ -45,11 +46,15 @@
           <button mat-menu-item id="manage-users" [routerLink]="'/account/users'">
             <mat-icon>group</mat-icon> Users
           </button>
+          <button mat-menu-item id="manage-categories" [routerLink]="'/account/genres-series'">
+            <mat-icon>category</mat-icon> Categories
+          </button>
+          <mat-divider></mat-divider>
           <button mat-menu-item id="manage-integrations" [routerLink]="'/account/integrations'">
             <mat-icon>link</mat-icon> Integrations
           </button>
           <button mat-menu-item id="bulk-import" [routerLink]="'/account/bulk-import'">
-            <mat-icon>library_add</mat-icon> Bulk Import
+            <mat-icon>cloud_download</mat-icon> Bulk Import
           </button>
         </mat-menu>
 

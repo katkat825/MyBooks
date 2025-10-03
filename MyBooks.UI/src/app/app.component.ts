@@ -14,6 +14,7 @@ import { ToastService } from './services/toast.service';
 import { GlobalLoadingService } from './services/global-loading.service';
 import { Observable } from 'rxjs';
 import { SupportUserService } from './services/support-user.service';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-root',
@@ -28,7 +29,8 @@ import { SupportUserService } from './services/support-user.service';
     MatToolbarModule,
     RouterModule,
     ToastComponent,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatDividerModule
   ]
 })
 export class AppComponent {

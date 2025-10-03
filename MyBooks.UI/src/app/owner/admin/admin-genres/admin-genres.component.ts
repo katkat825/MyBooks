@@ -4,9 +4,9 @@ import { FormBuilder, FormGroup, FormsModule, Validators, ReactiveFormsModule } 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
-import { BookService } from '../../services/book.service';
+import { BookService } from '../../../services/book.service';
 import { MatIconModule } from '@angular/material/icon';
-import { ConfirmDialogComponent } from '../../components/shared/confirmation.component';
+import { ConfirmDialogComponent } from '../../../components/shared/confirmation.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 @Component({
