@@ -45,7 +45,7 @@ export class AccountUsersComponent {
   editingUserId: number | null = null;
   editingField: string | null = null;
   ageCategories: any[] = [];
-  roles: string[] = ['Admin', 'Editor', 'User'];
+  //roles: string[] = ['Admin', 'Editor', 'User'];
   showInactiveUsers = false;
   currentUserId: number | null = null;
 
@@ -66,7 +66,7 @@ export class AccountUsersComponent {
         asyncValidators: [emailExistsValidator(this.userService)],
         updateOn: 'blur'
       }),
-      role: ['', Validators.required],
+      role: ['User'],
       ageCategoryId: ['', Validators.required]
     });
 

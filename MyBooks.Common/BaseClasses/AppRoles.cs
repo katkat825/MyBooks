@@ -22,6 +22,6 @@ public static class AppRoles
     public static readonly string[] AdminsArray = { SuperAdmin, Owner, Admin, Support };
     public static readonly string[] EditorsArray = { SuperAdmin, Owner, Admin, Editor, Support };
     public static readonly string[] AssignableRoles = { Admin, Editor, User };
-    public static readonly string[] AllRoles = { SuperAdmin, Owner, Admin, Editor, User };
+    public static readonly string[] AllRoles = { SuperAdmin, Owner, Admin, Editor, User, Support };
     public static readonly string[] OwnersArray = { Owner, SuperAdmin, Support };
 }

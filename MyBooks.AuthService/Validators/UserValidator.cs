@@ -1,5 +1,6 @@
 using FluentValidation;
 using MyBooks.Common.Dtos;
+using MyBooks.Common.BaseClasses;
 
 public class UserValidator : AbstractValidator<UserDto>
 {
@@ -9,11 +10,15 @@ public class UserValidator : AbstractValidator<UserDto>
             .NotEmpty().WithMessage("Email is required.")
             .EmailAddress().WithMessage("Invalid email format.");
 
-        // you could also add simple checks now, like requiring a first/last name:
         RuleFor(x => x.FirstName)
             .NotEmpty().WithMessage("First name is required.");
 
         RuleFor(x => x.LastName)
             .NotEmpty().WithMessage("Last name is required.");
+
+        // must be a human-assignable role
+        RuleFor(x => x.Role)
+            .Must(role => AppRoles.AllRoles.Contains(role))
+            .WithMessage("Invalid role specified.");
     }
 }
