@@ -46,12 +46,33 @@ namespace MyBooks.AuthService.Data
 
         public override int SaveChanges()
         {
+            ApplyTenantId();
             ApplyAuditInformation();
             return base.SaveChanges();
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
+            ApplyTenantId();
+            ApplyAuditInformation();
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<int> SaveChangesAsSuperadminAsync(CancellationToken cancellationToken = default)
+        {
+            foreach (var entry in ChangeTracker.Entries()
+                .Where(e => e.State == EntityState.Added))
+            {
+                var tenantIdProp = entry.Entity.GetType().GetProperty("TenantId");
+                if (tenantIdProp == null)
+                    throw new InvalidOperationException("Sueradmin save requires TenantId to be set");
+                
+                var tenantIdValue = tenantIdProp.GetValue(entry.Entity);
+                if (tenantIdValue is not int intValue || intValue <= 0)
+                    throw new InvalidOperationException("Superadmin save requires a valid TenantId.");
+                
+            }
+
             ApplyAuditInformation();
             return await base.SaveChangesAsync(cancellationToken);
         }
@@ -67,13 +88,13 @@ namespace MyBooks.AuthService.Data
                     {
                         throw new InvalidOperationException("System save requires CreatedBy and CreatedDate to be set.");
                     }
-                }             
+                }
             }
-            
+
             return await base.SaveChangesAsync(cancellationToken);
         }
 
-        public void ApplyAuditInformation()
+        public void ApplyTenantId()
         {
             if (_contextAccessor.HttpContext == null)
                 return;
@@ -93,6 +114,17 @@ namespace MyBooks.AuthService.Data
             {
                 entry.Entity.GetType().GetProperty("TenantId")?.SetValue(entry.Entity, currentTenant);
             }
+        }
+
+        public void ApplyAuditInformation()
+        {
+            if (_contextAccessor.HttpContext == null)
+                return;
+
+            var currentUser = GetCurrentUserId();
+
+            if (string.IsNullOrWhiteSpace(currentUser))
+                throw new InvalidOperationException("SaveChanges requires valid authenticated user.");
 
             // soft-delete only
             foreach (var entry in ChangeTracker.Entries<User>())

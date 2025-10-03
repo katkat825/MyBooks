@@ -63,7 +63,7 @@ public class AuthController : Controller
     public async Task<IActionResult> PatchUser(int id, [FromBody] Dictionary<string, object> updates)
     {
         var user = await _context.Users.FindAsync(id);
-        if (user == null)
+        if (user == null || !AppRoles.AllRoles.Contains(user.Role))
         {
             return NotFound("User not found.");
         }
@@ -73,7 +73,7 @@ public class AuthController : Controller
             var property = typeof(User).GetProperties()
                 .FirstOrDefault(p => string.Equals(p.Name, key, StringComparison.OrdinalIgnoreCase));
 
-            if (property != null && property.Name != "PasswordHash" && property.Name != "CreatedBy" && property.Name != "CreatedDate" && property.Name != "LastModifiedBy" && property.Name != "LastModifiedDate")
+            if (property != null && property.Name != "PasswordHash" && property.Name !="IsVisible" && property.Name != "CreatedBy" && property.Name != "CreatedDate" && property.Name != "LastModifiedBy" && property.Name != "LastModifiedDate")
             {
                 try
                 {
@@ -85,15 +85,16 @@ public class AuthController : Controller
                     if (string.Equals(property.Name, nameof(user.Role), StringComparison.OrdinalIgnoreCase))
                     {
                         var newRole = newValue?.ToString();
+                        var oldRole = user.Role;
 
-                        bool touchesPrivileged =
-                            user.Role == AppRoles.SuperAdmin || user.Role == AppRoles.Owner ||
-                            newRole == AppRoles.SuperAdmin || newRole == AppRoles.Owner;
+                        if (!AppRoles.AllRoles.Contains(newRole))
+                            return BadRequest("Invalid role");
 
-                        if (touchesPrivileged && !User.IsInRole(AppRoles.SuperAdmin))
-                        {
-                            return Forbid("You are not authorized to change this user's role.");
-                        }
+                        if (!AppRoles.AssignableRoles.Contains(newRole))
+                            return Forbid("You are not authorized to assign this role");
+
+                        if (!AppRoles.AssignableRoles.Contains(oldRole))
+                            return Forbid("You are not authorized to change this user's role");
                     }
 
                     property.SetValue(user, newValue);
@@ -116,6 +117,69 @@ public class AuthController : Controller
         await _context.SaveChangesAsync();
 
         var updatedUser = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+
+        return Ok(new { message = "User updated successfully", updatedUser });
+    }
+
+    // superadmin patch
+    [HttpPatch("superadmin/{id}")]
+    [Authorize(Roles = AppRoles.SuperAdmin)]
+    public async Task<IActionResult> SuperadminPatchUser(int id, [FromBody] Dictionary<string, object> updates)
+    {
+        var user = await _context.Users
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(u => u.Id == id);
+
+        if (user == null || !AppRoles.AllRoles.Contains(user.Role))
+        {
+            return NotFound("User not found.");
+        }
+
+        foreach (var key in updates.Keys)
+        {
+            var property = typeof(User).GetProperties()
+                .FirstOrDefault(p => string.Equals(p.Name, key, StringComparison.OrdinalIgnoreCase));
+
+            if (property != null && property.Name != "PasswordHash" && property.Name != "CreatedBy" && property.Name != "CreatedDate" && property.Name != "LastModifiedBy" && property.Name != "LastModifiedDate")
+            {
+                try
+                {
+                    Type targetType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+                    object newValue = updates[key] is JsonElement jsonElement
+                        ? JsonElementToObject(jsonElement, targetType)
+                        : Convert.ChangeType(updates[key], targetType);
+
+                    if (string.Equals(property.Name, nameof(user.Role), StringComparison.OrdinalIgnoreCase))
+                    {
+                        var newRole = newValue?.ToString();
+
+                        if (!AppRoles.AllRoles.Contains(newRole))
+                            return BadRequest("Invalid role");
+                    }
+
+                    property.SetValue(user, newValue);
+
+                    _context.Entry(user).Property(property.Name).IsModified = true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"❌ Failed to update {property.Name}: {ex.Message}");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"⚠ Skipping invalid field: {key}");
+            }
+        }
+
+        _context.Entry(user).State = EntityState.Modified;
+
+        await _context.SaveChangesAsSuperadminAsync();
+
+        var updatedUser = await _context.Users
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == id);
 
         return Ok(new { message = "User updated successfully", updatedUser });
     }
@@ -206,7 +270,7 @@ public class AuthController : Controller
         if (user == null)
             return NotFound("User not found.");
 
-        if (user.Role == AppRoles.SuperAdmin || user.Role == AppRoles.Owner)
+        if (AppRoles.OwnersArray.Contains(user.Role))
             return Forbid("Cannot deactivate a MyBookCatalog Support user or Owner user.");
 
         user.IsActive = false;
@@ -220,14 +284,45 @@ public class AuthController : Controller
     public async Task<IActionResult> ReactivateUser(int id)
     {
         var user = await _context.Users.FindAsync(id);
-        if (user == null)
+        if (user == null || !AppRoles.AllRoles.Contains(user.Role))
             return NotFound("User not found.");
+
+        if (AppRoles.OwnersArray.Contains(user.Role))
+            return Forbid("You are not authorized to reactivate this user");
 
         user.IsActive = true;
         _context.Entry(user).Property(u => u.IsActive).IsModified = true;
         await _context.SaveChangesAsync();
 
         return Ok(new { message = "User reactivated successfully" });
+    }
+
+    [HttpPatch("superadmin-reactivate/{id}")]
+    [Authorize(Roles = AppRoles.SuperAdmin)]
+    public async Task<IActionResult> SuperReactivateUser(int id)
+    {
+        var user = await _context.Users
+            .IgnoreQueryFilters()  // bypass IsVisible & tenantId filter
+            .FirstOrDefaultAsync(u => u.Id == id);
+
+        if (user == null)
+            return NotFound("User not found.");
+
+        if (!AppRoles.AllRoles.Contains(user.Role))
+            return BadRequest("Invalid role.");
+
+        user.IsActive = true;
+        user.IsVisible = true; // also restore visibility
+        _context.Entry(user).Property(u => u.IsActive).IsModified = true;
+        _context.Entry(user).Property(u => u.IsVisible).IsModified = true;
+
+        await _context.SaveChangesAsSuperadminAsync();
+        var updatedUser = await _context.Users
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == id);
+
+        return Ok(new { message = "User reactivated successfully by SuperAdmin", updatedUser });
     }
 
     [HttpPatch("delete/{id}")]
@@ -237,7 +332,7 @@ public class AuthController : Controller
         if (user == null)
             return NotFound("User not found.");
 
-        if (user.Role == AppRoles.SuperAdmin || user.Role == AppRoles.Owner)
+        if (AppRoles.OwnersArray.Contains(user.Role))
             return Forbid("Cannot delete a MyBookCatalog Support user or Owner user.");
 
         user.IsVisible = false;
