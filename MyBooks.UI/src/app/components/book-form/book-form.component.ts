@@ -244,8 +244,7 @@ export class BookFormComponent implements OnInit {
 
     const bookData = {
       id: this.bookId,
-      ...this.step1.value,
-      ...this.step2.value,      
+      ...this.step1.value 
     };
 
     if (this.bookId) {

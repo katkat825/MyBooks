@@ -85,6 +85,8 @@ builder.Services.AddOpenApi();
 builder.Services.AddSingleton<HtmlSanitizationService>();
 builder.Services.AddHttpClient<GoogleDriveClient>();
 builder.Services.AddScoped<BulkImportProcessor>();
+builder.Services.AddScoped<FileValidationService>();
+
 builder.Services.AddHttpClient<SystemTokenHelper>()
     .AddTypedClient((http, sp) =>
     {

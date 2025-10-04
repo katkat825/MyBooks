@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBooks.Common.Services;
+using MyBooks.Common.Dtos;
 using MyBooks.FileService.Data;
 using MyBooks.FileService.Models;
 using MyBooks.FileService.Validators;
@@ -19,12 +20,14 @@ namespace MyBooks.FileService.Controllers
         private readonly FileDbContext _context;
         private readonly HtmlSanitizationService _sanitizationService;
         private readonly GoogleDriveClient _googleDriveClient;
+        private readonly FileValidationService _antiCorruption;
 
-        public FileController(FileDbContext context, HtmlSanitizationService sanitizationService, GoogleDriveClient googleDriveClient)
+        public FileController(FileDbContext context, HtmlSanitizationService sanitizationService, GoogleDriveClient googleDriveClient, FileValidationService antiCorruption)
         {
             _context = context;
             _sanitizationService = sanitizationService;
             _googleDriveClient = googleDriveClient;
+            _antiCorruption = antiCorruption;
         }
 
         // upload File - only owner or superadmin
@@ -41,6 +44,14 @@ namespace MyBooks.FileService.Controllers
                 .FirstOrDefaultAsync(g => g.TenantId == tenantId && g.IsActive);
             if (integration == null)
                 return BadRequest("Google Drive not configured for this tenant.");
+
+            await using var corruptionCheckStream = file.OpenReadStream();
+            var notCorrupted = await _antiCorruption.ValidateAsync(corruptionCheckStream, file.FileName);
+            if (!notCorrupted.IsValid)
+            {
+                return BadRequest($"File is corrupted: {notCorrupted.ErrorMessage}");
+            }
+
             if (string.IsNullOrWhiteSpace(folderId))
                 folderId = await _googleDriveClient.GetOrCreateFolderAsync("MyBookCatalog", "root", integration.RefreshToken);
 
@@ -48,7 +59,7 @@ namespace MyBooks.FileService.Controllers
             var fileValidationResult = fileValidator.Validate(file);
             if (!fileValidationResult.IsValid)
                 return BadRequest(fileValidationResult.Errors);
-
+                
             var extension = Path.GetExtension(file.FileName);
             var sanitizedBookTitle = Regex.Replace(_sanitizationService.Sanitize(bookTitle).Trim(), @"\s+", "_");
             var fileName = $"{bookId}_{sanitizedBookTitle}{extension}";

@@ -22,6 +22,7 @@ public class BulkImportProcessor
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _config;
     private readonly HtmlSanitizationService _sanitizer;
+    private readonly FileValidationService _antiCorrpution;
 
     public BulkImportProcessor(
         FileDbContext context,
@@ -29,7 +30,8 @@ public class BulkImportProcessor
         SystemTokenHelper tokenHelper,
         HttpClient httpClient,
         IConfiguration config,
-        HtmlSanitizationService sanitizer)
+        HtmlSanitizationService sanitizer,
+        FileValidationService antiCorruption)
     {
         _context = context;
         _googleDriveClient = googleDriveClient;
@@ -37,6 +39,7 @@ public class BulkImportProcessor
         _httpClient = httpClient;
         _config = config;
         _sanitizer = sanitizer;
+        _antiCorrpution = antiCorruption;
     }
 
     public async Task ProcessJobAsync(int jobId, FileScanDto scanDto)
@@ -137,6 +140,17 @@ public class BulkImportProcessor
                 item.FileName = _sanitizer.Sanitize(file.Name);
 
                 using var stream = await _googleDriveClient.GetFileStreamAsync(item.FileId, accessToken);
+
+                var notCorrupted = await _antiCorrpution.ValidateAsync(stream, file.Name);
+                if (!notCorrupted.IsValid)
+                {
+                    item.Status = "Failed";
+                    item.ErrorMessage = $"File corruption check failed: {notCorrupted.ErrorMessage}";
+                    continue;
+                }
+
+                // rewind stream
+                stream.Seek(0, SeekOrigin.Begin);
 
                 string title;
                 string? author;
