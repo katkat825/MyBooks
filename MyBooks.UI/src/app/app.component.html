@@ -28,6 +28,11 @@
           <button mat-menu-item id="owner-menu" *ngIf="userService.canAccessOwner$ | async" [matMenuTriggerFor]="ownerMenu">
             <mat-icon>settings</mat-icon> Admin
           </button>
+
+          <button mat-menu-item id="global-reviewer" *ngIf="userService.canAccessGlobalReview$ | async" [routerLink]="'/global/content-review'">
+            <mat-icon>auto_stories</mat-icon> All Content
+          </button>
+
           <button mat-menu-item id="support-user" *ngIf="userService.canAccessSupport$ | async" [routerLink]="'/support'">
             <mat-icon>badge</mat-icon> MBC Support
           </button>

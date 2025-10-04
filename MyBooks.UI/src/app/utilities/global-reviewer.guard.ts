@@ -7,7 +7,7 @@ import { UserService } from '../services/user.service';
 @Injectable({
   providedIn: 'root'
 })
-export class SupportUserGuard implements CanActivate {
+export class GlobalReviewerGuard implements CanActivate {
 
     constructor(private router: Router, private userService: UserService) {}
 

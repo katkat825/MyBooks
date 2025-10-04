@@ -34,7 +34,9 @@ public class AuthController : Controller
     [HttpGet]
     public async Task<IActionResult> GetUsers()
     {
-        var users = await _context.Users.ToListAsync();
+        var users = await _context.Users
+            .Where(u => u.Role != AppRoles.Support)
+            .ToListAsync();
         return Ok(users);
     }
 
@@ -270,7 +272,7 @@ public class AuthController : Controller
         if (user == null)
             return NotFound("User not found.");
 
-        if (AppRoles.OwnersArray.Contains(user.Role))
+        if (AppRoles.OwnersArray.Contains(user.Role) || user.Role == AppRoles.GlobalReviewer)
             return Forbid("Cannot deactivate a MyBookCatalog Support user or Owner user.");
 
         user.IsActive = false;

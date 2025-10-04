@@ -90,6 +90,7 @@ export class ReportUpdateFormComponent implements OnInit {
       status: [report.status || '', Validators.required],
       resolution: [report.resolution || ''],
       resolutionNotes: [report.resolutionNotes || ''],
+      reviewNotes: [report.reviewNotes || ''],
       dateClosed: [normalizedDateClosed || '', dateNotInFutureValidator()],
       targetType: [report.targetType || ''],
       targetId: [report.targetId || null],

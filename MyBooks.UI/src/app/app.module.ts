@@ -36,6 +36,7 @@ import { ReportFormComponent } from './support-use/components/report-log/report-
 import { ReportListComponent } from './support-user/components/report-log/report-list/report-list.component';
 import { ReportDetailsComponent } from './support-user/components/report-log/report-details/report-details.component';
 import { ReportUpdateFormComponent } from './support-user/components/report-log/report-update-form/report-update-form.component';
+import { ContentReviewComponent } from './support-user/components/content-review/content-review.component';
 
 @NgModule({
   imports: [
@@ -78,7 +79,8 @@ import { ReportUpdateFormComponent } from './support-user/components/report-log/
     ReportFormComponent,
     ReportListComponent,
     ReportDetailsComponent,
-    ReportUpdateFormComponent
+    ReportUpdateFormComponent,
+    ContentReviewComponent
   ]
 })
 export class AppModule { }

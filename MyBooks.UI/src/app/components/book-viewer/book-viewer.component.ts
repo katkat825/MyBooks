@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { GlobalLoadingService, LoadingContext } from '../../services/global-loading.service';
 import { SupportUserService } from '../../services/support-user.service';
+import { DragScrollService } from '../../services/drag-scoll.service';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
@@ -44,7 +45,8 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     private bookService: BookService,
     private supportService: SupportUserService,
     private router: Router,
-    private globalLoading: GlobalLoadingService
+    private globalLoading: GlobalLoadingService,
+    private dragScroll: DragScrollService
   ) { }  
 
   // swap bookService or supportService depending on route
@@ -192,6 +194,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     });
     pdfLinkService.setViewer(this.pdfViewer);
     this.pdfViewer.setDocument(this.pdfDocument);
+    this.dragScroll.enableDragScroll(this.viewerContainer.nativeElement);
 
     eventBus.on('pagesinit', () => {
       (this.pdfViewer as any).currentScale = this.zoomLevel;

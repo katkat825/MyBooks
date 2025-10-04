@@ -30,6 +30,11 @@ export class UserService {
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
+  canAccessGlobalReview$ = this.user$.pipe(
+    map(u => !!u && (u.role === 'SuperAdmin' || u.role === 'GlobalReviewer')),
+    shareReplay({ bufferSize: 1, refCount: true })
+  );
+
   constructor(private http: HttpClient, private router: Router) { }
 
   get isImpersonating(): boolean {

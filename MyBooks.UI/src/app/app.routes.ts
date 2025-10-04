@@ -27,9 +27,9 @@ import { SupportUserService } from './services/support-user.service';
 import { ReportListComponent } from './support-user/components/report-log/report-list/report-list.component';
 import { ReportCreateFormComponent } from './support-user/components/report-log/report-create-form/report-create-form.component';
 import { ReportUpdateFormComponent } from './support-user/components/report-log/report-update-form/report-update-form.component';
-import { AdminGenresComponent } from './owner/admin/admin-genres/admin-genres.component';
-import { AdminSeriesComponent } from './owner/admin/admin-series/admin-series.component';
 import { AdminComponent } from './owner/admin/admin.component';
+import { ContentReviewComponent } from './support-user/components/content-review/content-review.component';
+import { GlobalReviewerGuard } from './utilities/global-reviewer.guard';
 
 export const routes: Routes = [
   { path: '', component: BookListComponent, canActivate: [AupGuard, AuthGuard] },
@@ -65,5 +65,6 @@ export const routes: Routes = [
       { path: 'report-logs/new', component: ReportCreateFormComponent },
       { path: 'report-logs/update/:id', component: ReportUpdateFormComponent }
     ]
-  }
+  },
+  { path: 'global/content-review', component: ContentReviewComponent, canActivate: [GlobalReviewerGuard]}
 ];

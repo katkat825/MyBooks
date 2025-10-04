@@ -19,6 +19,7 @@ export interface UpdateReportLogDto {
   status?: string;
   resolution?: string;
   resolutionNotes?: string;
+  reviewNotes?: string;
   dateClosed?: string; 
   targetType?: string;
   targetId?: number | null;
@@ -38,6 +39,7 @@ export interface ReportLog {
   dateClosed?: string;
   resolution?: string;
   resolutionNotes?: string;
+  reviewNotes?: string;
 }
 
 @Injectable({

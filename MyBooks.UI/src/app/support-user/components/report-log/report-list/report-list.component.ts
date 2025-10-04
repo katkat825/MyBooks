@@ -31,6 +31,7 @@ export class ReportListComponent implements OnInit {
     'dateReceived',
     'reportedBy',
     'description',
+    'reviewNotes',
     'targetType',
     'targetId',
     'targetCreatedBy',
