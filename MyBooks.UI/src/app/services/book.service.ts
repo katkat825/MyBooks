@@ -22,11 +22,16 @@ export class BookService {
   }
 
   getAllBooks(): Observable<any[]> {
-    return this.http.get<any>(this.apiUrl, {headers: this.getAuthHeaders()}).pipe(
-      map(response => response.$values ?? response), 
-      catchError((error) => {
+    return this.http.get<any>(this.apiUrl, { headers: this.getAuthHeaders() }).pipe(
+      map(response => {
+        const list = response.$values ?? response;
+        return Array.isArray(list)
+          ? list.sort((a, b) => a.title.localeCompare(b.title))
+          : list;
+      }),
+      catchError(error => {
         console.error("Error fetching books:", error);
-        return throwError(error);
+        return throwError(() => error);
       })
     );
   }
@@ -40,7 +45,7 @@ export class BookService {
       tap(() => console.log("Book created successfully.")),
       catchError((error) => {
         console.error("Error creating book:", error);
-        return throwError(error);
+        return throwError(() => error);
       })
     );
   }
@@ -67,13 +72,16 @@ export class BookService {
   getGenres(): Observable<any[]> {
     return this.http.get<any>(`${this.apiUrl}/genres`, { headers: this.getAuthHeaders() }).pipe(
       map(response => {
-        return response && typeof response === 'object' && '$values' in response
+        const list = response && typeof response === 'object' && '$values' in response
           ? response.$values
           : response;
+        return Array.isArray(list)
+          ? list.sort((a, b) => a.name.localeCompare(b.name))
+          : list;
       }),
-      catchError((error) => {
+      catchError(error => {
         console.error("Error fetching genre:", error);
-        return throwError(error);
+        return throwError(() => error);
       })
     );
   }
@@ -99,7 +107,7 @@ export class BookService {
       }),
       catchError((error) => {
         console.error("Error fetching genre:", error);
-        return throwError(error);
+        return throwError(() => error);
       })
     );
   }
@@ -107,13 +115,16 @@ export class BookService {
   getSeries(): Observable<any[]> {
     return this.http.get<any>(`${this.apiUrl}/series`, { headers: this.getAuthHeaders() }).pipe(
       map(response => {
-        return response && typeof response === 'object' && '$values' in response
+        const list = response && typeof response === 'object' && '$values' in response
           ? response.$values
           : response;
+        return Array.isArray(list)
+          ? list.sort((a, b) => a.name.localeCompare(b.name))
+          : list;
       }),
-      catchError((error) => {
+      catchError(error => {
         console.error("Error fetching series:", error);
-        return throwError(error);
+        return throwError(() => error);
       })
     );
   }
