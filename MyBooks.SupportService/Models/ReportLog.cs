@@ -9,6 +9,7 @@ public class ReportLog : AuditableEntity
     public string ReportType { get; set; } // e.g. "DMCA", "Abuse"
     public string Status { get; set; } = "Open"; // e.g. "Open", "In Review", "Closed"
     public string Description { get; set; } // details of the report
+    public string? ReviewNotes { get; set; }
     public string? TargetType { get; set; } // e.g. "Book", "File"
     public int? TargetId { get; set; }
     public string? TargetCreatedBy { get; set; } // userId of user who created book or uploaded file
@@ -38,6 +39,7 @@ public static class ResolutionOptions
 public class UpdateReportLogDto
 {
     public string? Status { get; set; }
+    public string? ReviewNotes { get; set; }
     public string? Resolution { get; set; }
     public string? ResolutionNotes { get; set; }
     public string? DateClosed { get; set; }  // yyyy-MM-dd from Angular date input

@@ -8,6 +8,7 @@ public static class AppRoles
     public const string Editor = "Editor";
     public const string User = "User";
     public const string Support = "Support";
+    public const string GlobalReviewer = "GlobalReviewer";
     public const string TenantService = "TenantService";
     public const string CatalogService = "CatalogService";
     public const string EmailService = "EmailService";
@@ -22,6 +23,6 @@ public static class AppRoles
     public static readonly string[] AdminsArray = { SuperAdmin, Owner, Admin, Support };
     public static readonly string[] EditorsArray = { SuperAdmin, Owner, Admin, Editor, Support };
     public static readonly string[] AssignableRoles = { Admin, Editor, User };
-    public static readonly string[] AllRoles = { SuperAdmin, Owner, Admin, Editor, User, Support };
+    public static readonly string[] AllRoles = { SuperAdmin, Owner, Admin, Editor, User, Support, GlobalReviewer };
     public static readonly string[] OwnersArray = { Owner, SuperAdmin, Support };
 }

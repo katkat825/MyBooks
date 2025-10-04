@@ -22,6 +22,7 @@ public class SupportBookController : ControllerBase
 
     // get all books (active + inactive + restricted, across tenants)
     [HttpGet]
+    [Authorize(Roles = AppRoles.SuperAdmin + "," + AppRoles.GlobalReviewer)]
     public async Task<ActionResult<IEnumerable<Book>>> GetAllBooks()
     {
         var books = await _context.Books
@@ -38,6 +39,7 @@ public class SupportBookController : ControllerBase
 
     // get single book by id (ignores tenant/active filters)
     [HttpGet("{id}")]
+    [Authorize(Roles = AppRoles.SuperAdmin + "," + AppRoles.GlobalReviewer)]
     public async Task<ActionResult<Book>> GetBookById(int id)
     {
         var book = await _context.Books

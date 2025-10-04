@@ -10,7 +10,7 @@ namespace MyBooks.SupportService.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = AppRoles.SuperAdmin)]
+[Authorize(Roles = AppRoles.SuperAdmin + "," + AppRoles.GlobalReviewer)]
 public class ReportLogController : ControllerBase
 {
     private readonly SupportDbContext _context;
@@ -65,6 +65,7 @@ public class ReportLogController : ControllerBase
         existing.TargetType = dto.TargetType;
         existing.TargetId = dto.TargetId;
         existing.TargetCreatedBy = dto.TargetCreatedBy;
+        existing.ReviewNotes = dto.ReviewNotes;
 
         // dateClosed: parse if provided, clear if null/empty
         existing.DateClosed = string.IsNullOrEmpty(dto.DateClosed)

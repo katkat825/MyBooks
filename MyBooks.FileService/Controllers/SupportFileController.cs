@@ -13,7 +13,7 @@ namespace MyBooks.FileService.Controllers;
 
 [ApiController]
 [Route("api/support/files")]
-[Authorize(Roles = AppRoles.SuperAdmin)]
+[Authorize(Roles = AppRoles.SuperAdmin + "," + AppRoles.GlobalReviewer)]
 public class SupportFileController : ControllerBase
 {
     private readonly FileDbContext _context;
@@ -139,6 +139,7 @@ public class SupportFileController : ControllerBase
 
     // flip active flag by duplicating the file row, and sync Book.FileId in CatalogService
     [HttpPatch("{fileId}/activate")]
+    [Authorize(Roles = AppRoles.SuperAdmin)]
     public async Task<IActionResult> ActivateFile(int fileId)
     {
         var file = await _context.Files
