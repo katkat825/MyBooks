@@ -34,8 +34,16 @@ import { GlobalLoadingService, LoadingContext } from '../../services/global-load
 export class BookListComponent {
   books: any[] = [];
   filteredBooks: any[] = [];
+  recentReads: any[] = [];
   searchQuery: string = '';
   currentUser: any = null;
+  
+  page = 1;
+  pageSize = 20;
+  totalCount = 0;
+  showRecentReads = true;
+  isLoading = false;
+  allBooksLoaded = false;
 
   constructor(
     private bookService: BookService, 
@@ -65,16 +73,36 @@ export class BookListComponent {
     return ['owner', 'superadmin', 'support'].includes(this.currentUser.role.toLowerCase());
   }
 
-  loadBooks() {
-    this.bookService.getAllBooks().subscribe({
-      next: (data) => {
-        this.books = data.sort((a,b) => a.title.localeCompare(b.title));
+  loadBooks(): void {
+    console.log('Loading page', this.page);
+    if (this.isLoading || this.allBooksLoaded) 
+      return;
+
+    this.isLoading = true;
+
+    this.bookService.getBooks(this.page, this.pageSize).subscribe({
+      next: (response) => {
+        const results = response.results || [];
+        if (results.length === 0) {
+          this.allBooksLoaded = true;
+          this.isLoading = false;
+          return;
+        }
+        
+        const newBooks = results.filter(
+          (b: any) => !this.books.some((existing: any) => existing.id === b.id)
+        );
+
+        this.books = [...this.books, ...newBooks];
         this.filteredBooks = [...this.books];
+        this.totalCount = response.totalCount || this.books.length;
+        this.page++;
+        this.isLoading = false;
         this.globalLoading.hide();
       },
       error: (error) => {
         console.error('Error loading books', error);
-        this.globalLoading.hide();
+        this.isLoading = false;
       }
     });
   }

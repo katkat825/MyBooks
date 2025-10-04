@@ -21,6 +21,42 @@ export class BookService {
     });
   }
 
+  getBooks(page: number, pageSize: number = 20): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}?page=${page}&pageSize=${pageSize}`, { headers: this.getAuthHeaders() }).pipe(
+      map(response => {
+        // handle $values (JSON.NET or EF weird serialization)
+        const resultsRaw = response.results ?? response.Results ?? response.$values ?? response.Results?.$values;
+        let results = Array.isArray(resultsRaw)
+          ? resultsRaw
+          : Array.isArray(response.results?.$values)
+          ? response.results.$values
+          : Array.isArray(response.Results?.$values)
+          ? response.Results.$values
+          : [];
+
+        if (Array.isArray(results)) {
+          results = results.sort((a, b) =>
+            (a?.title || '').localeCompare(b?.title || '')
+          );
+        } else {
+          console.warn('Unexpected results shape:', response);
+          results = [];
+        }
+
+        return {
+          totalCount: response.totalCount ?? response.TotalCount ?? results.length,
+          page: response.page ?? response.Page ?? page,
+          pageSize: response.pageSize ?? response.PageSize ?? pageSize,
+          results
+        };
+      }),
+      catchError(error => {
+        console.error("Error fetching paginated books:", error);
+        return throwError(() => error);
+      })
+    );
+  }
+
   getAllBooks(): Observable<any[]> {
     return this.http.get<any>(this.apiUrl, { headers: this.getAuthHeaders() }).pipe(
       map(response => {

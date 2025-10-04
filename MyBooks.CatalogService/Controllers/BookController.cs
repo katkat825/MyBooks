@@ -12,7 +12,7 @@ namespace MyBooks.CatalogService.Controllers;
 
 [Route("api/books")]
 [ApiController]
-[Authorize]
+//[Authorize]
 public class BookController : ControllerBase
 {
     private readonly CatalogDbContext _context;
@@ -40,24 +40,39 @@ public class BookController : ControllerBase
 
     // get all books
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+    public async Task<ActionResult<IEnumerable<Book>>> GetBooks([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
         try
         {
             var ageCategoryClaim = User.FindFirst("AgeCategoryId")?.Value;
-            if (string.IsNullOrWhiteSpace(ageCategoryClaim)) return Unauthorized("User age category could not be determined.");
-            int userAgeCategory = int.Parse(ageCategoryClaim);
+            if (string.IsNullOrWhiteSpace(ageCategoryClaim))
+                return Unauthorized("User age category could not be determined.");
 
-            var books = await _context.Books
-                .Where(b => b.AgeCategoryId <= userAgeCategory)
+            int userAgeCategory = int.Parse(ageCategoryClaim);
+            int tenantId = _context.GetCurrentTenantId();
+
+            var query = _context.Books
+                .IgnoreQueryFilters()
+                .Where(b => b.TenantId == tenantId && b.IsActive && b.AgeCategoryId <= userAgeCategory)
                 .Include(b => b.Genre)
                 .Include(b => b.AgeCategory)
                 .Include(b => b.Tags)
                 .Include(b => b.Series)
+                .OrderBy(b => b.Title);
+
+            var total = await query.CountAsync();
+            var books = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
-            Console.WriteLine($"Fetched {books.Count} books. User AgeCategoryId {userAgeCategory}");
-            return books;
+            return Ok(new
+            {
+                TotalCount = total,
+                Page = page,
+                PageSize = pageSize,
+                Results = books
+            });
         }
         catch (Exception ex)
         {

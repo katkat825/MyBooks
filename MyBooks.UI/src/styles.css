@@ -353,6 +353,14 @@ mat-tab {
   justify-content: center;
 }
 
+.inline-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
 .global-overlay {
   position: fixed;        /* cover viewport regardless of scroll */
   top: 0;

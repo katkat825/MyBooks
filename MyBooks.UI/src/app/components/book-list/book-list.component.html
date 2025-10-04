@@ -10,7 +10,7 @@
       <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
   </div>
-
+  
   <div class="book-container">
     <div class="book" *ngFor="let book of filteredBooks">      
       <div class="book-cover" (click)="viewBookDetails(book)">
@@ -32,5 +32,17 @@
         <div class="book-spine"></div>
       </div>
     </div>
+  </div>
+
+  <div class="inline-loading" *ngIf="isLoading">
+    <mat-spinner class="mat-spinner"></mat-spinner>
+    <p>Loading more books...</p>
+  </div>
+
+  <div class="load-more-container" *ngIf="!isLoading && !allBooksLoaded">
+    <button mat-stroked-button color="primary" (click)="loadBooks()">
+      <mat-icon>expand_more</mat-icon>
+      Load More Books
+    </button>
   </div>
 </div>
