@@ -52,6 +52,12 @@
             matTooltip="Impersonate user">
           <mat-icon>login</mat-icon>
         </button>
+
+        <button mat-icon-button 
+          (click)="openGlobalReviewerDialog(user)"
+          matTooltip="Manage GlobalReviewer Access">
+          <mat-icon>verified_access</mat-icon>
+        </button>
       </td>
     </ng-container>
 

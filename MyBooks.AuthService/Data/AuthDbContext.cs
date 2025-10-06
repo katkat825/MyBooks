@@ -16,6 +16,7 @@ namespace MyBooks.AuthService.Data
         }
         public DbSet<User> Users { get; set; }
         public DbSet<Invitation> Invitations { get; set; }
+        public DbSet<GlobalReviewerAccess> GlobalReviewerAccess { get; set; }
 
         public string GetCurrentUserId()
         {
@@ -35,13 +36,23 @@ namespace MyBooks.AuthService.Data
             modelBuilder.HasDefaultSchema("auth");
             modelBuilder.Entity<User>().ToTable("Users");
             modelBuilder.Entity<Invitation>().ToTable("Invitations");
+            modelBuilder.Entity<GlobalReviewerAccess>().ToTable("GlobalReviewerAccess");
 
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
-            
+
             modelBuilder.Entity<User>()
                 .HasQueryFilter(u => u.TenantId == GetCurrentTenantId() && u.IsVisible);
+                
+            modelBuilder.Entity<GlobalReviewerAccess>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
 
         public override int SaveChanges()

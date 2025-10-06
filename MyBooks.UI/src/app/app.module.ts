@@ -37,6 +37,7 @@ import { ReportListComponent } from './support-user/components/report-log/report
 import { ReportDetailsComponent } from './support-user/components/report-log/report-details/report-details.component';
 import { ReportUpdateFormComponent } from './support-user/components/report-log/report-update-form/report-update-form.component';
 import { ContentReviewComponent } from './support-user/components/content-review/content-review.component';
+import { GlobalreviewerDialogComponent } from './support-user/components/globalreviewer-dialog/globalreviewer-dialog.component';
 
 @NgModule({
   imports: [
@@ -80,7 +81,8 @@ import { ContentReviewComponent } from './support-user/components/content-review
     ReportListComponent,
     ReportDetailsComponent,
     ReportUpdateFormComponent,
-    ContentReviewComponent
+    ContentReviewComponent,
+    GlobalreviewerDialogComponent
   ]
 })
 export class AppModule { }

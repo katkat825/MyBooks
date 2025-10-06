@@ -190,4 +190,32 @@ export class SupportUserService {
   updateReport(id: number, dto: UpdateReportLogDto): Observable<void> {
     return this.http.put<void>(`${this.reportLogUrl}/${id}`, dto,  { headers: this.getAuthHeaders() });
   }
+
+  // global reviewer access
+  getGlobalReviewers(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.authBaseUrl}/api/support/globalreviewer`, { headers: this.getAuthHeaders() });
+  }
+
+  grantGlobalReviewerAccess(userId: number): Observable<any> {
+    return this.http.post<any>(
+      `${this.authBaseUrl}/api/support/globalreviewer/${userId}`,
+      {},
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  revokeGlobalReviewerAccess(userId: number): Observable<any> {
+    return this.http.delete<any>(
+      `${this.authBaseUrl}/api/support/globalreviewer/${userId}`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  switchToReviewerPortal(): Observable<any> {
+    return this.http.post<any>(
+      `${this.authBaseUrl}/api/support/globalreviewer/switch`,
+      {},
+      { headers: this.getAuthHeaders() }
+    );
+  }
 }

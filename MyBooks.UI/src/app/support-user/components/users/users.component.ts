@@ -7,6 +7,9 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SupportUserService } from '../../../services/support-user.service';
 import { GlobalLoadingService } from '../../../services/global-loading.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ToastService } from '../../../services/toast.service';
+import { GlobalReviewerDialogComponent } from './global-reviewer-dialog.component';
 
 @Component({
   selector: 'app-support-users',
@@ -17,7 +20,8 @@ import { GlobalLoadingService } from '../../../services/global-loading.service';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
-    CommonModule
+    CommonModule,
+    GlobalReviewerDialogComponent
   ],
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.css']
@@ -29,7 +33,9 @@ export class SupportUsersComponent implements OnInit {
   constructor(
     private supportService: SupportUserService,
     private globalLoading: GlobalLoadingService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private dialog: MatDialog,
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -58,6 +64,19 @@ export class SupportUsersComponent implements OnInit {
         localStorage.setItem('token', response.token);
         localStorage.setItem('impersonationLogId', response.logId.toString());
         window.location.href = '/';
+      }
+    });
+  }
+
+  openGlobalReviewerDialog(user: any): void {
+    const dialogRef = this.dialog.open(GlobalReviewerDialogComponent, {
+      width: '400px',
+      data: { userId: user.id, email: user.email }
+    });
+
+    dialogRef.afterClosed().subscribe((updated) => {
+      if (updated !== undefined) {
+        this.toast.show('Reviewer access updated');
       }
     });
   }
