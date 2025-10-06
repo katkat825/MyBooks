@@ -7,6 +7,8 @@ using MyBooks.FileService.Models;
 using MyBooks.FileService.Validators;
 using System.Text.RegularExpressions;
 using System.Security.Claims;
+using Microsoft.Extensions.Configuration.UserSecrets;
+using MyBooks.Common.Dtos;
 
 [Route("api/files/progress")]
 [ApiController]
@@ -18,6 +20,36 @@ public class ReadingProgressController : ControllerBase
     public ReadingProgressController(FileDbContext context)
     {
         _context = context;
+    }
+
+    // get all recently read
+    [HttpGet("recent")]
+    public async Task<IActionResult> GetRecentProgress([FromQuery] int userId, [FromQuery] int count = 10)
+    {
+        if (userId <= 0)
+            return BadRequest("A valid user ID is required");
+        try
+        {
+            var recentProgress = await _context.ReadingProgresses
+                    .IgnoreQueryFilters()
+                    .Where(r => r.UserId == userId && r.ProgressPercent < 99)
+                    .OrderByDescending(r => r.LastUpdated)
+                    .Take(count)
+                    .Select(r => new ReadingProgressDto
+                    {
+                        FileId = r.FileId,
+                        ProgressPercent = r.ProgressPercent,
+                        LastUpdated = r.LastUpdated
+                    })
+                    .ToListAsync();
+
+            return Ok(recentProgress);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching recent progress for user {userId}: {ex.Message}");
+            return StatusCode(500, "An error occurred while retrieving recent reading progress.");
+        }
     }
 
     // GET api/files/progress/{fileId}

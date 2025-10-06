@@ -7,12 +7,14 @@ using MyBooks.CatalogService.Models;
 using MyBooks.Common.Services;
 using MyBooks.Common.BaseClasses;
 using MyBooks.CatalogService.Services;
+using MyBooks.Common.Helpers;
+using MyBooks.Common.Dtos;
 
 namespace MyBooks.CatalogService.Controllers;
 
 [Route("api/books")]
 [ApiController]
-//[Authorize]
+[Authorize]
 public class BookController : ControllerBase
 {
     private readonly CatalogDbContext _context;
@@ -21,6 +23,9 @@ public class BookController : ControllerBase
     private readonly HttpClient _httpClient;
     private readonly OpenLibraryClient _openLibraryClient;
     private readonly string _fileServiceBaseUrl;
+    private readonly string _authServiceBaseUrl;
+    private readonly string _systemTokenSecret;
+    private readonly string serviceName = "CatalogService";
 
     public BookController(
         CatalogDbContext context,
@@ -36,6 +41,77 @@ public class BookController : ControllerBase
         _httpClient = httpClientFactory.CreateClient();
         _openLibraryClient = openLibraryClient;
         _fileServiceBaseUrl = config["BaseUrls:FileService"] ?? throw new ArgumentNullException("FileService base URL is not configured.");
+        _authServiceBaseUrl = config["BaseUrls:AuthService"] ?? throw new ArgumentNullException("AuthService base URL is not configured.");
+        _systemTokenSecret = config["ServiceSecrets:CatalogService"] ?? throw new ArithmeticException("CatalogService secret is not configured.");
+
+    }
+
+    // get recent reads
+    [HttpGet("recently-read")]
+    public async Task<IActionResult> GetRecentlyRead([FromQuery] int count = 10)
+    {
+        try
+        {
+            var tenantId = _context.GetCurrentTenantId();
+            var userIdString = _context.GetCurrentUserId();
+            if (string.IsNullOrWhiteSpace(userIdString) || !int.TryParse(userIdString, out int userId))
+                return Unauthorized("User not identified.");
+
+            var tokenHelper = new SystemTokenHelper(_httpClient, _authServiceBaseUrl);
+            var systemToken = await tokenHelper.GetSystemTokenAsync(serviceName, _systemTokenSecret);
+
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", systemToken);
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{_fileServiceBaseUrl}/api/files/progress/recent?userId={userId}&count={count}");
+
+            var response = await _httpClient.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+                return StatusCode((int)response.StatusCode, "Unable to retrieve reading progress data.");
+
+            var progressList = await response.Content.ReadFromJsonAsync<List<ReadingProgressDto>>();
+
+            Console.WriteLine($"Progress list raw content: {await response.Content.ReadAsStringAsync()}");
+            Console.WriteLine($"Deserialized count: {(progressList == null ? "null" : progressList.Count.ToString())}");
+
+            if (progressList == null || progressList.Count == 0)
+                return Ok(new List<RecentlyReadDto>());
+            var fileIds = progressList.Select(p => p.FileId).Distinct().ToList();
+
+            var books = await _context.Books
+                .Where(b => b.FileId.HasValue && fileIds.Contains(b.FileId.Value))
+                .Include(b => b.Genre)
+                .Include(b => b.AgeCategory)
+                .Include(b => b.Tags)
+                .Include(b => b.Series)
+                .ToListAsync();
+
+            var results = progressList
+                .Join(books,
+                    p => p.FileId,
+                    b => b.FileId,
+                    (p, b) => new RecentlyReadDto
+                    {
+                        BookId = b.Id,
+                        Title = b.Title,
+                        Author = b.Author,
+                        Genre = b.Genre?.Name,
+                        Series = b.Series?.Name,
+                        ProgressPercent = p.ProgressPercent,
+                        LastUpdated = p.LastUpdated,
+                        FileId = b.FileId
+                    })
+                .OrderByDescending(x => x.LastUpdated)
+                .ToList();
+
+            Console.WriteLine($"Returning {results.Count} recently read books.");
+
+            return Ok(results);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching recently read books: {ex.Message}");
+            return StatusCode(500, "An error occurred while retrieving recently read books.");
+        }
     }
 
     // get all books

@@ -12,6 +12,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { UserService } from '../../services/user.service';
 import { GlobalLoadingService, LoadingContext } from '../../services/global-loading.service';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-book-list',
@@ -28,7 +29,8 @@ import { GlobalLoadingService, LoadingContext } from '../../services/global-load
     MatInputModule, 
     FormsModule, 
     MatProgressSpinner,
-    MatTooltipModule
+    MatTooltipModule,
+    MatDividerModule
   ]
 })
 export class BookListComponent {
@@ -61,6 +63,26 @@ export class BookListComponent {
       }
     })
     this.globalLoading.show("Loading books...", LoadingContext.Login);
+    this.loadRecentReads();
+  }
+
+  loadRecentReads(): void {
+    this.bookService.getRecentlyRead(10).subscribe({
+      next: (data) => {
+        this.recentReads = Array.isArray(data)
+          ? data.sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime())
+          : [];
+
+        if(this.recentReads.length <= 0)
+          this.showRecentReads = false;
+
+        this.globalLoading.hide();
+      },
+      error: (err) => {
+        console.error("Error loading recently read books: ", err);
+        this.showRecentReads = false;
+      }
+    })
     this.loadBooks();
   }
 
@@ -85,6 +107,7 @@ export class BookListComponent {
         const results = response.results || [];
         if (results.length === 0) {
           this.allBooksLoaded = true;
+          this.globalLoading.hide();
           this.isLoading = false;
           return;
         }
@@ -99,9 +122,13 @@ export class BookListComponent {
         this.page++;
         this.isLoading = false;
         this.globalLoading.hide();
+        
+        if(results.length < this.pageSize)
+          this.allBooksLoaded = true;
       },
       error: (error) => {
         console.error('Error loading books', error);
+        this.globalLoading.hide();
         this.isLoading = false;
       }
     });

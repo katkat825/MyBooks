@@ -3,7 +3,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map, tap, catchError, throwError, from, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-
 @Injectable({
   providedIn: 'root'
 })
@@ -20,6 +19,19 @@ export class BookService {
       Authorization: `Bearer ${token}`,
     });
   }
+
+  getRecentlyRead(count: number = 10): Observable<any[]> {
+      return this.http.get<any>(`${this.apiUrl}/recently-read?count=${count}`, { headers: this.getAuthHeaders() }).pipe(
+        map(response => {
+          const list = response.$values ?? response;
+          return list;
+        }),
+        catchError(error => {
+          console.error("Error fetching recently read books: ", error);
+          return throwError(() => error);
+        })
+      );
+    }
 
   getBooks(page: number, pageSize: number = 20): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}?page=${page}&pageSize=${pageSize}`, { headers: this.getAuthHeaders() }).pipe(

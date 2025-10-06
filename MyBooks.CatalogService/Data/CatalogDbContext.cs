@@ -9,7 +9,7 @@ namespace MyBooks.CatalogService.Data
     {
         private readonly IHttpContextAccessor _contextAccessor;
         
-        private string GetCurrentUserId()
+        public string GetCurrentUserId()
         {
             var user = _contextAccessor.HttpContext?.User;
             return user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;

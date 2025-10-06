@@ -10,8 +10,38 @@
       <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
   </div>
+
+  <div class="book-container" *ngIf="showRecentReads">
+    <div class="book-section-header">
+      <h3>Continue Reading</h3>
+    </div>
+    <div class="book" *ngFor="let book of recentReads">      
+      <div class="book-cover" (click)="viewBookDetails(book)">
+        <span 
+            class="read-icon-wrapper" 
+            (click)="openBookViewer(book, $event)" 
+            *ngIf="book.fileId && !book.isRestricted"
+            matTooltip="Read this book">
+          <mat-icon class="read-icon">menu_book</mat-icon>
+        </span>
+        <span 
+            class="read-icon-wrapper"
+            *ngIf="book.isRestricted"
+            matTooltip="This book is under investigation and cannot be accessed">
+          <mat-icon class="restricted-icon">block</mat-icon>
+        </span>
+          <h5 class="book-title" [matTooltip]="book.title.length > 50 ? book.title : ''">{{ book.title }}</h5>
+          <h6 class="book-author" [matTooltip]="book.author && book.author.length > 18 ? book.author : ''">{{ book.author || "Unknown Author"}}</h6>
+          <div class="book-spine"></div>
+        </div>
+      </div>
+  </div>
+  <mat-divider *ngIf="showRecentReads"></mat-divider>
   
   <div class="book-container">
+    <div class="book-section-header">
+      <h3>All Books</h3>
+    </div>
     <div class="book" *ngFor="let book of filteredBooks">      
       <div class="book-cover" (click)="viewBookDetails(book)">
         <span 
