@@ -31,7 +31,7 @@ export class UserService {
   );
 
   canAccessGlobalReview$ = this.user$.pipe(
-    map(u => !!u && (u.role === 'SuperAdmin' || u.role === 'GlobalReviewer')),
+    map(u => !!u && (u.role === 'GlobalReviewer')),
     shareReplay({ bufferSize: 1, refCount: true })
   );
 

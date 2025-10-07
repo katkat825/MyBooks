@@ -10,7 +10,7 @@ namespace MyBooks.CatalogService.Controllers;
 
 [ApiController]
 [Route("api/support/[controller]")]
-[Authorize(Roles = AppRoles.SuperAdmin)]
+[Authorize(Roles = AppRoles.AllBooksAccess)]
 public class SupportBookController : ControllerBase
 {
     private readonly CatalogDbContext _context;
@@ -22,7 +22,6 @@ public class SupportBookController : ControllerBase
 
     // get all books (active + inactive + restricted, across tenants)
     [HttpGet]
-    [Authorize(Roles = AppRoles.SuperAdmin + "," + AppRoles.GlobalReviewer)]
     public async Task<ActionResult<IEnumerable<Book>>> GetAllBooks()
     {
         var books = await _context.Books
@@ -39,7 +38,6 @@ public class SupportBookController : ControllerBase
 
     // get single book by id (ignores tenant/active filters)
     [HttpGet("{id}")]
-    [Authorize(Roles = AppRoles.SuperAdmin + "," + AppRoles.GlobalReviewer)]
     public async Task<ActionResult<Book>> GetBookById(int id)
     {
         var book = await _context.Books
@@ -78,8 +76,9 @@ public class SupportBookController : ControllerBase
         return NoContent();
     }
 
-    // toggle IsRestricted (support-only)
+    // toggle IsRestricted (superadmin-only)
     [HttpPatch("{id}/restricted")]
+    [Authorize(Roles = AppRoles.SuperAdmin)]
     public async Task<IActionResult> ToggleRestricted(int id, [FromQuery] bool restricted)
     {
         var book = await _context.Books

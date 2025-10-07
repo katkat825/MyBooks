@@ -19,6 +19,7 @@ public static class AppRoles
     public const string Admins = SuperAdmin + "," + Owner + "," + Admin + "," + Support;
     public const string Editors = Admins + "," + Editor + "," + Support;
     public const string OwnerPlus = Owner + "," + SuperAdmin + "," + Support;
+    public const string AllBooksAccess = GlobalReviewer + "," + SuperAdmin ;
 
     public static readonly string[] AdminsArray = { SuperAdmin, Owner, Admin, Support };
     public static readonly string[] EditorsArray = { SuperAdmin, Owner, Admin, Editor, Support };

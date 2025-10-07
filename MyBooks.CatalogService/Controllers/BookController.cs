@@ -70,19 +70,33 @@ public class BookController : ControllerBase
 
             var progressList = await response.Content.ReadFromJsonAsync<List<ReadingProgressDto>>();
 
-            Console.WriteLine($"Progress list raw content: {await response.Content.ReadAsStringAsync()}");
-            Console.WriteLine($"Deserialized count: {(progressList == null ? "null" : progressList.Count.ToString())}");
-
             if (progressList == null || progressList.Count == 0)
                 return Ok(new List<RecentlyReadDto>());
             var fileIds = progressList.Select(p => p.FileId).Distinct().ToList();
 
-            var books = await _context.Books
-                .Where(b => b.FileId.HasValue && fileIds.Contains(b.FileId.Value))
-                .Include(b => b.Genre)
-                .Include(b => b.AgeCategory)
-                .Include(b => b.Tags)
-                .Include(b => b.Series)
+            IQueryable<Book> query;
+
+            if (tenantId == 9999)
+            {
+                query = _context.Books
+                    .IgnoreQueryFilters()
+                    .Where(b => b.FileId.HasValue && fileIds.Contains(b.FileId.Value))
+                    .Include(b => b.Genre)
+                    .Include(b => b.AgeCategory)
+                    .Include(b => b.Tags)
+                    .Include(b => b.Series);
+            }
+            else {
+                query = _context.Books
+                    .Where(b => b.FileId.HasValue && fileIds.Contains(b.FileId.Value))
+                    .Include(b => b.Genre)
+                    .Include(b => b.AgeCategory)
+                    .Include(b => b.Tags)
+                    .Include(b => b.Series);
+            }
+
+            var books = await query
+                .AsNoTracking()
                 .ToListAsync();
 
             var results = progressList
@@ -103,13 +117,10 @@ public class BookController : ControllerBase
                 .OrderByDescending(x => x.LastUpdated)
                 .ToList();
 
-            Console.WriteLine($"Returning {results.Count} recently read books.");
-
             return Ok(results);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error fetching recently read books: {ex.Message}");
             return StatusCode(500, "An error occurred while retrieving recently read books.");
         }
     }
@@ -127,19 +138,41 @@ public class BookController : ControllerBase
             int userAgeCategory = int.Parse(ageCategoryClaim);
             int tenantId = _context.GetCurrentTenantId();
 
-            var query = _context.Books
-                .IgnoreQueryFilters()
-                .Where(b => b.TenantId == tenantId && b.IsActive && b.AgeCategoryId <= userAgeCategory)
-                .Include(b => b.Genre)
-                .Include(b => b.AgeCategory)
-                .Include(b => b.Tags)
-                .Include(b => b.Series)
-                .OrderBy(b => b.Title);
+            IQueryable<Book> query;
+
+            // special logic for global reviewer tenant
+            if (tenantId == 9999)
+            {
+                query = _context.Books
+                    .IgnoreQueryFilters()
+                    .Where(b => b.FileId != null && b.IsActive) // only books with files
+                    .Include(b => b.Genre)
+                    .Include(b => b.AgeCategory)
+                    .Include(b => b.Tags)
+                    .Include(b => b.Series)
+                    .OrderBy(b => b.Author)
+                    .ThenBy(b => b.Series!.Name)
+                    .ThenBy(b => b.SeriesPosition)
+                    .ThenBy(b => b.Title);
+            }
+            else
+            {
+                // normal tenant view
+                query = _context.Books
+                    .IgnoreQueryFilters()
+                    .Where(b => b.TenantId == tenantId && b.IsActive && b.AgeCategoryId <= userAgeCategory && !b.IsRestricted)
+                    .Include(b => b.Genre)
+                    .Include(b => b.AgeCategory)
+                    .Include(b => b.Tags)
+                    .Include(b => b.Series)
+                    .OrderBy(b => b.Title);
+            }
 
             var total = await query.CountAsync();
             var books = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
+                .AsNoTracking()
                 .ToListAsync();
 
             return Ok(new
@@ -153,7 +186,7 @@ public class BookController : ControllerBase
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            return StatusCode(500);
+            return StatusCode(500, "Error retrieving books.");
         }
     }
 

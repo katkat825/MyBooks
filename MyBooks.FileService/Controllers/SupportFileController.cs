@@ -13,7 +13,7 @@ namespace MyBooks.FileService.Controllers;
 
 [ApiController]
 [Route("api/support/files")]
-[Authorize(Roles = AppRoles.SuperAdmin + "," + AppRoles.GlobalReviewer)]
+[Authorize(Roles = AppRoles.AllBooksAccess)]
 public class SupportFileController : ControllerBase
 {
     private readonly FileDbContext _context;

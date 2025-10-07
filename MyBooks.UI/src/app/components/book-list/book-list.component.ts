@@ -61,7 +61,8 @@ export class BookListComponent {
         console.error("Error fetching current user profile", err);
         this.globalLoading.hide();
       }
-    })
+    });
+
     this.globalLoading.show("Loading books...", LoadingContext.Login);
     this.loadRecentReads();
   }
@@ -93,6 +94,11 @@ export class BookListComponent {
   hasCreatePermission(): boolean {
     if (!this.currentUser) return false;
     return ['owner', 'superadmin', 'support'].includes(this.currentUser.role.toLowerCase());
+  }
+
+  hasGlobalReviewer() : boolean {
+    if (!this.currentUser) return false;
+    return [ 'globalreviewer'].includes(this.currentUser.role.toLowerCase());
   }
 
   loadBooks(): void {
@@ -156,6 +162,11 @@ export class BookListComponent {
 
   openBookViewer(book: any, event: MouseEvent) {
     event.stopPropagation();
-    this.router.navigate(['/book-viewer', book.fileId]);
+
+    const routeBase = this.hasGlobalReviewer()
+      ? '/support/book-viewer'
+      : '/book-viewer';
+
+    this.router.navigate([routeBase, book.fileId]);
   }
 }

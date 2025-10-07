@@ -17,12 +17,13 @@ export class GlobalReviewerGuard implements CanActivate {
             return of(this.router.createUrlTree(['/login']));
         }    
 
-        return this.userService.ensureProfile$().pipe(
-            filter((u): u is any => u !== null),   // wait until profile is loaded
+        return this.userService.user$.pipe(
+            filter((u): u is any => !!u),
             take(1),
             map(user => {
                 const role = user.role ?? user.Role ?? '';
                 const allowed = role === 'SuperAdmin' || role === 'GlobalReviewer';
+                console.log('GlobalReviewerGuard allowed?', allowed, 'role:', role);
                 return allowed ? true : this.router.createUrlTree(['/']);
             }),
             catchError(() => of(this.router.createUrlTree(['/login'])))

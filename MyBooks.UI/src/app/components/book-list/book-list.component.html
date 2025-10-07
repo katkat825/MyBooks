@@ -20,13 +20,13 @@
         <span 
             class="read-icon-wrapper" 
             (click)="openBookViewer(book, $event)" 
-            *ngIf="book.fileId && !book.isRestricted"
+            *ngIf="book.fileId && (!book.isRestricted || hasGlobalReviewer())"
             matTooltip="Read this book">
           <mat-icon class="read-icon">menu_book</mat-icon>
         </span>
         <span 
             class="read-icon-wrapper"
-            *ngIf="book.isRestricted"
+            *ngIf="book.isRestricted && !hasGlobalReviewer()"
             matTooltip="This book is under investigation and cannot be accessed">
           <mat-icon class="restricted-icon">block</mat-icon>
         </span>
@@ -44,19 +44,22 @@
     </div>
     <div class="book" *ngFor="let book of filteredBooks">      
       <div class="book-cover" (click)="viewBookDetails(book)">
+        
         <span 
             class="read-icon-wrapper" 
             (click)="openBookViewer(book, $event)" 
-            *ngIf="book.fileId && !book.isRestricted"
+            *ngIf="book.fileId && (!book.isRestricted || hasGlobalReviewer())"
             matTooltip="Read this book">
+          <mat-icon class="restricted-icon" *ngIf="book.isRestricted && hasGlobalReviewer()">block</mat-icon>
           <mat-icon class="read-icon">menu_book</mat-icon>
         </span>
         <span 
             class="read-icon-wrapper"
-            *ngIf="book.isRestricted"
+            *ngIf="book.isRestricted && !hasGlobalReviewer()"
             matTooltip="This book is under investigation and cannot be accessed">
           <mat-icon class="restricted-icon">block</mat-icon>
         </span>
+        
         <h5 class="book-title" [matTooltip]="book.title.length > 50 ? book.title : ''">{{ book.title }}</h5>
         <h6 class="book-author" [matTooltip]="book.author && book.author.length > 18 ? book.author : ''">{{ book.author || "Unknown Author"}}</h6>
         <div class="book-spine"></div>

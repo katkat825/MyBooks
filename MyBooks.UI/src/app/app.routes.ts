@@ -53,7 +53,7 @@ export const routes: Routes = [
   { path: 'invite/:token', component: CompleteInviteComponent },
   { path: 'reset/:token', component: CompleteInviteComponent },
   { path:'reset-password', component: ResetPasswordComponent },
-  { path: 'support/book-viewer/:fileId', component: BookViewerComponent, canActivate: [SupportUserGuard], providers: [{ provide: 'ViewerService', useClass: SupportUserService }] },
+  { path: 'support/book-viewer/:fileId', component: BookViewerComponent, canActivate: [GlobalReviewerGuard], providers: [{ provide: 'ViewerService', useClass: SupportUserService }] },
   { path: 'support', component: SupportLayoutComponent, canActivate: [SupportUserGuard],
     children: [
       { path: '', component: SupportHomeComponent },
