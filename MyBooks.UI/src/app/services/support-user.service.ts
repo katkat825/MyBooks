@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { HttpHeaders } from '@angular/common/http';
-import { Observable, map, catchError, throwError } from 'rxjs';
+import { Observable, map, catchError, throwError, of } from 'rxjs';
 
 export interface CreateReportLogDto {
   dateReceived: string;
@@ -204,6 +204,31 @@ export class SupportUserService {
     );
   }
 
+  hasGlobalReviewerAccess(): Observable<boolean> {
+    const token = localStorage.getItem('token');
+    if(!token)
+      return of(false);
+    let currentUserId: number | null = null;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      currentUserId = Number(payload['nameId']);
+    }
+    catch (err) {
+      return of(false);
+    }
+
+    return this.getGlobalReviewers().pipe(
+      map(reviewers => {
+        return reviewers.some((r: any) => r.userId === currentUserId && r.isActive);
+      }),
+      catchError(err => {
+        console.error('Error checking global reviewer access', err);
+        return of(false);
+      })
+    )
+  }
+
   revokeGlobalReviewerAccess(userId: number): Observable<any> {
     return this.http.delete<any>(
       `${this.authBaseUrl}/api/support/globalreviewer/${userId}`,
@@ -212,10 +237,17 @@ export class SupportUserService {
   }
 
   switchToReviewerPortal(): Observable<any> {
+    const currentToken = localStorage.getItem('token');
+    if(currentToken) {
+      localStorage.setItem('originalToken', currentToken);
+    }
+    
     return this.http.post<any>(
       `${this.authBaseUrl}/api/support/globalreviewer/switch`,
       {},
       { headers: this.getAuthHeaders() }
     );
   }
+
+  
 }

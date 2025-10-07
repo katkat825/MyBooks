@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import { Observable, catchError, throwError, tap, map, BehaviorSubject, shareReplay, EMPTY, of } from 'rxjs';
+import { Observable, catchError, throwError, tap, map, BehaviorSubject, shareReplay, EMPTY, of, filter, switchMap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
@@ -11,6 +11,7 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 export class UserService {
   private jwtHelper = new JwtHelperService();
   private usersApiUrl = `${environment.authServiceUrl}/users`;
+  private authBaseUrl = environment.authServiceUrl;
   private accountApiUrl = `${environment.authServiceUrl}/account`;
   private userSubject = new BehaviorSubject<any>(null);
   user$ = this.userSubject.asObservable();
@@ -35,6 +36,22 @@ export class UserService {
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
+  hasGlobalReviewer$: Observable<boolean> = this.user$.pipe(
+    filter((u): u is any => !!u), // skip null
+    switchMap(u =>
+      this.getGlobalReviewers().pipe(
+        map(reviewers =>
+          reviewers.some((r: any) => r.userId === u.id && r.isActive)
+        ),
+        catchError(err => {
+          console.error('Error checking global reviewer access', err);
+          return of(false);
+        })
+      )
+    ),
+    shareReplay({ bufferSize: 1, refCount: true })
+  );
+
   constructor(private http: HttpClient, private router: Router) { }
 
   get isImpersonating(): boolean {
@@ -51,6 +68,10 @@ export class UserService {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     });
+  }
+
+  getGlobalReviewers(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.authBaseUrl}/support/globalreviewer`, { headers: this.getAuthHeaders() });
   }
 
   getProfile(): Observable<any | null> {

@@ -12,7 +12,7 @@ import { ViewChild } from '@angular/core';
 import { ToastComponent } from './components/shared/toast.component';
 import { ToastService } from './services/toast.service';
 import { GlobalLoadingService } from './services/global-loading.service';
-import { Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { SupportUserService } from './services/support-user.service';
 import { MatDividerModule } from '@angular/material/divider';
 
@@ -42,6 +42,7 @@ export class AppComponent {
   userRole: string = '';
   currentUrl = window.location.href;
   isSupportUser: boolean = false;
+  canAccessGlobalReviewer = false;
 
   globalLoading$: Observable<boolean>;
   globalMessage$: Observable<string>;
@@ -131,4 +132,38 @@ export class AppComponent {
     this.isSupportUser = false;
     this.router.navigate(['/login']);
   } 
+  
+  switchToGlobalReviewer(): void {
+    this.supportService.switchToReviewerPortal().subscribe({
+      next: (res) => {
+        const { token } = res;
+
+        if (token) {
+          localStorage.setItem('token', token);
+          this.toast.show('Switched to Global Reviewer Portal');
+          this.userService.loadProfile();
+          this.userService.ensureProfile$().subscribe();
+        } else {
+          this.toast.show('No token returned from server.');
+        }
+      },
+      error: (err) => {
+        console.error('Failed to switch:', err);
+        this.toast.show('Failed to switch to Global Reviewer Portal');
+      }
+    });
+  }
+
+  switchBackFromGlobalReviewer(): void {
+    const token = localStorage.getItem('token');
+    const originalToken = localStorage.getItem('originalToken')
+    if(token && originalToken){
+      localStorage.setItem('token', originalToken);
+      localStorage.removeItem('originalToken');
+      
+      this.userService.loadProfile();
+      this.userService.ensureProfile$().subscribe();
+      this.router.navigate(['/']);
+    }
+  }
 }

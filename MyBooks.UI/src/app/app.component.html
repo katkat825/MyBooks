@@ -21,16 +21,20 @@
             <mat-icon>brightness_6</mat-icon> Theme
           </button>
 
-          <button id="my-profile" mat-menu-item [routerLink]="'/profile'">
+          <button id="my-profile" *ngIf="!(userService.canAccessGlobalReview$ | async)" mat-menu-item [routerLink]="'/profile'">
             <mat-icon>person</mat-icon> My Profile
           </button>
 
-          <button mat-menu-item id="owner-menu" *ngIf="userService.canAccessOwner$ | async" [matMenuTriggerFor]="ownerMenu">
+          <button mat-menu-item id="owner-menu" *ngIf="(userService.canAccessOwner$ | async)" [matMenuTriggerFor]="ownerMenu">
             <mat-icon>settings</mat-icon> Admin
           </button>
 
-          <button mat-menu-item id="global-reviewer" *ngIf="userService.canAccessGlobalReview$ | async" [routerLink]="'/global/content-review'">
+          <button mat-menu-item id="global-reviewer" *ngIf="(userService.hasGlobalReviewer$ | async)" (click)="switchToGlobalReviewer()">
             <mat-icon>auto_stories</mat-icon> All Content
+          </button>
+
+          <button mat-menu-item id="exit-global-reviewer" *ngIf="(userService.canAccessGlobalReview$ | async)" (click)="switchBackFromGlobalReviewer()">
+            <mat-icon>home</mat-icon> My Content
           </button>
 
           <button mat-menu-item id="support-user" *ngIf="userService.canAccessSupport$ | async" [routerLink]="'/support'">
