@@ -1,38 +1,42 @@
-# ===== build (Debian base avoids Alpine/native module issues) =====
+# ===== Stage 1: Build Angular app =====
 FROM node:20-bookworm-slim AS build
 WORKDIR /app
 
-# Helpful for larger Angular builds
+# increase memory limit for Angular builds
 ENV NODE_OPTIONS=--max_old_space_size=4096
 ENV npm_config_fund=false npm_config_audit=false
 
-# Install deps
+# install dependencies
 COPY package*.json ./
 RUN npm ci
 
-# Copy workspace & sanity check
+# copy source and build
 COPY . .
-RUN test -f angular.json || (echo "angular.json missing in /app" && ls -la && exit 1)
-RUN npx ng version
-
-# Build (your script is "build": "ng build")
 RUN npm run build -- --configuration=production
 
-# Show what got built so we can confirm paths in the logs
-RUN echo "=== dist ===" && ls -la dist && echo "=== dist/my-books.ui ===" && ls -la dist/my-books.ui || true
-
-# ===== runtime =====
+# ===== Stage 2: Nginx HTTPS runtime =====
 FROM nginx:alpine
-# Your outputPath is dist/my-books.ui (no /browser)
-COPY --from=build /app/dist/my-books.ui /usr/share/nginx/html
 
-# SPA routing
-RUN printf "server { \
-    listen 80; \
-    server_name _; \
-    root /usr/share/nginx/html; \
-    include /etc/nginx/mime.types; \
-    location / { try_files \$uri \$uri/ /index.html; } \
-}" > /etc/nginx/conf.d/default.conf
+# install openssl and generate self-signed cert for https://localhost
+RUN apk add --no-cache openssl && \
+    mkdir -p /etc/ssl/private && \
+    openssl req -x509 -nodes -days 365 \
+      -subj "/CN=localhost" \
+      -newkey rsa:2048 \
+      -keyout /etc/ssl/private/nginx-selfsigned.key \
+      -out /etc/ssl/certs/nginx-selfsigned.crt
+
+# remove default Nginx static files
+RUN rm -rf /usr/share/nginx/html/*
+
+# copy built Angular app (Angular 17+ output path)
+COPY --from=build /app/dist/my-books.ui/browser /usr/share/nginx/html
+
+# copy custom HTTPS nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
+EXPOSE 443
+
+# start Nginx in foreground
+CMD ["nginx", "-g", "daemon off;"]

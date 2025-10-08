@@ -33,13 +33,16 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalHost", policy =>
     {
-        policy.SetIsOriginAllowed(origin =>
-        {
-            if (origin == null) return false;
-            return origin.Contains("localhost");
-        })
-        .AllowAnyHeader()
-        .AllowAnyMethod();
+        policy
+            .WithOrigins(
+                "http://localhost:8080",
+                "https://localhost:8443",
+                "http://127.0.0.1:8080",
+                "http://host.docker.internal:8080"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 

@@ -66,5 +66,6 @@ export const routes: Routes = [
       { path: 'report-logs/update/:id', component: ReportUpdateFormComponent }
     ]
   },
-  { path: 'global/content-review', component: ContentReviewComponent, canActivate: [GlobalReviewerGuard]}
+  { path: 'global/content-review', component: ContentReviewComponent, canActivate: [GlobalReviewerGuard]},
+  { path: 'signup', component: SignupComponent }
 ];

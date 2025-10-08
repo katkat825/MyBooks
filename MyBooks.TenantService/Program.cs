@@ -19,13 +19,16 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalHost", policy =>
     {
-        policy.SetIsOriginAllowed(origin =>
-        {
-            if (origin == null) return false;
-            return origin.Contains("localhost");
-        })
-        .AllowAnyHeader()
-        .AllowAnyMethod();
+        policy
+            .WithOrigins(
+                "http://localhost:8080",
+                "https://localhost:8443",
+                "http://127.0.0.1:8080",
+                "http://host.docker.internal:8080"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -84,11 +87,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<AuthClient>(client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["Services:Auth"] ?? "https://localhost:7254");
+    client.BaseAddress = new Uri(builder.Configuration["AuthService:BaseUrl"] ?? "http://auth:8080");
 });
 builder.Services.AddHttpClient<CatalogClient>(client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["Services:Catalog"] ?? "https://localhost:5003");
+    client.BaseAddress = new Uri(builder.Configuration["Services:Catalog"] ?? "http://catalog:8080");
 });
 builder.Services.AddHttpClient<SystemTokenHelper>()
     .AddTypedClient((http, sp) =>
@@ -102,10 +105,38 @@ builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
+// ensure database is created at startup (for docker/local dev)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<TenantDbContext>();
+
+    const int maxRetries = 5;
+    for (int i = 1; i <= maxRetries; i++)
+    {
+        try
+        {
+            db.Database.Migrate(); // or .Migrate() if you have migrations
+            Console.WriteLine("✅ TenantDbContext database created or already exists.");
+            break;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Attempt {i} failed: {ex.Message}");
+            if (i == maxRetries)
+            {
+                Console.WriteLine("❌ Database init failed after all retries.");
+                throw;
+            }
+
+            Thread.Sleep(5000); // wait 5 seconds before retry
+        }
+    }
+}
+
+app.UseRouting();
 app.UseCors("AllowLocalHost");
 
 app.UseHttpsRedirection();
-app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();

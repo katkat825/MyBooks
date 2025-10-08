@@ -1,12 +1,12 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://localhost:5001/api', // CatalogService
-  authServiceUrl: 'https://localhost:7254/api', // AuthService
-  fileApiUrl: `https://localhost:7142/api/files`, // FileService
-  tenantApiUrl: `https://localhost:5005/api`, // TenantService
-  integrationApiUrl: `https://localhost:7142/api`,
-  authBaseUrl: 'https://localhost:7254',
-  emailServiceUrl: 'https://localhost:5006/api',
-  fileBaseUrl: 'https://localhost:7142',
-  supportBaseUrl: 'https://localhost:7221'
+  apiUrl: 'http://localhost:5002/api', // CatalogService
+  authServiceUrl: 'http://localhost:5001/api', // AuthService
+  fileApiUrl: `http://localhost:5003/api/files`, // FileService
+  tenantApiUrl: `http://localhost:5004/api`, // TenantService
+  integrationApiUrl: `http://localhost:5003/api`,
+  authBaseUrl: 'http://localhost:5001',
+  emailServiceUrl: 'http://localhost:5005/api',
+  fileBaseUrl: 'http://localhost:5003',
+  supportBaseUrl: 'http://localhost:5006'
 };
