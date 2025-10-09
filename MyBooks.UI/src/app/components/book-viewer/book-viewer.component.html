@@ -7,13 +7,16 @@
   </div>
 
   <div class="zoom-controls">
-    <mat-icon id="zoom-out" (click)="zoomOut()">text_decrease</mat-icon>
-    <mat-icon id="zoom-in" (click)="zoomIn()">text_increase</mat-icon> 
+    <mat-icon id="zoom-out" (click)="zoomOut()" aria-hidden="true">text_decrease</mat-icon>
+    <mat-icon id="zoom-in" (click)="zoomIn()" aria-hidden="true">text_increase</mat-icon> 
   </div>
 
   <div class="epub-controls"*ngIf="fileType === 'epub'">
-    <button mat-button id="book-viewer-prev" (click)="prevPage()">Previous</button>
-    <button mat-button id="book-viewer-next" (click)="nextPage()">Next</button>
+    <button mat-button 
+      id="book-viewer-prev" 
+      (click)="prevPage()" 
+      aria-label="Previous page">Previous</button>
+    <button mat-button id="book-viewer-next" (click)="nextPage()" aria-label="Next Page">Next</button>
   </div>
 </div>
 

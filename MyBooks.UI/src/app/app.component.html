@@ -1,23 +1,28 @@
-<div class="global-overlay" *ngIf="globalLoading$ | async">
-  <mat-spinner class="global-spinner"></mat-spinner>
-  <p class="global-message">{{ globalMessage$ | async }}</p>
-  <small class="global-fun-message">{{ globalFunMessage$ | async }}</small>
+<div class="global-overlay" 
+  *ngIf="globalLoading$ | async" 
+  role="status" 
+  aria-live="polite" 
+  aria-label="Loading, please wait">
+
+  <mat-spinner class="global-spinner" aria-hidden="true"></mat-spinner>
+  <p class="global-message" id="loading-message">{{ globalMessage$ | async }}</p>
+  <small class="global-fun-message" id="loading-fun-message">{{ globalFunMessage$ | async }}</small>
 </div>
 
-<mat-toolbar class="navbar mybooks-header" color="primary">
+<mat-toolbar class="navbar mybooks-header" role="navigation" aria-label="Navigation Header">
   <mat-toolbar-row>
-    <img src="logo.png" alt="My Book Catalog Logo" class="logo" />
-    <a href="/" class="app-title">My Book Catalog</a>
+    <img src="header-logo.png" alt="My Book Catalog Logo" class="logo" />
+    <a href="/" id="home" class="app-title">My Book Catalog</a>
     <span class="spacer"></span>
 
     <ng-container *ngIf="isAuthenticated()" class="menu-class">
-      <button mat-button id="account-menu" [matMenuTriggerFor]="accountMenu">
+      <button mat-button id="account-menu" [matMenuTriggerFor]="accountMenu" aria-label="Main Menu">
         <mat-icon>more_vert</mat-icon>
       </button>    
 
       <div class="menu-class">
         <mat-menu #accountMenu="matMenu" xPosition="before" yPosition="below">
-          <button id="theme-menu" mat-menu-item [matMenuTriggerFor]="themeMenu">
+          <button id="theme-menu" mat-menu-item [matMenuTriggerFor]="themeMenu" aria-label="Theme Settings">
             <mat-icon>brightness_6</mat-icon> Theme
           </button>
 
@@ -25,7 +30,7 @@
             <mat-icon>person</mat-icon> My Profile
           </button>
 
-          <button mat-menu-item id="owner-menu" *ngIf="(userService.canAccessOwner$ | async)" [matMenuTriggerFor]="ownerMenu">
+          <button mat-menu-item id="owner-menu" *ngIf="(userService.canAccessOwner$ | async)" [matMenuTriggerFor]="ownerMenu" aria-label="Owner Menu">
             <mat-icon>settings</mat-icon> Admin
           </button>
 
@@ -88,9 +93,9 @@
   <router-outlet></router-outlet>
 </main>
 
-<footer *ngIf="!isSupportUser" class="footer">
+<footer *ngIf="!isSupportUser" class="footer" role="contentinfo">
   <span>&copy; 2025 My Books</span>
-  <a routerLink="/aup">Acceptable Use Policy</a>
+  <a id="aup-link" routerLink="/aup">Acceptable Use Policy</a>
   <a id="report-abuse-btn" routerLink="/report-abuse" [queryParams]="{ url: currentUrl }">Report Abuse</a>
 </footer>
 

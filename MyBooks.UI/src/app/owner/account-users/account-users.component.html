@@ -3,14 +3,14 @@
 
   <div class="owner-buttons">
     <!-- Toggle Inactive Users -->
-    <button mat-button (click)="toggleInactiveUsers()">
-      <mat-icon>{{ showInactiveUsers ? 'visibility_off' : 'visibility' }}</mat-icon>
+    <button id="toggle-inactive-users" mat-button (click)="toggleInactiveUsers()">
+      <mat-icon aria-hidden="true">{{ showInactiveUsers ? 'visibility_off' : 'visibility' }}</mat-icon>
       {{ showInactiveUsers ? 'Hide Inactive Users' : 'Show Inactive Users' }}
     </button>
 
     <!-- Button to Show Add User Form -->
-    <button mat-button (click)="toggleAddUserForm()">
-      <mat-icon>{{ showAddUserForm ? 'close' : 'add' }}</mat-icon>
+    <button id="toggle-add-user" mat-button (click)="toggleAddUserForm()">
+      <mat-icon aria-hidden="true">{{ showAddUserForm ? 'close' : 'add' }}</mat-icon>
       {{ showAddUserForm ? 'Cancel' : 'Add User' }}
     </button>
   </div>
@@ -22,21 +22,21 @@
 
         <mat-form-field>
           <mat-label>First Name</mat-label>
-          <input matInput formControlName="firstName" required />
+          <input id="first-name" matInput formControlName="firstName" required aria-required="true"/>
         </mat-form-field>
 
         <mat-form-field>
           <mat-label>Last Name</mat-label>
-          <input matInput formControlName="lastName" required />
+          <input id="last-name" matInput formControlName="lastName" required aria-required="true"/>
         </mat-form-field>
 
         <mat-form-field>
           <mat-label>Email</mat-label>
-          <input matInput formControlName="email" type="email" required />
-          <mat-error *ngIf="userForm.get('email')?.hasError('email')" class="validation-error">
+          <input id="email" matInput formControlName="email" type="email" required aria-required="true"/>
+          <mat-error role="alert" *ngIf="userForm.get('email')?.hasError('email')" class="validation-error">
             Invalid email format
           </mat-error>
-          <mat-error *ngIf="userForm.get('email')?.hasError('emailTaken')" class="validation-error">
+          <mat-error role="alert" *ngIf="userForm.get('email')?.hasError('emailTaken')" class="validation-error">
             This email address is already in use
           </mat-error>
         </mat-form-field>
@@ -51,7 +51,7 @@
         </mat-form-field>
 
         <div class="add-user-submit">
-          <button mat-button type="submit" [disabled]="userForm.invalid">
+          <button id="save-new-user" mat-button type="submit" [disabled]="userForm.invalid">
             Save
           </button>
         </div>

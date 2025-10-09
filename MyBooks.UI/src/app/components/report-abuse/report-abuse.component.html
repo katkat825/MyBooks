@@ -1,7 +1,7 @@
 <div class="container mt-4">
   <!-- Spinner overlay -->
-  <div class="overlay" *ngIf="isSubmitting">
-    <mat-spinner class="mat-spinner"></mat-spinner>
+  <div class="overlay" *ngIf="isSubmitting" aria-live="polite">
+    <mat-spinner class="mat-spinner" aria-hidden="true"></mat-spinner>
     <p>Submitting your report...</p>
   </div>
 
@@ -15,18 +15,18 @@
 
       <mat-form-field class="full-width description-field">
         <mat-label>Description</mat-label>
-        <textarea matInput formControlName="description" rows="8"></textarea>
-        <mat-error *ngIf="form.get('description')?.invalid">
+        <textarea id="abuse-description" matInput formControlName="description" rows="8"></textarea>
+        <mat-error role="alert" *ngIf="form.get('description')?.invalid">
           Description is required.
         </mat-error>
       </mat-form-field>
 
       <mat-form-field class="full-width">
         <mat-label>Contact Email (optional)</mat-label>
-        <input matInput type="email" formControlName="contactEmail" />
+        <input id="additional-email" matInput type="email" formControlName="contactEmail" />
       </mat-form-field>
 
-      <button mat-raised-button type="submit" [disabled]="isSubmitting">
+      <button mat-button id="submit-report" type="submit" [disabled]="isSubmitting">
         Submit Report
       </button>
     </form>

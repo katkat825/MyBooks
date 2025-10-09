@@ -3,20 +3,20 @@
   <form [formGroup]="loginForm" (ngSubmit)="login()">
     <mat-form-field>
       <mat-label>Email</mat-label>
-      <input matInput formControlName="email" type="email">
+      <input id="email" matInput formControlName="email" type="email" autocomplete="email" aria-required="true" required>
     </mat-form-field>
 
     <mat-form-field>
       <mat-label>Password</mat-label>
-      <input matInput formControlName="password" type="password">
+      <input id="password" matInput formControlName="password" type="password" autocomplete="current-password" aria-required="true" required>
     </mat-form-field>
 
-    <button mat-button type="submit" [disabled]="loginForm.invalid">Login</button>
+    <button mat-button id="login-btn" type="submit" [disabled]="loginForm.invalid">Login</button>
   </form>
 
   <div class="reset-pwd">
-    <a routerLink="/reset-password">Forgot password...</a>
+    <a id="forgot-password-link" routerLink="/reset-password">Forgot password...</a>
   </div>
 
-  <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+  <p *ngIf="errorMessage" class="error-message" role="alert">{{ errorMessage }}</p>
 </div>

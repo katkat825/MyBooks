@@ -167,6 +167,10 @@ mat-divider {
     margin-top: 5px;
   }
 
+.load-more-books {
+  justify-content: center;
+}
+
 .overlay {
   position: absolute;
   top: 0;

@@ -1,29 +1,29 @@
-<div class="stepper-container" style="position: relative;">
-  <mat-stepper linear>
+<div class="stepper-container" style="position: relative;" aria-label="Create or edit book">
+  <mat-stepper linear role="group" aria-roledescription="Form steps">
     <!-- Step 1: Required Info -->
     <mat-step [stepControl]="bookForm.controls['step1']">
       <form [formGroup]="step1">
         <h3>Step 1: Required Information</h3>
         <mat-form-field class="full-width">
           <mat-label>Title</mat-label>
-          <input matInput type="text" formControlName="title" required>
+          <input matInput id="book-form-title" type="text" formControlName="title" required aria-required="true">
         </mat-form-field>
 
         <mat-form-field class="full-width">
           <mat-label>Genre</mat-label>
-          <mat-select formControlName="genreId" required>
+          <mat-select formControlName="genreId" required aria-required="true">
             <mat-option *ngFor="let genre of genres" [value]="genre.id">{{ genre.name }}</mat-option>
           </mat-select>
         </mat-form-field>
 
         <mat-form-field class="full-width">
           <mat-label>Age Category</mat-label>
-          <mat-select formControlName="ageCategoryId" required>
+          <mat-select formControlName="ageCategoryId" required aria-required="true">
             <mat-option *ngFor="let category of ageCategories" [value]="category.id">{{ category.name }}</mat-option>
           </mat-select>
         </mat-form-field>
 
-        <button mat-button (click)="saveStep1()" matStepperNext>Save & Next</button>
+        <button mat-button id="save-step1" (click)="saveStep1()" matStepperNext>Save & Next</button>
       </form>
     </mat-step>
 
@@ -33,16 +33,17 @@
         <h3>Step 2: Optional Fields for {{ step1.get('title')?.value }}</h3>
         <mat-form-field class="full-width">
           <mat-label>Author</mat-label>
-          <input matInput type="text" formControlName="author">
+          <input id="book-form-author" matInput type="text" formControlName="author">
         </mat-form-field>
 
         <div class="inline-group">
           <button 
+            id="new-series"
             mat-icon-button type="button" 
             (click)="toggleNewSeries()" 
             aria-label="New series toggle"
             matTooltip="{{ newSeries ? 'Cancel' : 'Add new series' }}">
-            <mat-icon>{{ newSeries ? 'remove' : 'add' }}</mat-icon>
+            <mat-icon aria-hidden="true">{{ newSeries ? 'remove' : 'add' }}</mat-icon>
           </button>
           <mat-form-field class="full-width">            
             <mat-label>Series</mat-label>
@@ -51,6 +52,7 @@
             </mat-select>            
           </mat-form-field>
           <button
+            id="remove-series"
             *ngIf="step2.get('seriesId')?.value != null"
             mat-icon-button type="button"
             (click)="removeSeries()"
@@ -63,8 +65,8 @@
         <div *ngIf="newSeries">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>New Series</mat-label>
-            <input matInput type="text" formControlName="seriesName" />
-            <button mat-icon-button type="button" (click)="saveSeries()">
+            <input id="series-name" matInput type="text" formControlName="seriesName" />
+            <button id="save-new-series" mat-icon-button type="button" (click)="saveSeries()">
               <mat-icon>save</mat-icon>
             </button>
           </mat-form-field>
@@ -72,17 +74,18 @@
 
         <mat-form-field class="full-width" *ngIf="step2.get('seriesId')?.value != null">
           <mat-label>Series Position</mat-label>
-          <input matInput type="number" formControlName="seriesPosition">
+          <input id="series-position" matInput type="number" formControlName="seriesPosition">
         </mat-form-field>
 
         <mat-form-field class="full-width">
           <mat-label>ISBN</mat-label>
-          <input matInput type="text" formControlName="isbn">
+          <input id="isbn" matInput type="text" formControlName="isbn">
         </mat-form-field>
 
         <mat-form-field class="full-width">
           <mat-label>Published Year</mat-label>
           <input 
+            id="book-form-published-year"
             matInput 
             type="number" 
             formControlName="publishedDate"
@@ -93,23 +96,23 @@
 
         <mat-form-field class="full-width">
           <mat-label>Location</mat-label>
-          <textarea matInput formControlName="location"></textarea>
+          <textarea id="book-form-location" matInput formControlName="location"></textarea>
         </mat-form-field>
 
         <mat-form-field class="full-width">
           <mat-label>Description</mat-label>
-          <textarea matInput rows="3" formControlName="description"></textarea>
+          <textarea id="book-form-description" matInput rows="3" formControlName="description"></textarea>
         </mat-form-field>
 
-        <button mat-button matStepperPrevious>Back</button>
-        <button mat-button (click)="saveStep2()" matStepperNext>Save & Next</button>
+        <button id="back-to-step1" mat-button matStepperPrevious>Back</button>
+        <button id="save-step2" mat-button (click)="saveStep2()" matStepperNext>Save & Next</button>
       </form>
     </mat-step>
 
     <!-- Step 3: File Upload -->
     <mat-step [stepControl]="step3">
       <h3>Step 3: Upload File for {{ step1.get('title')?.value }}</h3>
-      <input type="file" (change)="onFileSelected($event)" *ngIf="hasIntegration">
+      <input id="book-form-file" type="file" (change)="onFileSelected($event)" *ngIf="hasIntegration" aria-label="Select File">
       <p *ngIf="selectedFile">{{ selectedFile.name }}</p>
 
       <span *ngIf="!hasIntegration" class="no-integration">

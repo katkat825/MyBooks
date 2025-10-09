@@ -17,8 +17,8 @@ import { CommonModule } from '@angular/common';
         <span class="dialog-warning" *ngIf="permanent">This action cannot be undone.</span>
       </mat-dialog-content>
       <mat-dialog-actions align="end">
-        <button mat-button (click)="onNoClick()">{{ data.cancelText || 'Cancel' }}</button>
-        <button mat-button class="warn-btn" (click)="onYesClick()">
+        <button mat-button id="cancel-action" (click)="onNoClick()">{{ data.cancelText || 'Cancel' }}</button>
+        <button mat-button id="confirm-action" class="warn-btn" (click)="onYesClick()">
           {{ data.confirmText || ('Delete ' + data.itemType) }}
         </button>
       </mat-dialog-actions>

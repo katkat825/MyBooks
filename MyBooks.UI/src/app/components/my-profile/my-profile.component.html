@@ -3,27 +3,31 @@
   <form [formGroup]="accountForm" (ngSubmit)="onSubmit()">
     <mat-form-field appearance="fill" class="full-width">
       <mat-label>First Name</mat-label>
-      <input matInput formControlName="firstName" required>
+      <input id="first-name" matInput formControlName="firstName" required aria-required="true">
     </mat-form-field>
 
     <mat-form-field appearance="fill" class="full-width">
       <mat-label>Last Name</mat-label>
-      <input matInput formControlName="lastName" required>
+      <input id="last-name" matInput formControlName="lastName" required required aria-required="true">
     </mat-form-field>
 
     <mat-form-field appearance="fill" class="full-width">
       <mat-label>Email</mat-label>
-      <input matInput formControlName="email" required email>
+      <input id="email-username" matInput formControlName="email" required email required aria-required="true">
     </mat-form-field>
 
     <mat-form-field appearance="fill" class="full-width">
       <mat-label>Password</mat-label>
-      <input matInput type="password" formControlName="password" placeholder="Leave blank to keep unchanged">
+      <input id="password" 
+        matInput type="password" 
+        formControlName="password" 
+        placeholder="Leave blank to keep unchanged" 
+        aria-describedby="Leave blank to keep unchanged">
     </mat-form-field>
 
-    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+    <div *ngIf="errorMessage" class="error-message" role="alert" aria-label="Form error">{{ errorMessage }}</div>
 
-    <button mat-raised-button color="primary" type="submit" [disabled]="loading">
+    <button id="save-changes" mat-button type="submit" [disabled]="loading">
       {{ loading ? 'Saving...' : 'Save Changes' }}
     </button>
   </form>

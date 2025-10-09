@@ -1,11 +1,11 @@
 <div class="container mt-4">
   <div class="book-wrapper">
-    <button mat-button id="book-list" routerLink="/">
-      <mat-icon>list</mat-icon>Back to List
+    <button mat-button id="book-list" routerLink="/" aria-label="Back to book list">
+      <mat-icon aria-hidden="true">list</mat-icon>Back to List
     </button>
   </div>
 
-  <div *ngIf="unauthorized" class="unauthorized-message">
+  <div *ngIf="unauthorized" class="unauthorized-message" role="alert">
     <mat-card class="unauthorized-card">
       <mat-card-title>Error</mat-card-title>
       <p>This book does not exist or you do not have permission to view this book</p>
@@ -14,8 +14,8 @@
 
   <div *ngIf="!unauthorized" class="book-container">
     <mat-card class="book-details-card">
-      <mat-card-title>
-        <mat-icon *ngIf="book.isRestricted">block</mat-icon>
+      <mat-card-title aria-labelledby="book-title">
+        <mat-icon *ngIf="book.isRestricted" aria-hidden="true">block</mat-icon>
         {{ book?.title }}
       </mat-card-title>
       <div *ngIf="book" class="book-details-container">
@@ -33,8 +33,8 @@
         </p>
         <div *ngIf="book.fileId && !book.isRestricted">
           <p><strong>Book File: </strong>
-          <button mat-button (click)="downloadBookFile(book.fileId)">Download</button></p>
-          <button mat-button [routerLink]="['/book-viewer', book.fileId]">
+          <button mat-button id="download-file" (click)="downloadBookFile(book.fileId)">Download</button></p>
+          <button mat-button id="read-inline" [routerLink]="['/book-viewer', book.fileId]">
           Read</button>
 
         </div>
