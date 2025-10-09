@@ -14,17 +14,9 @@ RUN npm ci
 COPY . .
 RUN npm run build -- --configuration=production
 
-# ===== Stage 2: Nginx HTTPS runtime =====
-FROM nginx:alpine
 
-# install openssl and generate self-signed cert for https://localhost
-RUN apk add --no-cache openssl && \
-    mkdir -p /etc/ssl/private && \
-    openssl req -x509 -nodes -days 365 \
-      -subj "/CN=localhost" \
-      -newkey rsa:2048 \
-      -keyout /etc/ssl/private/nginx-selfsigned.key \
-      -out /etc/ssl/certs/nginx-selfsigned.crt
+# ===== Stage 2: Nginx runtime (HTTP only, TLS handled by host) =====
+FROM nginx:alpine
 
 # remove default Nginx static files
 RUN rm -rf /usr/share/nginx/html/*
@@ -32,11 +24,11 @@ RUN rm -rf /usr/share/nginx/html/*
 # copy built Angular app (Angular 17+ output path)
 COPY --from=build /app/dist/my-books.ui/browser /usr/share/nginx/html
 
-# copy custom HTTPS nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# use locked-down production Nginx config (from your extracted file)
+COPY default.conf /etc/nginx/conf.d/default.conf
+RUN chmod 444 /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
-EXPOSE 443
 
 # start Nginx in foreground
 CMD ["nginx", "-g", "daemon off;"]
