@@ -40,7 +40,10 @@ public class GoogleIntegrationController : ControllerBase
         var state = $"{tenantId}:{nonce}:{userId}:{today}";
 
         var clientId = _config["GoogleOAuth:ClientId"];
-        var redirectUri = _config["GoogleOAuth:RedirectUriLocal"]; // must match in Google Cloud console
+        var redirectUri = _config["ASPNETCORE_ENVIRONMENT"] == "Production"
+            ? _config["GoogleOAuth:RedirectUriProd"]
+            : _config["GoogleOAuth:RedirectUriLocal"];
+
         var scopes = "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/userinfo.email";
 
         var url = $"https://accounts.google.com/o/oauth2/v2/auth" +

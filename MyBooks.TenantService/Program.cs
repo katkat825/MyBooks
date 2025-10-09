@@ -90,17 +90,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<AuthClient>(client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["AuthService:BaseUrl"] ?? "http://auth:8080");
+    client.BaseAddress = new Uri(builder.Configuration["ServiceUrls:AuthService"] ?? "http://auth:8080");
 });
 builder.Services.AddHttpClient<CatalogClient>(client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["Services:Catalog"] ?? "http://catalog:8080");
+    client.BaseAddress = new Uri(builder.Configuration["ServiceUrls:CatalogService"] ?? "http://catalog:8080");
 });
 builder.Services.AddHttpClient<SystemTokenHelper>()
     .AddTypedClient((http, sp) =>
     {
         var config = sp.GetRequiredService<IConfiguration>();
-        var baseUrl = config["AuthService:BaseUrl"];
+        var baseUrl = config["ServiceUrls:AuthService"];
         return new SystemTokenHelper(http, baseUrl!);
     });
 

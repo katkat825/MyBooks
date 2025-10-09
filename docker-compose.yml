@@ -1,3 +1,5 @@
+version: '3.9'
+
 services:
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -6,7 +8,8 @@ services:
       ACCEPT_EULA: "Y"
       SA_PASSWORD: "YourStrong!Passw0rd"
       MSSQL_PID: "Developer"
-    ports: ["1433:1433"]
+    ports:
+      - "1433:1433"
     volumes:
       - sql_data:/var/opt/mssql
     healthcheck:
@@ -22,13 +25,10 @@ services:
     build:
       context: .
       dockerfile: MyBooks.AuthService/Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
-      ConnectionStrings__Default: "Server=db;Database=MyBooks;User ID=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;"
-      Jwt__Issuer: "MyBooks"
-      Jwt__Audience: "MyBooksUsers"
-      Jwt__Key: "bSsNjwGplw+qA/0UcpLcQDR5rCj1HwOf7maw6zrf81Y="
-    ports: ["5001:8080"]
+    env_file:
+      - .env
+    ports:
+      - "5001:8080"
 
   catalog:
     depends_on:
@@ -37,10 +37,10 @@ services:
     build:
       context: .
       dockerfile: MyBooks.CatalogService/Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
-      ConnectionStrings__Default: "Server=db;Database=MyBooks;User ID=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;"
-    ports: ["5002:8080"]
+    env_file:
+      - .env
+    ports:
+      - "5002:8080"
 
   files:
     depends_on:
@@ -49,10 +49,10 @@ services:
     build:
       context: .
       dockerfile: MyBooks.FileService/Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
-      ConnectionStrings__Default: "Server=db;Database=MyBooks;User ID=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;"
-    ports: ["5003:8080"]
+    env_file:
+      - .env
+    ports:
+      - "5003:8080"
 
   tenants:
     depends_on:
@@ -61,18 +61,19 @@ services:
     build:
       context: .
       dockerfile: MyBooks.TenantService/Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
-      ConnectionStrings__Default: "Server=db;Database=MyBooks;User ID=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;"
-    ports: ["5004:8080"]
+    env_file:
+      - .env
+    ports:
+      - "5004:8080"
 
   emails:
     build:
       context: .
       dockerfile: MyBooks.EmailService/Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
-    ports: ["5005:8080"]
+    env_file:
+      - .env
+    ports:
+      - "5005:8080"
 
   support:
     depends_on:
@@ -81,16 +82,21 @@ services:
     build:
       context: .
       dockerfile: MyBooks.SupportService/Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
-      ConnectionStrings__Default: "Server=db;Database=MyBooks;User ID=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;"
-    ports: ["5006:8080"]
+    env_file:
+      - .env
+    ports:
+      - "5006:8080"
 
   web:
     build:
       context: MyBooks.UI
       dockerfile: Dockerfile
-    depends_on: [auth, catalog, files, tenants, emails]
+    depends_on:
+      - auth
+      - catalog
+      - files
+      - tenants
+      - emails
     expose:
       - "80"
 

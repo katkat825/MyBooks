@@ -98,7 +98,7 @@ builder.Services.AddHttpClient<SystemTokenHelper>()
     .AddTypedClient((http, sp) =>
     {
         var config = sp.GetRequiredService<IConfiguration>();
-        var baseUrl = config["AuthService:BaseUrl"];
+        var baseUrl = config["ServiceUrls:AuthService"];
         return new SystemTokenHelper(http, baseUrl!);
     });
 

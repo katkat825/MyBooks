@@ -40,8 +40,8 @@ public class BookController : ControllerBase
         _validator = validator;
         _httpClient = httpClientFactory.CreateClient();
         _openLibraryClient = openLibraryClient;
-        _fileServiceBaseUrl = config["BaseUrls:FileService"] ?? throw new ArgumentNullException("FileService base URL is not configured.");
-        _authServiceBaseUrl = config["BaseUrls:AuthService"] ?? throw new ArgumentNullException("AuthService base URL is not configured.");
+        _fileServiceBaseUrl = config["ServiceUrls:FileService"] ?? throw new ArgumentNullException("FileService base URL is not configured.");
+        _authServiceBaseUrl = config["ServiceUrls:AuthService"] ?? throw new ArgumentNullException("AuthService base URL is not configured.");
         _systemTokenSecret = config["ServiceSecrets:CatalogService"] ?? throw new ArithmeticException("CatalogService secret is not configured.");
 
     }
