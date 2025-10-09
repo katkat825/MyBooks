@@ -35,9 +35,7 @@
             (click)="openBookViewer(book, $event)" 
             *ngIf="book.fileId && (!book.isRestricted || hasGlobalReviewer())"
             matTooltip="Read this book"
-            aria-label="Read this book in the app"
-            (keydown.enter)="openBookViewer(book, $event)"
-            (keydown.space)="openBookViewer(book, $event)">
+            aria-label="Read this book in the app">
           <mat-icon class="read-icon" aria-hidden="true">menu_book</mat-icon>
         </span>
         <span 
@@ -73,9 +71,7 @@
             (click)="openBookViewer(book, $event)" 
             *ngIf="book.fileId && (!book.isRestricted || hasGlobalReviewer())"
             matTooltip="Read this book"
-            aria-label="Read this book in the app"
-            (keydown.enter)="openBookViewer(book, $event)"
-            (keydown.space)="openBookViewer(book, $event)">
+            aria-label="Read this book in the app">
           <mat-icon class="read-icon" aria-hidden="true">menu_book</mat-icon>
         </span>
         <span 
