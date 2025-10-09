@@ -84,7 +84,9 @@ public class GoogleIntegrationController : ControllerBase
 
         var clientId = _config["GoogleOAuth:ClientId"];
         var clientSecret = _config["GoogleOAuth:ClientSecret"];
-        var redirectUri = _config["GoogleOAuth:RedirectUriLocal"];
+        var redirectUri = _config["ASPNETCORE_ENVIRONMENT"] == "Production"
+            ? _config["GoogleOAuth:RedirectUriProd"]
+            : _config["GoogleOAuth:RedirectUriLocal"];
 
         var http = _httpClientFactory.CreateClient();
 
