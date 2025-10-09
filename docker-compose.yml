@@ -91,9 +91,8 @@ services:
       context: MyBooks.UI
       dockerfile: Dockerfile
     depends_on: [auth, catalog, files, tenants, emails]
-    ports: 
-      - "8080:80"
-      - "8443:443"
+    expose:
+      - "80"
 
 volumes:
   sql_data:
