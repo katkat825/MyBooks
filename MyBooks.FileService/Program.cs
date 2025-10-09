@@ -37,7 +37,10 @@ builder.Services.AddCors(options =>
                 "http://localhost:8080",
                 "https://localhost:8443",
                 "http://127.0.0.1:8080",
-                "http://host.docker.internal:8080"
+                "http://host.docker.internal:8080",
+                "https://mybookcatalog.com",
+                "https://mybookcatalog.com:8443",
+                "https://www.mybookcatalog.com"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
