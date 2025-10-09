@@ -30,6 +30,8 @@ import { ReportUpdateFormComponent } from './support-user/components/report-log/
 import { AdminComponent } from './owner/admin/admin.component';
 import { ContentReviewComponent } from './support-user/components/content-review/content-review.component';
 import { GlobalReviewerGuard } from './utilities/global-reviewer.guard';
+import { TermsOfServiceComponent } from './components/policies/terms-of-service.component';
+import { PrivacyPolicyComponent } from './components/policies/privacy-policy.component';
 
 export const routes: Routes = [
   { path: '', component: BookListComponent, canActivate: [AupGuard, AuthGuard] },
@@ -40,6 +42,8 @@ export const routes: Routes = [
   { path: 'profile', component: MyProfileComponent, canActivate:[AuthGuard] },
   { path: 'book-viewer/:fileId', component: BookViewerComponent, canActivate: [AupGuard, AuthGuard], providers: [{ provide: 'ViewerService', useClass: BookService }] },
   { path: 'aup', component: AcceptableUsePolicyComponent},
+  { path: 'terms', component: TermsOfServiceComponent },
+  { path: 'privacy', component: PrivacyPolicyComponent },
   { path: 'report-abuse', component: ReportAbuseComponent},
   { path: 'account', canActivate: [OwnerGuard, AupGuard, AuthGuard], 
     children: [
