@@ -1,12 +1,13 @@
 export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:5002/api', // CatalogService
-  authServiceUrl: 'http://localhost:5001/api', // AuthService
-  fileApiUrl: `http://localhost:5003/api/files`, // FileService
-  tenantApiUrl: `http://localhost:5004/api`, // TenantService
-  integrationApiUrl: `http://localhost:5003/api`,
-  authBaseUrl: 'http://localhost:5001',
-  emailServiceUrl: 'http://localhost:5005/api',
-  fileBaseUrl: 'http://localhost:5003',
-  supportBaseUrl: 'http://localhost:5006'
+  production: true,
+
+  apiUrl: 'https://mybookcatalog.com/api/catalog',
+  authServiceUrl: 'https://mybookcatalog.com/api/auth',
+  fileApiUrl: 'https://mybookcatalog.com/api/files',
+  tenantApiUrl: 'https://mybookcatalog.com/api/tenant',
+  integrationApiUrl: 'https://mybookcatalog.com/api/integration',
+  authBaseUrl: 'https://mybookcatalog.com',
+  emailServiceUrl: 'https://mybookcatalog.com/api/email',
+  fileBaseUrl: 'https://mybookcatalog.com/api/file',
+  supportBaseUrl: 'https://mybookcatalog.com/api/support'
 };
