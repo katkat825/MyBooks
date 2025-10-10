@@ -28,8 +28,9 @@ COPY --from=build /app/dist/my-books.ui/browser /usr/share/nginx/html
 COPY default.conf /etc/nginx/conf.d/default.conf
 RUN chmod 444 /etc/nginx/conf.d/default.conf
 
-# Correctly add .mjs inside the types block
-RUN sed -i '/text\/javascript\s\+js;/a\    application\/javascript  mjs;' /etc/nginx/mime.types
+# Add .mjs to mime.types so browsers load PDF.js workers correctly
+RUN grep -q "application/javascript[[:space:]]\+mjs;" /etc/nginx/mime.types || \
+    sed -i '/application\/javascript[[:space:]]\+js;/a\    application/javascript                mjs;' /etc/nginx/mime.types
 
 EXPOSE 80
 
