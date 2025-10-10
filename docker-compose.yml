@@ -95,8 +95,8 @@ services:
       - files
       - tenants
       - emails
-    expose:
-      - "80"
+    network_mode: "host"
+    restart: unless-stopped
 
 volumes:
   sql_data:
