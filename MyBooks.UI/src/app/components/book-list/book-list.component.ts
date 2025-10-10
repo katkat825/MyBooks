@@ -88,7 +88,8 @@ export class BookListComponent {
   }
 
   viewBookDetails(book: any) {
-    this.router.navigate(['/book', book.id]);
+    const id = book.id ?? book.bookId;
+    this.router.navigate(['/book', id]);
   }
 
   hasCreatePermission(): boolean {
