@@ -28,8 +28,8 @@ COPY --from=build /app/dist/my-books.ui/browser /usr/share/nginx/html
 COPY default.conf /etc/nginx/conf.d/default.conf
 RUN chmod 444 /etc/nginx/conf.d/default.conf
 
-# Correct MIME mapping for .mjs files
-RUN echo "application/javascript  mjs;" >> /etc/nginx/mime.types
+# Correctly add .mjs inside the types block
+RUN sed -i '/text\/javascript\s\+js;/a\    application\/javascript  mjs;' /etc/nginx/mime.types
 
 EXPOSE 80
 
