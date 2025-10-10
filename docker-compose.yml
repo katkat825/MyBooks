@@ -95,7 +95,8 @@ services:
       - files
       - tenants
       - emails
-    network_mode: "host"
+    ports:
+      - "8081:80"
     restart: unless-stopped
 
 volumes:
