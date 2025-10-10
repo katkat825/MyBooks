@@ -20,14 +20,12 @@ namespace MyBooks.FileService.Controllers
         private readonly FileDbContext _context;
         private readonly HtmlSanitizationService _sanitizationService;
         private readonly GoogleDriveClient _googleDriveClient;
-        private readonly FileValidationService _antiCorruption;
 
-        public FileController(FileDbContext context, HtmlSanitizationService sanitizationService, GoogleDriveClient googleDriveClient, FileValidationService antiCorruption)
+        public FileController(FileDbContext context, HtmlSanitizationService sanitizationService, GoogleDriveClient googleDriveClient)
         {
             _context = context;
             _sanitizationService = sanitizationService;
             _googleDriveClient = googleDriveClient;
-            _antiCorruption = antiCorruption;
         }
 
         // upload File - only owner or superadmin
@@ -46,12 +44,7 @@ namespace MyBooks.FileService.Controllers
                 return BadRequest("Google Drive not configured for this tenant.");
 
             await using var corruptionCheckStream = file.OpenReadStream();
-            var notCorrupted = await _antiCorruption.ValidateAsync(corruptionCheckStream, file.FileName);
-            if (!notCorrupted.IsValid)
-            {
-                return BadRequest($"File is corrupted: {notCorrupted.ErrorMessage}");
-            }
-
+            
             if (string.IsNullOrWhiteSpace(folderId))
                 folderId = await _googleDriveClient.GetOrCreateFolderAsync("MyBookCatalog", "root", integration.RefreshToken);
 

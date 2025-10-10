@@ -13,6 +13,8 @@ export const LOADING_MESSAGES: string[] = [
   'Asking the dictionary for backup…',
   'Checking books out of library jail…',
   'Flattening dog-eared corners…',
+  'Adding extra digits to pi...',
+  'DUCK!!!!',
 
   // fantasy
   'Feeding the dragons before storytime…',
@@ -114,5 +116,6 @@ export const BOOK_VIEWER_MESSAGES: string[] = [
   'Adding extra candlelight to Chapter 3…',
   'Farming XP in the glossary…',
   'Rolling for critical reading skill…',
-  'Gathering the party before turning the page…'
+  'Gathering the party before turning the page…',
+  'Is this already on your to-read list?'
 ];
