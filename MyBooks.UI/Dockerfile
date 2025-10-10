@@ -28,14 +28,6 @@ COPY --from=build /app/dist/my-books.ui/browser /usr/share/nginx/html
 COPY default.conf /etc/nginx/conf.d/default.conf
 RUN chmod 444 /etc/nginx/conf.d/default.conf
 
-# fix .mjs mime type handling
-RUN echo '\
-types {\n\
-    text/javascript js;\n\
-    application/javascript mjs;\n\
-}' > /etc/nginx/conf.d/mime.types.override && \
-    sed -i "/http {/a \\\tinclude /etc/nginx/conf.d/mime.types.override;" /etc/nginx/nginx.conf
-
 EXPOSE 80
 
 # start Nginx in foreground
