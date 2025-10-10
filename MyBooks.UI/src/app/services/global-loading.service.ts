@@ -61,7 +61,7 @@ export class GlobalLoadingService {
     this._message.next(message);
     this._isVisible.next(true);
     this._funMessage.next(this.getRandomMessage());
-    this.rotationSub = interval(10000).subscribe(() => {
+    this.rotationSub = interval(6000).subscribe(() => {
       this._funMessage.next(this.getRandomMessage(this._funMessage.value));
     });
   }
