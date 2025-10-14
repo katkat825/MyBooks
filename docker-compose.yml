@@ -6,6 +6,7 @@ services:
       ACCEPT_EULA: "Y"
       SA_PASSWORD: "69kf5ZR$4OWp!q"
       MSSQL_PID: "Developer"
+      MSSQL_TCP_PORT: 1433
     volumes:
       - sql_data:/var/opt/mssql
     healthcheck:
