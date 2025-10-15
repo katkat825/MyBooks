@@ -7,6 +7,7 @@ public class RecentlyReadDto
     public string? Author { get; set; }
     public string? Genre { get; set; }
     public string? Series { get; set; }
+    public decimal? SeriesPosition { get; set; }
     public double ProgressPercent { get; set; }
     public int? FileId { get; set; }
     public DateTime LastUpdated { get; set; }
