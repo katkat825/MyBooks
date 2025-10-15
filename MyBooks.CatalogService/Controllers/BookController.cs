@@ -110,6 +110,7 @@ public class BookController : ControllerBase
                         Author = b.Author,
                         Genre = b.Genre?.Name,
                         Series = b.Series?.Name,
+                        SeriesPosition = b.SeriesPosition,
                         ProgressPercent = p.ProgressPercent,
                         LastUpdated = p.LastUpdated,
                         FileId = b.FileId

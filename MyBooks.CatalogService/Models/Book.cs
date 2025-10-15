@@ -16,7 +16,7 @@ namespace MyBooks.CatalogService.Models
         public string? Author { get; set; }
         public int? SeriesId { get; set; }
         public Series? Series { get; set; }
-        public int? SeriesPosition { get; set; }
+        public decimal? SeriesPosition { get; set; }
         public string? Description { get; set; }
 
         public DateTime? PublishedDate { get; set; }
