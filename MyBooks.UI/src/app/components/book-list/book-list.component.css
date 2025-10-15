@@ -121,7 +121,7 @@ mat-divider {
 }
 
 .book-title {
-  margin-top: 35px;
+  margin-top: 30px;
   font-size: 1.1rem;
   font-weight: bold;
   color: var(--title-color);
@@ -131,13 +131,6 @@ mat-divider {
   line-clamp: 3;
   overflow: hidden;
   word-break: break-word;
-  text-overflow: ellipsis;
-}
-
-.book-series {
-  margin: 5px !important;
-  overflow: hidden;
-  white-space: nowrap;
   text-overflow: ellipsis;
 }
 
