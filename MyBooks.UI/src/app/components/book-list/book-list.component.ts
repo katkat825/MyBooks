@@ -124,20 +124,26 @@ export class BookListComponent {
         );
 
         this.books = [...this.books, ...newBooks];
+
+        // keep active search in place
         if(this.searchQuery.trim())
         {
           this.filterBooks();
         } else {
           this.filteredBooks = [...this.books];
         }
-        
+
         this.totalCount = response.totalCount || this.books.length;
         this.page++;
         this.isLoading = false;
         this.globalLoading.hide();
         
-        if(results.length < this.pageSize)
+        if(results.length < this.pageSize) {
           this.allBooksLoaded = true;
+        } else {
+          // automatically load next page
+          setTimeout(() => this.loadBooks(), 100)
+        }
       },
       error: (error) => {
         console.error('Error loading books', error);
