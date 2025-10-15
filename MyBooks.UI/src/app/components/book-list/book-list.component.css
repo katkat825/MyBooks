@@ -127,10 +127,17 @@ mat-divider {
   color: var(--title-color);
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 4;
-  line-clamp: 4;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   overflow: hidden;
   word-break: break-word;
+  text-overflow: ellipsis;
+}
+
+.book-series {
+  margin: 5px !important;
+  overflow: hidden;
+  white-space: nowrap;
   text-overflow: ellipsis;
 }
 
