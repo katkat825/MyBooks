@@ -124,7 +124,13 @@ export class BookListComponent {
         );
 
         this.books = [...this.books, ...newBooks];
-        this.filteredBooks = [...this.books];
+        if(this.searchQuery.trim())
+        {
+          this.filterBooks();
+        } else {
+          this.filteredBooks = [...this.books];
+        }
+        
         this.totalCount = response.totalCount || this.books.length;
         this.page++;
         this.isLoading = false;
