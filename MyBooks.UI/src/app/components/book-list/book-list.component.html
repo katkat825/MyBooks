@@ -86,6 +86,9 @@
         </span>
         
         <h5 class="book-title" [matTooltip]="book.title.length > 50 ? book.title : ''">{{ book.title }}</h5>
+        <h6 class="book-series" *ngIf="book.series">
+          {{ book.series }} <span *ngIf="book.seriesPosition">#{{ book.seriesPosition }}</span>
+        </h6>
         <h6 class="book-author" [matTooltip]="book.author && book.author.length > 18 ? book.author : ''">{{ book.author || "Unknown Author"}}</h6>
         <div class="book-spine"></div>
       </div>
