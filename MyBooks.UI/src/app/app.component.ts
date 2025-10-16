@@ -43,6 +43,7 @@ export class AppComponent {
   currentUrl = window.location.href;
   isSupportUser: boolean = false;
   canAccessGlobalReviewer = false;
+  currentYear = new Date().getFullYear();
 
   globalLoading$: Observable<boolean>;
   globalMessage$: Observable<string>;
