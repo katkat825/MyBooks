@@ -6,6 +6,14 @@ public class OpenLibraryBookDto
     public string? Author { get; set; }
     public DateTime? PublishedDate { get; set; }
     public string? ISBN { get; set; }
+    public string? SeriesName { get; set; }
+    public string? SeriesIndex { get; set; }
+}
+
+public class SeriesDto
+{
+    public int? SeriesId { get; set; }
+    public decimal? SeriesPosition { get; set; }
 }
 
 public class OpenLibraryLookupDto

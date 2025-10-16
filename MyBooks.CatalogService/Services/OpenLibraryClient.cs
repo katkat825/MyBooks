@@ -78,8 +78,21 @@ public class OpenLibraryClient
                 ISBN = isbn,
                 PublishedDate = match.TryGetProperty("first_publish_year", out var year) && year.TryGetInt32(out var y)
                     ? new DateTime(y, 1, 1)
+                    : null,
+                SeriesName = match.TryGetProperty("series", out var s) && s.ValueKind == JsonValueKind.Array
+                    ? _sanitizer.Sanitize(s.EnumerateArray().FirstOrDefault().GetString())
+                    : null,
+                SeriesIndex = match.TryGetProperty("series_position", out var sp) && sp.ValueKind is JsonValueKind.String or JsonValueKind.Number
+                    ? _sanitizer.Sanitize(sp.ToString())
                     : null
             };
+
+            if(string.IsNullOrWhiteSpace(result.SeriesName) &&
+                match.TryGetProperty("work_titles", out var w) &&
+                w.ValueKind == JsonValueKind.Array)
+            {
+                result.SeriesName = _sanitizer.Sanitize(w.EnumerateArray().FirstOrDefault().GetString());
+            }
 
             return result;
         }

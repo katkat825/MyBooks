@@ -9,6 +9,8 @@ public class BookImportRequestDto
     public string FilePath { get; set; } = string.Empty;
     public string FileName { get; set; } = string.Empty;
     public int TenantId { get; set; }
+    public string? Series { get; set; }
+    public string? SeriesIndex { get; set; }
 }
 
 public class BookImportResponseDto

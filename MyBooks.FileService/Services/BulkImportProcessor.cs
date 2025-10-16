@@ -154,6 +154,8 @@ public class BulkImportProcessor
 
                 string title;
                 string? author;
+                string? series;
+                string? seriesIndex;
 
                 if (file.MimeType == "application/pdf")
                 {
@@ -161,7 +163,7 @@ public class BulkImportProcessor
                 }
                 else if (file.MimeType == "application/epub+zip")
                 {
-                    (title, author) = ExtractEpubMetadata(stream, item.FileName);
+                    (title, author, series, seriesIndex) = ExtractEpubMetadata(stream, item.FileName);
                 }
                 else
                 {
@@ -185,7 +187,9 @@ public class BulkImportProcessor
                     AgeCategoryId = item.AgeCategoryId,
                     FilePath = item.FileId,
                     FileName = item.FileName ?? string.Empty,
-                    TenantId = job.TenantId
+                    TenantId = job.TenantId,
+                    Series = series ?? string.Empty,
+                    seriesIndex = seriesIndex ?? string.Empty
                 };
 
                 var catalogUrl = _config["ServiceUrls:CatalogService"];
@@ -291,7 +295,7 @@ public class BulkImportProcessor
         }
     }
 
-    private (string Title, string? Author) ExtractEpubMetadata(Stream epubStream, string fallbackName)
+    private (string Title, string? Author, string? Series, string? SeriesIndex) ExtractEpubMetadata(Stream epubStream, string fallbackName)
     {
         fallbackName = Path.GetFileNameWithoutExtension(fallbackName);
         epubStream.Position = 0;
@@ -299,7 +303,7 @@ public class BulkImportProcessor
 
         var containerEntry = archive.GetEntry("META-INF/container.xml") ?? null;
         if (containerEntry == null)
-            return (fallbackName, null);
+            return (fallbackName, null, null, null);
 
         using var containerStream = containerEntry.Open();
         var containerXml = XDocument.Load(containerStream);
@@ -311,15 +315,15 @@ public class BulkImportProcessor
             ?? null;
 
         if (rootfileElement == null)
-            return (fallbackName, null);
+            return (fallbackName, null, null, null);
 
         var fullPath = rootfileElement.Attribute("full-path")?.Value;
         if (string.IsNullOrWhiteSpace(fullPath))
-            return (fallbackName, null);
+            return (fallbackName, null, null, null);
 
         var opfEntry = archive.GetEntry(fullPath) ?? null;
         if (opfEntry == null)
-            return (fallbackName, null);
+            return (fallbackName, null, null, null);
 
         using var opfStream = opfEntry.Open();
         var opfXml = XDocument.Load(opfStream);
@@ -329,6 +333,13 @@ public class BulkImportProcessor
         string title = opfXml.Descendants(dc + "title").FirstOrDefault()?.Value ?? fallbackName;
         string? author = opfXml.Descendants(dc + "creator").FirstOrDefault()?.Value;
 
-        return (title, author);
+        var metaElements = opfXml.Descendants()
+            .Where(e => e.Name.LocalName == "meta")
+            .ToList();
+
+        string? series = metaElements.FirstOrDefault(e => e.Attribute("name")?.Value == "calibre:series")?.Attribute("content")?.Value;
+        string? seriesIndex = metaElements.FirstOrDefault(e => e.Attribute("name")?.Value == "calibre:series_index")?.Attribute("content")?.Value;
+
+        return (title, author, series, seriesIndex);
     }
 }
