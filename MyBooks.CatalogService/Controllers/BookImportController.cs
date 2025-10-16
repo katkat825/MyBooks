@@ -8,6 +8,7 @@ using MyBooks.Common.BaseClasses;
 using MyBooks.Common.Dtos;
 using MyBooks.Common.Services;
 using System.IO;
+using System.Globalization;
 
 namespace MyBooks.CatalogService.Controllers
 {
@@ -30,13 +31,61 @@ namespace MyBooks.CatalogService.Controllers
             _openLibraryClient = openLibraryClient;
         }
 
+        private async Task<SeriesDto> ParseSeries(string seriesName, string? seriesIndex = null, int tenantId)
+        {            
+            int? seriesId = null;
+            decimal? seriesPosition = null;
+
+            if (!string.IsNullOrWhiteSpace(seriesIndex) &&
+                    decimal.TryParse(seriesIndex, NumberStyles.Any, CultureInfo.InvariantCulture, out var parsedIndex))
+            {
+                seriesPosition = parsedIndex;
+            }
+
+            var existingSeries = await _context.Series
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(s => s.TenantId == tenantId && s.Name.ToLower() == seriesName.ToLower());
+
+            if (existingSeries != null)
+            {
+                if (!existingSeries.IsActive)
+                {
+                    existingSeries.IsActive = true;
+                    _context.Series.Update(existingSeries);
+                    await _context.SaveChangesAsSystemAsync();
+                }
+                seriesId = existingSeries.Id;
+            }
+            else
+            {
+                var newSeries = new Series
+                {
+                    Name = seriesName,
+                    TenantId = tenantId,
+                    IsActive = true,
+                    CreatedBy = "bulk import",
+                    CreatedDate = DateTime.UtcNow
+                };
+
+                _context.Series.Add(newSeries);
+                await _context.SaveChangesAsSystemAsync();
+                seriesId = newSeries.Id;
+            }
+
+            return new SeriesDto
+            {
+                SeriesId = seriesId,
+                SeriesPosition = seriesPosition
+            };
+        }
+
         // Create a new Book during bulk import
         [HttpPost]
         public async Task<ActionResult<BookImportResponseDto>> ImportBook([FromBody] BookImportRequestDto dto)
         {
             if (dto == null) return BadRequest("Invalid request.");
 
-            // Sanitize Title & Author
+            // sanitize text fields
             var title = _htmlSanitizationService.Sanitize(dto.Title ?? string.Empty);
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -49,6 +98,17 @@ namespace MyBooks.CatalogService.Controllers
                 ? null
                 : _htmlSanitizationService.Sanitize(dto.Author);
 
+            var series = string.IsNullOrWhiteSpace(dto.Series)
+                ? null
+                : _htmlSanitizationService.Sanitize(dto.Series);
+
+            SeriesDto? seriesDto = null;
+            
+            if (series != null)
+            {
+                seriesDto = await ParseSeries(series, dto.SeriesIndex, dto.TenantId);
+            }
+
             var book = new Book
             {
                 Title = title,
@@ -56,11 +116,14 @@ namespace MyBooks.CatalogService.Controllers
                 GenreId = dto.GenreId,
                 AgeCategoryId = dto.AgeCategoryId,
                 TenantId = dto.TenantId,
+                SeriesId = seriesDto?.SeriesId,
+                SeriesPosition = seriesDto?.SeriesPosition,
                 CreatedBy = "bulk import",
                 CreatedDate = DateTime.UtcNow,
                 IsActive = false
             };
 
+            // enrich book via openlibraryclient
             var preferredAuthors = await _context.Books
                 .Where(b => b.TenantId == dto.TenantId && !string.IsNullOrEmpty(b.Author))
                 .Select(b => b.Author)
@@ -73,7 +136,6 @@ namespace MyBooks.CatalogService.Controllers
                 PreferredAuthors = preferredAuthors
             };
 
-            // enrich book via openlibraryclient
             OpenLibraryBookDto? metadata = null;
             if (!string.IsNullOrWhiteSpace(book.Title))
             {
@@ -91,8 +153,14 @@ namespace MyBooks.CatalogService.Controllers
 
                 if (string.IsNullOrWhiteSpace(book.ISBN) && !string.IsNullOrWhiteSpace(metadata.ISBN))
                     book.ISBN = metadata.ISBN;
+                
+                if(string.IsNullOrWhiteSpace(series) && !string.IsNullOrWhiteSpace(metadata.SeriesName))
+                {
+                    var openLibrarySeriesDto = await ParseSeries(metadata.SeriesName, metadata.SeriesIndex, dto.TenantId);
+                    book.SeriesId = openLibrarySeriesDto.SeriesId;
+                    book.SeriesPosition = openLibrarySeriesDto.SeriesPosition;
+                }
             }
-
 
             _context.Books.Add(book);
             await _context.SaveChangesAsSystemAsync();
