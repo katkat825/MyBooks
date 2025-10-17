@@ -106,7 +106,7 @@ namespace MyBooks.CatalogService.Controllers
             
             if (series != null)
             {
-                seriesDto = await ParseSeries(series, dto.SeriesIndex, dto.TenantId);
+                seriesDto = await ParseSeries(series, dto.TenantId, dto.SeriesIndex);
             }
 
             var book = new Book
@@ -156,7 +156,7 @@ namespace MyBooks.CatalogService.Controllers
                 
                 if(string.IsNullOrWhiteSpace(series) && !string.IsNullOrWhiteSpace(metadata.SeriesName))
                 {
-                    var openLibrarySeriesDto = await ParseSeries(metadata.SeriesName, metadata.SeriesIndex, dto.TenantId);
+                    var openLibrarySeriesDto = await ParseSeries(metadata.SeriesName, dto.TenantId, metadata.SeriesIndex);
                     book.SeriesId = openLibrarySeriesDto.SeriesId;
                     book.SeriesPosition = openLibrarySeriesDto.SeriesPosition;
                 }
