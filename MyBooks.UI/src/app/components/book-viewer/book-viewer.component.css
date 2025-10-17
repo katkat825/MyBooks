@@ -106,7 +106,8 @@ html {
 .reading-progress-text {
   position: absolute;
   bottom: 12px;
-  right: 16px;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 0.9rem;
   color: var(--text-color);
   padding: 3px 8px;

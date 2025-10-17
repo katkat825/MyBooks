@@ -6,13 +6,16 @@ WORKDIR /app
 ENV NODE_OPTIONS=--max_old_space_size=4096
 ENV npm_config_fund=false npm_config_audit=false
 
+# build configuration argument (default: production)
+ARG BUILD_CONFIGURATION=production
+
 # install dependencies
 COPY package*.json ./
 RUN npm ci
 
 # copy source and build
 COPY . .
-RUN npm run build -- --configuration=production
+RUN npm run build -- --configuration=$BUILD_CONFIGURATION
 
 
 # ===== Stage 2: Nginx runtime (HTTP only, TLS handled by host) =====

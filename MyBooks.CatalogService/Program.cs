@@ -21,8 +21,10 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins(
                 "http://localhost:8080",
-                "https://localhost:8443",
+                "https://localhost:8443",                
+                "https://localhost:8082",
                 "http://127.0.0.1:8080",
+                "https://qa.mybookcatalog.com",
                 "http://host.docker.internal:8080",
                 "https://mybookcatalog.com",
                 "https://mybookcatalog.com:8443",
