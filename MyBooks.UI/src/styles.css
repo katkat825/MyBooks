@@ -442,6 +442,87 @@ mat-tab {
 .show-mobile {
   display: none;
 }
+/* === Continue Reading section === */
+
+/* expansion panel outer look */
+.continue-reading-panel {
+  width: 100%;
+  max-width: 100%;
+  background: none !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 2rem;
+}
+
+/* header looks just like "All Books" section header */
+.continue-reading-panel .mat-expansion-panel-header {
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  background: none !important;
+  padding-left: 40px;
+  padding-right: 20px;
+  height: auto !important;
+  min-height: 48px;
+}
+
+.continue-reading-panel .mat-expansion-panel-header h3 {
+  padding-left: 20px;
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--title-color);
+}
+
+/* remove default Material padding + clipping */
+.continue-reading-panel .mat-expansion-panel-content,
+.continue-reading-panel .mat-expansion-panel-body {
+  overflow: visible !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: none !important;
+}
+
+/* restore your original book-container grid inside panel */
+.continue-reading-panel .book-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 80px;
+  width: 100%;
+}
+
+.continue-reading-panel .book-series {
+  margin-top: 0;
+  margin-bottom: 6px;
+  line-height: 1.1;
+  color: var(--text-color);
+}
+
+/* make sure books keep full size + perspective like All Books */
+.continue-reading-panel .book {
+  width: 160px;
+  height: 220px;
+  transform: perspective(800px) rotateY(-10deg);
+  transition: transform 0.3s ease-in-out;
+  position: relative;
+  border-radius: 5px;
+  overflow: visible;
+  top: 50px;
+  z-index: 2;
+}
+
+.continue-reading-panel .book:hover {
+  transform: perspective(800px) rotateY(0);
+  background-color: var(--primary);
+  border-radius: 0 10px 10px 0;
+}
+
+/* keep the expand arrow matching theme */
+.continue-reading-panel .mat-expansion-indicator::after {
+  color: var(--text-color) !important;
+}
 
 /* phones */
 @media (max-width: 767px) {

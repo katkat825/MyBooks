@@ -13,6 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { UserService } from '../../services/user.service';
 import { GlobalLoadingService, LoadingContext } from '../../services/global-loading.service';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 @Component({
   selector: 'app-book-list',
@@ -30,7 +31,8 @@ import { MatDividerModule } from '@angular/material/divider';
     FormsModule, 
     MatProgressSpinner,
     MatTooltipModule,
-    MatDividerModule
+    MatDividerModule,
+    MatExpansionModule
   ]
 })
 export class BookListComponent {
@@ -39,6 +41,7 @@ export class BookListComponent {
   recentReads: any[] = [];
   searchQuery: string = '';
   currentUser: any = null;
+  continueReadingExpanded = true;
   
   page = 1;
   pageSize = 20;

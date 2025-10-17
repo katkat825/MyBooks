@@ -17,44 +17,49 @@
     </mat-form-field>
   </div>
 
-  <div class="book-container" *ngIf="showRecentReads">
-    <div class="book-section-header">
-      <h3>Continue Reading</h3>
-    </div>
-    <div class="book" *ngFor="let book of recentReads">      
-      <div 
-          id="continue-reading-book-cover" 
-          class="book-cover" 
-          (click)="viewBookDetails(book)" 
-          aria-label="Click to see book details"
-          (keydown.enter)="viewBookDetails(book)"
-          (keydown.space)="viewBookDetails(book)">
-        <span 
-            id="continue-reading"
-            class="read-icon-wrapper" 
-            (click)="openBookViewer(book, $event)" 
-            *ngIf="book.fileId && (!book.isRestricted || hasGlobalReviewer())"
-            matTooltip="Read this book"
-            aria-label="Read this book in the app">
-          <mat-icon class="read-icon" aria-hidden="true">menu_book</mat-icon>
-        </span>
-        <span 
-            class="read-icon-wrapper"
-            *ngIf="book.isRestricted && !hasGlobalReviewer()"
-            matTooltip="This book is under investigation and cannot be accessed"
-            aria-label="This book is under investigation and cannot be accessed">
+  
+  <mat-expansion-panel [(expanded)]="continueReadingExpanded" class="continue-reading-panel">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <h3>Continue Reading</h3>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <div class="book-container" *ngIf="showRecentReads">
+      <div class="book" *ngFor="let book of recentReads">      
+        <div 
+            id="continue-reading-book-cover" 
+            class="book-cover" 
+            (click)="viewBookDetails(book)" 
+            aria-label="Click to see book details"
+            (keydown.enter)="viewBookDetails(book)"
+            (keydown.space)="viewBookDetails(book)">
+          <span 
+              id="continue-reading"
+              class="read-icon-wrapper" 
+              (click)="openBookViewer(book, $event)" 
+              *ngIf="book.fileId && (!book.isRestricted || hasGlobalReviewer())"
+              matTooltip="Read this book"
+              aria-label="Read this book in the app">
+            <mat-icon class="read-icon" aria-hidden="true">menu_book</mat-icon>
+          </span>
+          <span 
+              class="read-icon-wrapper"
+              *ngIf="book.isRestricted && !hasGlobalReviewer()"
+              matTooltip="This book is under investigation and cannot be accessed"
+              aria-label="This book is under investigation and cannot be accessed">
           <mat-icon class="restricted-icon" aria-hidden="true">block</mat-icon>
-        </span>
-          <h5 class="book-title" [matTooltip]="book.title.length > 50 ? book.title : ''">{{ book.title }}</h5>
-          <h6 class="book-series" *ngIf="book.series">
-          {{ book.series }} <span *ngIf="book.seriesPosition">#{{ book.seriesPosition }}</span>
+          </span>
+          <h5 class="book-title" [matTooltip]="book.title.length > 31 ? book.title : ''">{{ book.title }}</h5>
+          <h6 class="book-series" *ngIf="book.series?.name || book.series">
+            {{ book.series?.name || book.series }}
+            <span *ngIf="book.seriesPosition">#{{ book.seriesPosition }}</span>
           </h6>
           <h6 class="book-author" [matTooltip]="book.author && book.author.length > 18 ? book.author : ''">{{ book.author || "Unknown Author"}}</h6>
-          <div class="book-spine"></div>
+            <div class="book-spine"></div>
         </div>
       </div>
-  </div>
-  <mat-divider *ngIf="showRecentReads"></mat-divider>
+    </div>
+  </mat-expansion-panel>
   
   <div class="book-container">
     <div class="book-section-header">
@@ -85,7 +90,7 @@
           <mat-icon class="restricted-icon" aria-hidden="true">block</mat-icon>
         </span>
         
-        <h5 class="book-title" [matTooltip]="book.title.length > 50 ? book.title : ''">{{ book.title }}</h5>
+        <h5 class="book-title" [matTooltip]="book.title.length > 31 ? book.title : ''">{{ book.title }}</h5>
         <h6 class="book-series" *ngIf="book.series?.name">
           {{ book.series.name }} 
           <span *ngIf="book.seriesPosition">#{{ book.seriesPosition }}</span>
