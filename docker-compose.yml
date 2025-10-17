@@ -88,6 +88,8 @@ services:
     build:
       context: MyBooks.UI
       dockerfile: Dockerfile
+      args:
+        - BUILD_CONFIGURATION=production
     depends_on:
       - auth
       - catalog
@@ -96,6 +98,23 @@ services:
       - emails
     ports:
       - "8081:80"
+    restart: unless-stopped
+
+  web-qa:
+    build:
+      context: MyBooks.UI
+      dockerfile: Dockerfile
+      args:
+        - BUILD_CONFIGURATION=qa
+    depends_on:
+      - auth
+      - catalog
+      - files
+      - tenants
+      - emails
+      - support
+    ports:
+      - "8082:80"
     restart: unless-stopped
 
 volumes:

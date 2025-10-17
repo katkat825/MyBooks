@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  environmentName: 'prod',
+  environmentName: 'qa',
 
   apiUrl: 'https://mybookcatalog.com/api/catalog/api',
   authServiceUrl: 'https://mybookcatalog.com/api/auth/api',
