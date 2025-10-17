@@ -1,14 +1,14 @@
 <div class="book-viewer-wrapper" 
   [class.support-viewer]="isSupportService"
   style="position: relative; height: 80vh;">
-  
-  <div #viewerContainer class="viewer-container">
-    <div #pdfViewer class="pdfViewer"></div>
-  </div>
 
   <div class="zoom-controls">
     <mat-icon id="zoom-out" (click)="zoomOut()" aria-hidden="true">text_decrease</mat-icon>
     <mat-icon id="zoom-in" (click)="zoomIn()" aria-hidden="true">text_increase</mat-icon> 
+  </div>
+  
+  <div #viewerContainer class="viewer-container">
+    <div #pdfViewer class="pdfViewer"></div>
   </div>
 
   <div class="epub-controls"*ngIf="fileType === 'epub'">
@@ -17,6 +17,10 @@
       (click)="prevPage()" 
       aria-label="Previous page">Previous</button>
     <button mat-button id="book-viewer-next" (click)="nextPage()" aria-label="Next Page">Next</button>
+  </div>
+
+  <div class="reading-progress-text" aria-label="Reading progress">
+    {{ readingProgress | number:'1.0-0' }}%
   </div>
 </div>
 
