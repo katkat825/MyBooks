@@ -70,14 +70,13 @@ html {
 }
 
 .zoom-controls {
-  position: absolute;
-  top: 10px;
-  right: 20px;
+  position: relative;
   display: flex;
+  justify-content: flex-end;
   gap: 20px;
   padding: 6px 10px;
   border-radius: 6px;
-  z-index: 2000;
+  z-index: 1;
   background: var(--bg-color);
 }
 
@@ -102,6 +101,20 @@ html {
   justify-content: center;
   align-items: center;
   gap: 100px;
+}
+
+.reading-progress-text {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  font-size: 0.9rem;
+  color: var(--text-color);
+  padding: 3px 8px;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 10;
+  transition: opacity 0.3s ease;
+  opacity: 0.9;
 }
 
 .spinner-overlay {

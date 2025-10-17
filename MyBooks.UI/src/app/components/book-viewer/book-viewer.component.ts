@@ -34,6 +34,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   rendition: any;
   scrollSub!: Subscription;
   zoomLevel: number = 1.0;
+  readingProgress: number = 0;
 
   private currentEpubContents: any;
   private themeObserver: MutationObserver | null = null;
@@ -201,6 +202,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       this.viewerService.getReadingProgress(this.fileId).subscribe({
         next: (progressData) => {
           const progressPercent = progressData && (progressData.ProgressPercent || progressData.progressPercent) || 0;
+          this.readingProgress = progressPercent;
           const totalScrollable = container.scrollHeight - container.clientHeight;
           container.scrollTop = (progressPercent / 100) * totalScrollable;
           this.globalLoading.hide();
@@ -219,6 +221,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     const scrollTop = container.scrollTop;
     const totalScrollable = container.scrollHeight - container.clientHeight;
     const progress = totalScrollable > 0 ? (scrollTop / totalScrollable) * 100 : 0;
+    this.readingProgress = progress;
     this.updateProgress(progress);
   }
 
@@ -282,6 +285,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
         //calculate progress
         if (currentLocation !== undefined && totalLocations > 0) {
           const progress = (currentLocation / totalLocations) * 100;
+          this.readingProgress = progress;
           this.updateProgress(progress);
         } else {
           console.warn("Unable to calculate EPUB progress.");
@@ -293,7 +297,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
       this.viewerService.getReadingProgress(this.fileId).subscribe({
         next: (progressData) => {
           const progressPercent = progressData && (progressData.ProgressPercent || progressData.progressPercent) || 0;
-
+          this.readingProgress = progressPercent;
           const totalLocations = this.epubBook.locations.total;
           const savedLocationIndex = Math.floor((progressPercent / 100) * totalLocations);
           const cfi = this.epubBook.locations.cfiFromLocation(savedLocationIndex);
