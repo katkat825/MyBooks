@@ -48,6 +48,7 @@ html {
 .viewer-container .pdfViewer {
   width: auto !important;
   min-width: 100%;
+  margin-top: 10px;
   overflow: visible !important;
   display: block !important;
 }
@@ -83,7 +84,8 @@ html {
 .zoom-controls mat-icon {
   cursor: pointer;
   color: var(--text-color);
-  font-size: 24px;
+  opacity: 0.8;
+  font-size: 20px;
   transition: transform 0.2s;
 }
 
@@ -96,7 +98,7 @@ html {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 40px;
+  height: 45px;
   display: flex;
   justify-content: center;
   align-items: center;

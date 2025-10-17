@@ -442,7 +442,11 @@ mat-tab {
 .show-mobile {
   display: none;
 }
-/* === Continue Reading section === */
+
+#book-viewer-prev, #book-viewer-next {
+  background-color: var(--bg-color) !important;
+  color: var(--title-color) !important;
+}
 
 /* expansion panel outer look */
 .continue-reading-panel {
