@@ -31,7 +31,7 @@ namespace MyBooks.CatalogService.Controllers
             _openLibraryClient = openLibraryClient;
         }
 
-        private async Task<SeriesDto> ParseSeries(string seriesName, string? seriesIndex = null, int tenantId)
+        private async Task<SeriesDto> ParseSeries(string seriesName, int tenantId, string? seriesIndex = null)
         {            
             int? seriesId = null;
             decimal? seriesPosition = null;
