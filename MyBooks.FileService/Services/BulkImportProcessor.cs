@@ -154,8 +154,8 @@ public class BulkImportProcessor
 
                 string title;
                 string? author;
-                string? series;
-                string? seriesIndex;
+                string? series = null;
+                string? seriesIndex = null;
 
                 if (file.MimeType == "application/pdf")
                 {
@@ -189,7 +189,7 @@ public class BulkImportProcessor
                     FileName = item.FileName ?? string.Empty,
                     TenantId = job.TenantId,
                     Series = series ?? string.Empty,
-                    seriesIndex = seriesIndex ?? string.Empty
+                    SeriesIndex = seriesIndex ?? string.Empty
                 };
 
                 var catalogUrl = _config["ServiceUrls:CatalogService"];
