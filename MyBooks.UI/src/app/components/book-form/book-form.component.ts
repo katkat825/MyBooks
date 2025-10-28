@@ -51,6 +51,7 @@ export class BookFormComponent implements OnInit {
   ageCategories: any[] = [];
   seriesList: any[] = [];
   newSeries: boolean = false;
+  newGenre: boolean = false;
   fileId?: number;
   currentUser: any = null;
   hasIntegration: boolean = false;
@@ -80,6 +81,7 @@ export class BookFormComponent implements OnInit {
       step1: this.fb.group({
         title: ['', Validators.required],
         genreId: ['', Validators.required],
+        genreName: [''],
         ageCategoryId: ['', Validators.required]
       }),
       step2: this.fb.group({
@@ -206,7 +208,6 @@ export class BookFormComponent implements OnInit {
 
   saveSeries() {
     const seriesName = (this.step2.get('seriesName')?.value ?? '').trim();
-    console.log("Attempting to save series:", seriesName);
 
     if (!seriesName) {
       alert("Series name cannot be empty.");
@@ -232,6 +233,40 @@ export class BookFormComponent implements OnInit {
         alert("Failed to save series.");
       }
     })
+  }
+
+  toggleNewGenre() {
+    this.newGenre = !this.newGenre;
+    this.step1.patchValue({ genreName: '' });
+  }
+
+  saveGenre() {
+    const genreName = (this.step1.get('genreName')?.value ?? '').trim();
+
+    if(!genreName) {
+      alert('Genre name cannot be empty.');
+      return;
+    }
+
+    const exists = this.genres.some(g => g.name?.toLowerCase().trim() === genreName.toLowerCase());
+    if(exists) {
+      alert('That genre already exists.');
+      return;
+    }
+
+    const newGenre = { name: genreName };
+
+    this.bookService.createGenre(newGenre).subscribe({
+      next: (createdGenre) => {
+        this.genres = [...this.genres, createdGenre].sort((a, b) => a.name.localeCompare(b.name));
+        this.step1.patchValue({ genreId: createdGenre.id });
+        this.toggleNewGenre();
+      },
+      error: (error) => {
+        console.error('Error saving genre: ', error);
+        alert('Failed to save genre.');
+      }
+    });
   }
 
   saveStep1() {
