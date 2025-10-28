@@ -9,12 +9,33 @@
           <input matInput id="book-form-title" type="text" formControlName="title" required aria-required="true">
         </mat-form-field>
 
-        <mat-form-field class="full-width">
-          <mat-label>Genre</mat-label>
-          <mat-select formControlName="genreId" required aria-required="true">
-            <mat-option *ngFor="let genre of genres" [value]="genre.id">{{ genre.name }}</mat-option>
-          </mat-select>
-        </mat-form-field>
+        <div class="inline-group">
+          <button 
+            id="new-genre"
+            mat-icon-button type="button"
+            (click)="toggleNewGenre()"
+            aria-label="New genre toggle"
+            matTooltip="{{ newGenre ? 'Cancel' : 'Add new genre' }}">
+            <mat-icon aria-hidden="true">{{ newGenre ? 'remove' : 'add' }}</mat-icon>
+          </button>
+
+          <mat-form-field class="full-width">
+            <mat-label>Genre</mat-label>
+            <mat-select formControlName="genreId" required aria-required="true">
+              <mat-option *ngFor="let genre of genres" [value]="genre.id">{{ genre.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div *ngIf="newGenre">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>New Genre</mat-label>
+            <input id="genre-name" matInput type="text" formControlName="genreName" />
+            <button id="save-new-genre" mat-icon-button type="button" (click)="saveGenre()" aria-label="Save new genre">
+              <mat-icon aria-hidden="true">save</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
 
         <mat-form-field class="full-width">
           <mat-label>Age Category</mat-label>
@@ -66,8 +87,8 @@
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>New Series</mat-label>
             <input id="series-name" matInput type="text" formControlName="seriesName" />
-            <button id="save-new-series" mat-icon-button type="button" (click)="saveSeries()">
-              <mat-icon>save</mat-icon>
+            <button id="save-new-series" mat-icon-button type="button" (click)="saveSeries()" aria-label="Save new series">
+              <mat-icon aria-hidden="true">save</mat-icon>
             </button>
           </mat-form-field>
         </div>
