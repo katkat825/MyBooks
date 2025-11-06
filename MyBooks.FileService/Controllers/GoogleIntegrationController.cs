@@ -136,6 +136,21 @@ public class GoogleIntegrationController : ControllerBase
         return Redirect(_config["GoogleOAuth:PostLoginRedirect"]);
     }
 
+    // get access token to use for google picker
+    [HttpGet("{id}/access-token")]
+    public async Task<IActionResult> GetAccessTokenAsync(int id)
+    {
+        var tenantId = _context.GetCurrentTenantId();
+        var integration = await _context.GoogleIntegrations
+            .FirstOrDefaultAsync(g => g.TenantId == tenantId && g.IsActive && g.Id == id);
+        if (integration == null)
+            return BadRequest("Integration not found.");
+
+        var accessToken = await _googleDriveClient.RefreshAccessTokenAsync(integration.RefreshToken);
+
+        return Ok(new { AccessToken = accessToken });
+    }
+
     // STEP 3: List integrations
     [HttpGet]
     public async Task<IActionResult> GetIntegrations()

@@ -26,7 +26,8 @@
       <th mat-header-cell *matHeaderCellDef>Actions</th>
       <td mat-cell *matCellDef="let integration">
         <div class="actions-column">
-          <button mat-button class="warn-btn" (click)="remove(integration)">Remove</button>
+          <button mat-button id="remove-integration" class="warn-btn" (click)="remove(integration)">Remove</button>
+          <button mat-button id="select-integration-folder" (click)="openFolderDialog(integration)">Select Folder(s)</button>
         </div>
       </td>
     </ng-container>
