@@ -9,5 +9,6 @@ export const environment = {
   authBaseUrl: 'https://mybookcatalog.com/api/auth',
   emailServiceUrl: 'https://mybookcatalog.com/api/email/api',
   fileBaseUrl: 'https://mybookcatalog.com/api/file',
-  supportBaseUrl: 'https://mybookcatalog.com/api/support'
+  supportBaseUrl: 'https://mybookcatalog.com/api/support',
+  googlePickerApiKey: 'AIzaSyCDhTaYWXXx_qkyxuXYwDjrLJXfEchQJ9Q'
 };

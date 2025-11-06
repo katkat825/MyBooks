@@ -1,16 +1,11 @@
-<h2>Google Drive Folders</h2>
+<h2>Select Google Drive Folder</h2>
 
-<mat-selection-list>
-  <mat-list-option
-    *ngFor="let folder of folders"
-    [selected]="selected.has(folder.id)"
-    (click)="toggleSelection(folder.id)"
-    class="folder-list">
-      {{ folder.name }}
-  </mat-list-option>
-</mat-selection-list>
+<p>
+  Choose the folder that contains your EPUB and PDF files.  
+  Only files inside this folder and its subfolders will be available for import.
+</p>
 
-<div class="actions mt-3">
-  <button mat-button color="primary" (click)="save()">Save</button>
-  <button mat-button (click)="cancel()">Cancel</button>
+<div class="actions">
+  <button mat-button color="primary" (click)="openGooglePicker()">Select Folder</button>
+  <button mat-button (click)="close()">Cancel</button>
 </div>

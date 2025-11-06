@@ -44,6 +44,10 @@ export class IntegrationService {
     );
   }
 
+  getAccessToken(id: number): Observable<{ accessToken: string }> {
+    return this.http.get<{ accessToken: string }>(`${this.apiUrl}/${id}/access-token`, { headers: this.getAuthHeaders() });
+  }
+
   updateFolders(integrationId: number, folderIds: string[]): Observable<void> {
     return this.http.put<void>(
       `${this.apiUrl}/${integrationId}/folders`,
