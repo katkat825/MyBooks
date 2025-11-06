@@ -4,10 +4,15 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatDialogModule, MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { IntegrationService } from '../../../services/integration.service';
 import { ConfirmDialogComponent } from '../../../components/shared/confirmation.component';
 import { AddGoogleDriveFolderComponent } from '../add-google-drive-folder/add-google-drive-folder.component';
+import { environment } from '../../../../environments/environment';
+import { firstValueFrom } from 'rxjs';
+
+declare const gapi: any;
+declare const google: any;
 
 @Component({
   selector: 'app-google-drive',
@@ -24,6 +29,7 @@ import { AddGoogleDriveFolderComponent } from '../add-google-drive-folder/add-go
 })
 export class GoogleDriveComponent implements OnInit {
   integrations: any[] = [];
+  selectedFolderName: string | null = null;
 
   constructor(
     private http: HttpClient,
@@ -82,6 +88,50 @@ export class GoogleDriveComponent implements OnInit {
         });
       }
     });
+  }
+
+  async openGooglePicker(integration: any): Promise<void> {
+    try {
+      const tokenResponse = await firstValueFrom(
+        this.integrationService.getAccessToken(integration.id)
+      );
+
+      const accessToken = tokenResponse?.accessToken;
+      if (!accessToken) throw new Error('Failed to get access token');
+
+      // load the picker API
+      await new Promise<void>((resolve, reject) => {
+        gapi.load('picker', { callback: resolve, onerror: reject });
+      });
+
+      const view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
+        .setSelectFolderEnabled(true)
+        .setIncludeFolders(true)
+        .setParent('root');
+
+      const picker = new google.picker.PickerBuilder()
+        .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+        .addView(view)
+        .setOAuthToken(accessToken)
+        .setDeveloperKey(environment.googlePickerApiKey) 
+        .setCallback(async (data: any) => {
+          if (data.action === google.picker.Action.PICKED) {
+            const picked = data.docs[0];
+            const folderId = picked.id;
+            this.selectedFolderName = picked.name;
+
+            await firstValueFrom(
+              this.integrationService.updateFolders(integration.id, [folderId])
+            );
+          } 
+        })
+        .build();
+
+      picker.setVisible(true);
+    } catch (error) {
+      console.error('Error opening Google Picker:', error);
+      alert('Error opening Google Picker');
+    }
   }
 
   openFolderDialog(integration: any): void {
