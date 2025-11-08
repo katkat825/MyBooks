@@ -75,4 +75,5 @@ mat-icon {
 
 #importable-file {
   color: var(--accent);
+  opacity: 1;
 }
