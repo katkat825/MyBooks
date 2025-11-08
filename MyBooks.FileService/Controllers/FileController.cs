@@ -10,174 +10,188 @@ using MyBooks.FileService.Services;
 using System.Text.RegularExpressions;
 using MyBooks.Common.BaseClasses;
 
-namespace MyBooks.FileService.Controllers
+namespace MyBooks.FileService.Controllers;
+[Route("api/files")]
+[ApiController]
+[Authorize]
+public class FileController : ControllerBase
 {
-    [Route("api/files")]
-    [ApiController]
-    [Authorize]
-    public class FileController : ControllerBase
+    private readonly FileDbContext _context;
+    private readonly HtmlSanitizationService _sanitizationService;
+    private readonly GoogleDriveClient _googleDriveClient;
+
+    public FileController(FileDbContext context, HtmlSanitizationService sanitizationService, GoogleDriveClient googleDriveClient)
     {
-        private readonly FileDbContext _context;
-        private readonly HtmlSanitizationService _sanitizationService;
-        private readonly GoogleDriveClient _googleDriveClient;
+        _context = context;
+        _sanitizationService = sanitizationService;
+        _googleDriveClient = googleDriveClient;
+    }
 
-        public FileController(FileDbContext context, HtmlSanitizationService sanitizationService, GoogleDriveClient googleDriveClient)
-        {
-            _context = context;
-            _sanitizationService = sanitizationService;
-            _googleDriveClient = googleDriveClient;
-        }
+    // upload File - only owner or superadmin
+    [HttpPost("upload")]
+    [Authorize(Roles = AppRoles.OwnerPlus)]
+    public async Task<IActionResult> UploadFile([FromForm] IFormFile file, [FromForm] int bookId, [FromForm] string bookTitle, [FromForm] string? folderId)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest("No file uploaded.");
 
-        // upload File - only owner or superadmin
-        [HttpPost("upload")]
-        [Authorize(Roles = AppRoles.OwnerPlus)]
-        public async Task<IActionResult> UploadFile([FromForm] IFormFile file, [FromForm] int bookId, [FromForm] string bookTitle, [FromForm] string? folderId)
-        {
-            if (file == null || file.Length == 0)
-                return BadRequest("No file uploaded.");
+        var tenantId = _context.GetCurrentTenantId();
 
-            var tenantId = _context.GetCurrentTenantId();
+        var integration = await _context.GoogleIntegrations
+            .FirstOrDefaultAsync(g => g.TenantId == tenantId && g.IsActive);
+        if (integration == null)
+            return BadRequest("Google Drive not configured for this tenant.");
 
-            var integration = await _context.GoogleIntegrations
-                .FirstOrDefaultAsync(g => g.TenantId == tenantId && g.IsActive);
-            if (integration == null)
-                return BadRequest("Google Drive not configured for this tenant.");
+        await using var corruptionCheckStream = file.OpenReadStream();
+        
+        if (string.IsNullOrWhiteSpace(folderId))
+            folderId = await _googleDriveClient.GetOrCreateFolderAsync("MyBookCatalog", "root", integration.RefreshToken);
 
-            await using var corruptionCheckStream = file.OpenReadStream();
+        var fileValidator = new FileValidator();
+        var fileValidationResult = fileValidator.Validate(file);
+        if (!fileValidationResult.IsValid)
+            return BadRequest(fileValidationResult.Errors);
             
-            if (string.IsNullOrWhiteSpace(folderId))
-                folderId = await _googleDriveClient.GetOrCreateFolderAsync("MyBookCatalog", "root", integration.RefreshToken);
+        var extension = Path.GetExtension(file.FileName);
+        var sanitizedBookTitle = Regex.Replace(_sanitizationService.Sanitize(bookTitle).Trim(), @"\s+", "_");
+        var fileName = $"{bookId}_{sanitizedBookTitle}{extension}";
 
-            var fileValidator = new FileValidator();
-            var fileValidationResult = fileValidator.Validate(file);
-            if (!fileValidationResult.IsValid)
-                return BadRequest(fileValidationResult.Errors);
-                
-            var extension = Path.GetExtension(file.FileName);
-            var sanitizedBookTitle = Regex.Replace(_sanitizationService.Sanitize(bookTitle).Trim(), @"\s+", "_");
-            var fileName = $"{bookId}_{sanitizedBookTitle}{extension}";
-
-            // deactivate old file if exists
-            var existingFile = await _context.Files.FirstOrDefaultAsync(f => f.BookId == bookId && f.IsActive);
-            if (string.IsNullOrEmpty(folderId) && existingFile?.FolderId != null)
-                folderId = existingFile.FolderId;
-            if (existingFile != null)
-                {
-                    if (existingFile.GoogleIntegrationId != null)
-                        await _googleDriveClient.DeleteFileAsync(existingFile.FilePath, integration.RefreshToken);
-                    existingFile.IsActive = false;
-                    _context.Files.Update(existingFile);
-                    await _context.SaveChangesAsync();
-                }
-
-            // upload to Google Drive
-            string fileId;
-            using (var stream = file.OpenReadStream())
+        // deactivate old file if exists
+        var existingFile = await _context.Files.FirstOrDefaultAsync(f => f.BookId == bookId && f.IsActive);
+        if (string.IsNullOrEmpty(folderId) && existingFile?.FolderId != null)
+            folderId = existingFile.FolderId;
+        if (existingFile != null)
             {
-                try
-                {
-                    fileId = await _googleDriveClient.UploadFileAsync(
-                        fileName, stream, file.ContentType,
-                        folderId, integration.RefreshToken);
-                }
-                catch (Google.GoogleApiException ex) when (ex.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    var fallbackFolderId = await _googleDriveClient.GetOrCreateFolderAsync(
-                        "MyBookCatalog", "root", integration.RefreshToken
-                    );
-
-                    // create new stream to prevent potential issues
-                    using (var retryStream = file.OpenReadStream())
-                    {
-                        fileId = await _googleDriveClient.UploadFileAsync(
-                            fileName, retryStream, file.ContentType,
-                            fallbackFolderId, integration.RefreshToken
-                        );
-                    }
-
-                    folderId = fallbackFolderId;                    
-                }
+                if (existingFile.GoogleIntegrationId != null)
+                    await _googleDriveClient.DeleteFileAsync(existingFile.FilePath, integration.RefreshToken);
+                existingFile.IsActive = false;
+                _context.Files.Update(existingFile);
+                await _context.SaveChangesAsync();
             }
 
-            var fileMetadata = new FileMetadata
+        // upload to Google Drive
+        string fileId;
+        using (var stream = file.OpenReadStream())
+        {
+            try
             {
-                FileName = fileName,
-                FilePath = fileId, // Google Drive fileId
-                ContentType = file.ContentType,
-                FileSize = file.Length,
-                BookId = bookId,
-                IsActive = true,
-                GoogleIntegrationId = integration.Id,
-                FolderId = folderId
-            };
+                fileId = await _googleDriveClient.UploadFileAsync(
+                    fileName, stream, file.ContentType,
+                    folderId, integration.RefreshToken);
+            }
+            catch (Google.GoogleApiException ex) when (ex.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                var fallbackFolderId = await _googleDriveClient.GetOrCreateFolderAsync(
+                    "MyBookCatalog", "root", integration.RefreshToken
+                );
 
-            var validator = new FileMetaValidator();
-            var validationResult = validator.Validate(fileMetadata);
-            if (!validationResult.IsValid)
-                return BadRequest(validationResult.Errors);
+                // create new stream to prevent potential issues
+                using (var retryStream = file.OpenReadStream())
+                {
+                    fileId = await _googleDriveClient.UploadFileAsync(
+                        fileName, retryStream, file.ContentType,
+                        fallbackFolderId, integration.RefreshToken
+                    );
+                }
 
-            _context.Files.Add(fileMetadata);
-            await _context.SaveChangesAsync();
-            return Ok(new { FileId = fileMetadata.Id, Message = "File uploaded successfully" });
+                folderId = fallbackFolderId;                    
+            }
         }
 
-        // file download or read inline
-        [HttpGet("{id}")]
-        public async Task<IActionResult> DownloadFile(int id, [FromQuery] bool inline = false)
+        var fileMetadata = new FileMetadata
         {
-            var file = await _context.Files
-                .Include(f => f.GoogleIntegration)
-                .FirstOrDefaultAsync(f => f.Id == id && f.IsActive);
+            FileName = fileName,
+            FilePath = fileId, // Google Drive fileId
+            ContentType = file.ContentType,
+            FileSize = file.Length,
+            BookId = bookId,
+            IsActive = true,
+            GoogleIntegrationId = integration.Id,
+            FolderId = folderId
+        };
 
-            if (file == null)
-                return NotFound("File not found.");
+        var validator = new FileMetaValidator();
+        var validationResult = validator.Validate(fileMetadata);
+        if (!validationResult.IsValid)
+            return BadRequest(validationResult.Errors);
 
-            var stream = await _googleDriveClient.GetFileStreamAsync(
-                file.FilePath, file.GoogleIntegration.RefreshToken);
+        _context.Files.Add(fileMetadata);
+        await _context.SaveChangesAsync();
+        return Ok(new { FileId = fileMetadata.Id, Message = "File uploaded successfully" });
+    }
 
-            if (inline)
-                return File(stream, file.ContentType);
-            return File(stream, file.ContentType, file.FileName);
-        }
+    // file download or read inline
+    [HttpGet("{id}")]
+    public async Task<IActionResult> DownloadFile(int id, [FromQuery] bool inline = false)
+    {
+        var file = await _context.Files
+            .Include(f => f.GoogleIntegration)
+            .FirstOrDefaultAsync(f => f.Id == id && f.IsActive);
 
-        // soft-delete file metadata - only owner or superadmin
-        [HttpDelete("{id}")]
-        [Authorize(Roles = AppRoles.OwnerPlus)]
-        public async Task<IActionResult> DeleteFile(int id)
-        {
-            var file = await _context.Files
-                .Include(f => f.GoogleIntegration)
-                .FirstOrDefaultAsync(f => f.Id == id && f.IsActive);
+        if (file == null)
+            return NotFound("File not found.");
 
-            if (file == null)
-                return NotFound("File not found.");
+        var stream = await _googleDriveClient.GetFileStreamAsync(
+            file.FilePath, file.GoogleIntegration.RefreshToken);
 
-            file.IsActive = false;
-            _context.Files.Update(file);
-            await _context.SaveChangesAsync();
+        if (inline)
+            return File(stream, file.ContentType);
+        return File(stream, file.ContentType, file.FileName);
+    }
 
-            return NoContent();
-        }
+    // soft-delete file metadata - only owner or superadmin
+    [HttpDelete("{id}")]
+    [Authorize(Roles = AppRoles.OwnerPlus)]
+    public async Task<IActionResult> DeleteFile(int id)
+    {
+        var file = await _context.Files
+            .Include(f => f.GoogleIntegration)
+            .FirstOrDefaultAsync(f => f.Id == id && f.IsActive);
 
-        // get file for single book
-        [HttpGet("book/{bookId}")]
-        public async Task<IActionResult> GetFilesByBook(int bookId)
-        {
-            var files = await _context.Files
-                .Where(f => f.BookId == bookId && f.IsActive)
-                .ToListAsync();
+        if (file == null)
+            return NotFound("File not found.");
 
-            return Ok(files);
-        }
+        file.IsActive = false;
+        _context.Files.Update(file);
+        await _context.SaveChangesAsync();
 
-        // get file metadata for a given file id
-        [HttpGet("metadata/{id}")]
-        public async Task<IActionResult> GetFileMetadata(int id)
-        {
-            var file = await _context.Files.FindAsync(id);
-            if (file == null)
-                return NotFound("File not found.");
-            return Ok(file);
-        }
+        return NoContent();
+    }
+
+    // get file for single book
+    [HttpGet("book/{bookId}")]
+    public async Task<IActionResult> GetFilesByBook(int bookId)
+    {
+        var files = await _context.Files
+            .Where(f => f.BookId == bookId && f.IsActive)
+            .ToListAsync();
+
+        return Ok(files);
+    }
+
+    // get file metadata for a given file id
+    [HttpGet("metadata/{id}")]
+    public async Task<IActionResult> GetFileMetadata(int id)
+    {
+        var file = await _context.Files.FindAsync(id);
+        if (file == null)
+            return NotFound("File not found.");
+        return Ok(file);
+    }
+
+    // GET: api/files/ids/{integrationId}
+    [HttpGet("ids/{integrationId}")]
+    [Authorize(Roles = AppRoles.OwnerPlus)]
+    public async Task<IActionResult> GetAllFileIds(int integrationId)
+    {
+        var tenantId = _context.GetCurrentTenantId();
+
+        // return only active Google Drive file IDs for this integration
+        var fileIds = await _context.Files
+            .Where(f => f.TenantId == tenantId && f.IsActive && f.FilePath != null && f.GoogleIntegrationId == integrationId)
+            .Select(f => f.FilePath!)
+            .ToListAsync();
+
+        return Ok(fileIds);
     }
 }
