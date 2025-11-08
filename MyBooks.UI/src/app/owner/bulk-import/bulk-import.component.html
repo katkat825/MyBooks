@@ -1,165 +1,163 @@
 <div class="owner-container container mt-4" [formGroup]="form">
-
-  <!-- breadcrumb navigation -->
-  <nav class="breadcrumb" style="align-items: left !important; text-align: left !important;">
-
-    <div *ngIf="selectedIntegrationId && integrations.length > 1">
-      <a href="" [matMenuTriggerFor]="integrationMenu" 
-        (click)="$event.preventDefault()" 
-        class="breadcrumb-link">
-        Change Drive
-        <mat-icon inline>arrow_drop_down</mat-icon>
-      </a>
-      <mat-menu #integrationMenu="matMenu">
-        <button mat-menu-item *ngFor="let integration of integrations" (click)="onIntegrationSelected(integration.id)">
-          {{ integration.accountEmail }}
-        </button>
-      </mat-menu>
-
-      <mat-icon inline *ngIf="breadcrumb.length > 0">chevron_right</mat-icon>
-    </div>
-
-    <!-- if 3 or fewer folder crumbs -->
-    <ng-container *ngIf="breadcrumb.length <= 3">
-      
-      <ng-container *ngFor="let crumb of breadcrumb; let i = index">
-        <span class="separator" *ngIf="i > 0"><mat-icon inline>chevron_right</mat-icon></span>
-        <a href="#" (click)="navigateTo(i, $event)">{{ crumb.name }}</a>
-      </ng-container>
-    </ng-container>
-
-    <!-- if more than 3 folder crumbs -->
-    <ng-container *ngIf="breadcrumb.length > 3">
-      <div *ngIf="selectedIntegrationId && integrations.length === 1" class="me-2">
-        <a href="#" (click)="navigateTo(0, $event)" class="breadcrumb-link">
-          {{ breadcrumb[0]?.name }}
-        </a>
-      </div>
-      <span class="separator"><mat-icon inline>chevron_right</mat-icon></span>
-      <span class="ellipsis">…</span>
-      <ng-container *ngFor="let crumb of breadcrumb.slice(-3); let i = index">
-        <span class="separator"><mat-icon inline>chevron_right</mat-icon></span>
-        <a href="#" (click)="navigateTo(breadcrumb.length - 3 + i, $event)">{{ crumb.name }}</a>
-      </ng-container>
-    </ng-container>
-  </nav>
-
   <h2>Bulk Import</h2>
 
+  <!-- top action buttons -->
   <div class="action-buttons mb-3">
-    <button mat-button (click)="openJobsDialog()">
-      <mat-icon>list_alt</mat-icon>View Jobs
+    <button mat-button id="view-jobs" (click)="openJobsDialog()">
+      <mat-icon aria-hidden="true">list_alt</mat-icon>
+      View Jobs
     </button>
-    <button mat-button 
-            [disabled]="form.invalid || noFilesSelected"
-            (click)="submit()">
-      <mat-icon>cloud_download</mat-icon>Start Import
+
+    <button
+      mat-button
+      id="open-picker"
+      (click)="openGooglePicker()"
+      [disabled]="!selectedIntegrationId"
+    >
+      <mat-icon>sync_alt</mat-icon>
+      Select Files
+    </button>
+
+    <button
+      mat-button
+      id="start-bulk-import"
+      [disabled]="form.invalid || newFiles.length === 0"
+      (click)="submit()"
+    >
+      <mat-icon>cloud_download</mat-icon>
+      Start Import
     </button>
   </div>
 
-  <mat-form-field appearance="outline" class="integration-select" *ngIf="!selectedIntegrationId">
+  <!-- select integration -->
+  <mat-form-field
+    appearance="outline"
+    class="integration-select"
+    *ngIf="!selectedIntegrationId"
+  >
     <mat-label>Select Drive</mat-label>
-    <mat-select [value]="selectedIntegrationId" (selectionChange)="onIntegrationSelected($event.value)">
-      <mat-option *ngFor="let integration of integrations" [value]="integration.id">
+    <mat-select
+      [value]="selectedIntegrationId"
+      (selectionChange)="onIntegrationSelected($event.value)"
+    >
+      <mat-option
+        *ngFor="let integration of integrations"
+        [value]="integration.id"
+      >
         {{ integration.accountEmail }}
       </mat-option>
     </mat-select>
   </mat-form-field>
 
-  <!-- files/folders table -->
-  <div class="owner-container" *ngIf="selectedIntegrationId">
+  <!-- files table -->
+  <div class="owner-container" *ngIf="files.length > 0">
     <table mat-table [dataSource]="files" class="mat-elevation-z8 w-100">
-
-      <!-- select checkbox -->
-      <ng-container matColumnDef="select">
-        <th class="checkbox-cell" mat-header-cell *matHeaderCellDef>
-          <mat-checkbox
-            [checked]="isAllSelected()"
-            [indeterminate]="isIndeterminate()"
-            (change)="toggleAllSelection($event)">
-          </mat-checkbox>
-        </th>
-        <td mat-cell class="checkbox-cell" *matCellDef="let file">
-          <mat-checkbox
-            [(ngModel)]="file.selected"
-            [ngModelOptions]="{standalone: true}"
-            *ngIf="!file.isFolder">
-          </mat-checkbox>
-        </td>
-      </ng-container>
-
       <!-- file name -->
       <ng-container matColumnDef="fileName">
-        <th mat-header-cell *matHeaderCellDef class="file-name-cell">Item Name</th>
-        <td mat-cell *matCellDef="let file"
-            (click)="toggleFileSelection(file)"
-            class="clickable-name file-name-cell">
-            <mat-icon *ngIf="file.isFolder" inline>folder</mat-icon> {{ file.name }}
-        </td>
+        <th mat-header-cell *matHeaderCellDef>File Name</th>
+        <td 
+          mat-cell
+          *matCellDef="let file"
+          [class.already-imported]="file.skipFile"
+        >
+          <mat-icon
+            id="already-imported"
+            *ngIf="file.skipFile"
+            matTooltip="Already imported - will be skipped"
+            aria-label="File previously imported and will be skipped"
+          >done_all</mat-icon>
+          <mat-icon
+            id="importable-file"
+            *ngIf="!file.skipFile"
+            aria-hidden="true"
+          >import_export</mat-icon>
+          {{ file.name }}</td>
       </ng-container>
 
-      <!-- genre (global dropdown in header) -->
+      <!-- genre -->
       <ng-container matColumnDef="overrideGenreId">
-        <th mat-header-cell *matHeaderCellDef class="override-dropdown bulk-th-dropdown">
+        <th mat-header-cell *matHeaderCellDef>
           <mat-select
+            id="global-genre-select"
             [(ngModel)]="globalGenreId"
             (selectionChange)="applyGlobalGenre()"
-            [ngModelOptions]="{standalone: true}">
+            [ngModelOptions]="{ standalone: true }"
+          >
             <mat-select-trigger>Genre</mat-select-trigger>
-            <mat-option *ngFor="let g of genres" [value]="g.id">{{ g.name }}</mat-option>
+            <mat-option 
+              *ngFor="let g of genres" 
+              [value]="g.id"
+            >
+              {{ g.name }}
+            </mat-option>
           </mat-select>
         </th>
-        <td mat-cell *matCellDef="let file" class="override-dropdown">
+        <td mat-cell *matCellDef="let file">
           <mat-select
             [(ngModel)]="file.overrideGenreId"
-            [ngModelOptions]="{standalone: true}">
-            <mat-option *ngFor="let g of genres" [value]="g.id">{{ g.name }}</mat-option>
+            [ngModelOptions]="{ standalone: true }"
+            *ngIf="!file.skipFile"
+          >
+            <mat-option 
+              *ngFor="let g of genres" 
+              [value]="g.id"
+            >
+              {{ g.name }}
+            </mat-option>
           </mat-select>
         </td>
       </ng-container>
 
-      <!-- age category (global dropdown in header) -->
+      <!-- age category -->
       <ng-container matColumnDef="overrideAgeCategoryId">
-        <th mat-header-cell *matHeaderCellDef class="override-dropdown bulk-th-dropdown">
+        <th mat-header-cell *matHeaderCellDef>
           <mat-select
             [(ngModel)]="globalAgeCategoryId"
             (selectionChange)="applyGlobalAge()"
-            [ngModelOptions]="{standalone: true}">
-            <mat-select-trigger>
-              <span class="hide-mobile">Age Category</span>
-              <span class="show-mobile">Age</span>
-            </mat-select-trigger>
-            <mat-option *ngFor="let a of ageCategories" [value]="a.id">{{ a.name }}</mat-option>
+            [ngModelOptions]="{ standalone: true }"
+          >
+            <mat-select-trigger>Age Category</mat-select-trigger>
+            <mat-option *ngFor="let a of ageCategories" [value]="a.id">
+              {{ a.name }}
+            </mat-option>
           </mat-select>
         </th>
-        <td mat-cell *matCellDef="let file" class="override-dropdown">
+        <td mat-cell *matCellDef="let file">
           <mat-select
             [(ngModel)]="file.overrideAgeCategoryId"
-            [ngModelOptions]="{standalone: true}">
-            <mat-option *ngFor="let a of ageCategories" [value]="a.id">{{ a.name }}</mat-option>
+            [ngModelOptions]="{ standalone: true }"
+            *ngIf="!file.skipFile"
+          >
+            <mat-option 
+              *ngFor="let a of ageCategories" 
+              [value]="a.id"
+            >
+              {{ a.name }}
+            </mat-option>
           </mat-select>
         </td>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="['select','fileName','overrideGenreId','overrideAgeCategoryId']"></tr>
-      <tr mat-row *matRowDef="let row; columns: ['select','fileName','overrideGenreId','overrideAgeCategoryId']"></tr>
+      <tr
+        mat-header-row
+        *matHeaderRowDef="['fileName', 'overrideGenreId', 'overrideAgeCategoryId']"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: ['fileName', 'overrideGenreId', 'overrideAgeCategoryId']"
+      ></tr>
 
       <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell" colspan="4">No new EPUB or PDF files found in the selected folder.</td>
+        <td class="mat-cell" colspan="3">
+          No EPUB or PDF files selected for import.
+        </td>
       </tr>
     </table>
   </div>
 
-  <mat-divider></mat-divider>
-  <button mat-button 
-          *ngIf="files.length > 5"
-          [disabled]="form.invalid || noFilesSelected"
-          (click)="submit()">
-    <mat-icon>cloud_download</mat-icon>Start Import
-  </button>
-  <br>
+  <mat-divider class="my-3"></mat-divider>
 
-  <div class="info-row">  
+  <div class="info-row">
     <mat-icon class="me-1">info</mat-icon>
     Only EPUB and PDF files are supported at this time.
   </div>

@@ -23,6 +23,7 @@ export interface BulkImportStartDto {
 
 export class BulkImportService {
   private readonly baseUrl = `${environment.fileBaseUrl}/api/bulk-import`;
+  private readonly filesUrl = `${environment.fileBaseUrl}/api/files`;
 
   constructor(private http: HttpClient) {}
 
@@ -50,5 +51,11 @@ export class BulkImportService {
     return this.http.get<any>(`${this.baseUrl}/status/${jobId}`, {
       headers: this.getAuthHeaders(),
     });
+  }
+
+  getExistingFileIds(integrationId: number): Observable<string[]> {
+      return this.http.get<string[]>(`${this.filesUrl}/ids/${integrationId}`, {
+        headers: this.getAuthHeaders(),
+      });
   }
 }
