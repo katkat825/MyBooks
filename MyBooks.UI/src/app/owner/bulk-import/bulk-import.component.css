@@ -72,8 +72,3 @@ mat-icon {
   color: var(--success) !important;
   opacity: 0.8;
 }
-
-#importable-file {
-  color: var(--accent);
-  opacity: 1;
-}
