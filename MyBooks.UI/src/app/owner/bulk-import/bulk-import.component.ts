@@ -102,12 +102,14 @@ export class BulkImportComponent implements OnInit {
       this.genres = genres;
       if (this.genres.length > 0 && !this.globalGenreId) {
         this.globalGenreId = this.genres[0].id;
+        this.originalGlobalGenreId = this.globalGenreId
       }
     });
     this.bookService.getAgeCategories().subscribe((cats: any[]) => {
       this.ageCategories = cats;
       if (!this.globalAgeCategoryId) {
         this.globalAgeCategoryId = 3;
+        this.originalGlobalAgeCategoryId = this.globalAgeCategoryId;
       }
     });
   }
