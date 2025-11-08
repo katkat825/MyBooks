@@ -21,7 +21,7 @@
     <button
       mat-button
       id="start-bulk-import"
-      [disabled]="form.invalid || newFiles.length === 0"
+      [disabled]="form.invalid || newFiles.length === 0 || files.length === 0"
       (click)="submit()"
     >
       <mat-icon>cloud_download</mat-icon>
@@ -31,6 +31,7 @@
 
   <!-- select integration -->
   <mat-form-field
+    *ngIf="integrations.length > 1"
     appearance="outline"
     class="integration-select"
   >
@@ -62,7 +63,6 @@
           <mat-icon
             id="already-imported"
             *ngIf="file.skipFile"
-            matTooltip="Already imported - will be skipped"
             aria-label="File previously imported and will be skipped"
           >done_all</mat-icon>
           <mat-icon
