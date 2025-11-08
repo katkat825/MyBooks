@@ -64,13 +64,13 @@ mat-icon {
 }
 
 .already-imported {
-  opacity: 0.7;
+  opacity: 0.8;
   font-style: italic;
 }
 
 #already-imported {
   color: var(--success) !important;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 #importable-file {
