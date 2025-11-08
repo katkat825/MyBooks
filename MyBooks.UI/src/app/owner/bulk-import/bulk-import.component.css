@@ -63,3 +63,16 @@ mat-icon {
   cursor: pointer;
 }
 
+.already-imported {
+  opacity: 0.7;
+  font-style: italic;
+}
+
+#already-imported {
+  color: var(--success) !important;
+  opacity: 0.7;
+}
+
+#importable-file {
+  color: var(--accent);
+}

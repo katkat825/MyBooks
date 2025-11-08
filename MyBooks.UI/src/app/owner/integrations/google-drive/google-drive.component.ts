@@ -10,6 +10,8 @@ import { ConfirmDialogComponent } from '../../../components/shared/confirmation.
 import { AddGoogleDriveFolderComponent } from '../add-google-drive-folder/add-google-drive-folder.component';
 import { environment } from '../../../../environments/environment';
 import { firstValueFrom } from 'rxjs';
+import { BulkImportService } from '../../../services/bulk-import.service';
+import { ToastService } from '../../../services/toast.service';
 
 declare const gapi: any;
 declare const google: any;
@@ -30,6 +32,8 @@ declare const google: any;
 export class GoogleDriveComponent implements OnInit {
   integrations: any[] = [];
   selectedFolderName: string | null = null;
+  selectedFiles: any[] = [];
+  selectedIntegrationId!: number;
 
   constructor(
     private http: HttpClient,
@@ -104,26 +108,39 @@ export class GoogleDriveComponent implements OnInit {
         gapi.load('picker', { callback: resolve, onerror: reject });
       });
 
-      const view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
-        .setSelectFolderEnabled(true)
+      // configure the picker view for PDFs and EPUBs
+      const view = new google.picker.DocsView()
+        .setMimeTypes('application/pdf,application/epub+zip')
         .setIncludeFolders(true)
-        .setParent('root');
+        .setSelectFolderEnabled(false);
 
+      // build the picker
       const picker = new google.picker.PickerBuilder()
         .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
         .addView(view)
         .setOAuthToken(accessToken)
-        .setDeveloperKey(environment.googlePickerApiKey) 
+        .setDeveloperKey(environment.googlePickerApiKey)
         .setCallback(async (data: any) => {
           if (data.action === google.picker.Action.PICKED) {
-            const picked = data.docs[0];
-            const folderId = picked.id;
-            this.selectedFolderName = picked.name;
-
-            await firstValueFrom(
-              this.integrationService.updateFolders(integration.id, [folderId])
+            // filter for actual files only
+            const pickedFiles = data.docs.filter(
+              (d: any) => d.mimeType !== 'application/vnd.google-apps.folder'
             );
-          } 
+
+            if (pickedFiles.length === 0) return;
+
+            // store picked files for the bulk import table
+            this.selectedFiles = pickedFiles.map((f: any) => ({
+              id: f.id,
+              name: f.name
+            }));
+
+            // store the integration ID for the import call
+            this.selectedIntegrationId = integration.id;
+
+            // force Angular to update the view so the import table appears
+            this.cdr.detectChanges();
+          }
         })
         .build();
 

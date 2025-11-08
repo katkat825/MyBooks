@@ -106,7 +106,6 @@ export class BookListComponent {
   }
 
   loadBooks(): void {
-    console.log('Loading page', this.page);
     if (this.isLoading || this.allBooksLoaded) 
       return;
 
