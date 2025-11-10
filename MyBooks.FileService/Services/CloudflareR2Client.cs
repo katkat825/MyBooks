@@ -100,6 +100,7 @@ public class CloudflareR2Client
             };
 
             request.Headers.ContentLength = memoryStream.Length;
+            request.UseChunkEncoding = false;
 
             var response = await _s3Client.PutObjectAsync(request);
             Console.WriteLine($"[CloudflareR2Client] Uploaded {key} (HTTP {response.HttpStatusCode})");
