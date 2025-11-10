@@ -92,6 +92,7 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddOpenApi();
 builder.Services.AddSingleton<HtmlSanitizationService>();
+builder.Services.AddSingleton<CloudflareR2Client>();
 builder.Services.AddHttpClient<GoogleDriveClient>();
 builder.Services.AddScoped<BulkImportProcessor>();
 builder.Services.AddScoped<FileValidationService>();
