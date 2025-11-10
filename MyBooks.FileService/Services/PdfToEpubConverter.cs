@@ -32,7 +32,20 @@ public class PdfToEpubConverter
             var psi = new ProcessStartInfo
             {
                 FileName = "ebook-convert",
-                Arguments = $"\"{tempPdfPath}\" \"{tempEpubPath}\"",
+                Arguments =
+                    $"\"{tempPdfPath}\" \"{tempEpubPath}\" " +
+                    "--keep-ligatures " +                   // fix 'f', 'fi', etc.
+                    "--disable-font-rescaling " +           // avoid weird size jumps
+                    "--unwrap-factor 0.5 " +                // unwrap lines properly for multi-column PDFs
+                    "--pdf-page-numbers " +                 // improves paragraph detection
+                    "--pdf-serif-family 'Georgia' " +       // nice mobile-readable font
+                    "--pdf-sans-family 'Arial' " +
+                    "--pdf-default-font-size 12 " +         // comfortable reading baseline
+                    "--minimum-line-height 120 " +          // better spacing on mobile
+                    "--remove-paragraph-spacing " +         // tighter paragraph grouping
+                    "--asciiize " +                         // remove control chars
+                    "--no-chapters-in-toc " +               // prevents cluttered TOC
+                    "--pretty-print",                       // cleaner HTML markup in EPUB
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
@@ -41,6 +54,7 @@ public class PdfToEpubConverter
 
             using var process = new Process { StartInfo = psi };
             process.Start();
+
             string stdOut = await process.StandardOutput.ReadToEndAsync();
             string stdErr = await process.StandardError.ReadToEndAsync();
             await process.WaitForExitAsync();
