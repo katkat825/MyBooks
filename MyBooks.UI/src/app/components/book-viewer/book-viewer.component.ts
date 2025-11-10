@@ -152,7 +152,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadFile(): void {
-    this.viewerService.downloadFile(this.fileId).subscribe({
+    this.viewerService.downloadFile(this.fileId, true).subscribe({
       next: (fileBlob) => {
         if (this.fileType === 'pdf') {
           this.loadPdf(fileBlob);

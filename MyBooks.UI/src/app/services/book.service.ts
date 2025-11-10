@@ -202,8 +202,8 @@ export class BookService {
     });
   }
 
-  downloadFile(fileId: number): Observable<Blob> {
-    return this.http.get(`${this.fileApiUrl}/${fileId}`, { responseType: 'blob', headers: this.getAuthHeaders() });
+  downloadFile(fileId: number, inline: boolean = false): Observable<Blob> {
+    return this.http.get(`${this.fileApiUrl}/${fileId}?inline=${inline}`, { responseType: 'blob', headers: this.getAuthHeaders() });
   }
 
   deleteFile(fileId: number) {
