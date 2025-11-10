@@ -130,20 +130,12 @@ public class FileController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> DownloadFile(int id, [FromQuery] bool inline = false)
     {
-        Console.WriteLine($"[FileController] DownloadFile called for ID={id}, inline={inline}");
-
         var file = await _context.Files
             .Include(f => f.GoogleIntegration)
             .FirstOrDefaultAsync(f => f.Id == id && f.IsActive);
 
         if (file == null)
             return NotFound("File not found.");
-        
-        Console.WriteLine($"[FileController] File located: {file.FileName}");
-        Console.WriteLine($"  StorageSource: {file.StorageSource}");
-        Console.WriteLine($"  IsConverted: {file.IsConverted}");
-        Console.WriteLine($"  ConvertedFilePath: {file.ConvertedFilePath}");
-        Console.WriteLine($"  FilePath: {file.FilePath}");
 
         Stream stream;
         string contentType = file.ContentType;
@@ -151,25 +143,20 @@ public class FileController : ControllerBase
 
         try
         {
-            if (!string.IsNullOrEmpty(file.ConvertedFilePath) || file.StorageSource == StorageSource.MyBookCatalog)
+            if ((!string.IsNullOrEmpty(file.ConvertedFilePath) && inline) || file.StorageSource == StorageSource.MyBookCatalog)
             {
                 if (inline && file.IsConverted == true)
                 {
                     path = file.ConvertedFilePath;
                     contentType = "application/epub+zip";
                 }
-
-                Console.WriteLine($"[FileController] Fetching from CloudflareR2 with key: {path}");
                 stream = await _r2Client.GetFileStreamAsync(path);
             }
             else
             {
-                Console.WriteLine($"[FileController] Fetching from Google Drive (fileId={file.FilePath})");
                 stream = await _googleDriveClient.GetFileStreamAsync(
                     file.FilePath, file.GoogleIntegration.RefreshToken);
             }
-
-            Console.WriteLine($"[FileController] Stream retrieved successfully.");
 
             if (inline)
                 return File(stream, contentType);
