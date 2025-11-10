@@ -9,7 +9,6 @@ using UglyToad.PdfPig;
 using UglyToad.PdfPig.Content;
 using UglyToad.PdfPig.Core;
 using System.IO.Compression;
-using System.Management;
 using System.Xml.Linq;
 
 namespace MyBooks.FileService.Services;
@@ -218,6 +217,9 @@ public class BulkImportProcessor
                     IsActive = true,
                     GoogleIntegrationId = job.GoogleIntegrationId,
                     FolderId = null,
+                    StorageSource = StorageSource.GoogleDrive,
+                    IsConverted = false,    
+                    ConvertedFilePath = null,
                     CreatedBy = scanDto.UserId,
                     CreatedDate = DateTime.UtcNow
                 };
@@ -235,6 +237,35 @@ public class BulkImportProcessor
 
                 var linkResponse = await _httpClient.PatchAsJsonAsync($"{catalogUrl}/api/book-import/file", linkDto);
                 linkResponse.EnsureSuccessStatusCode();
+
+                // convert to epub 
+                if (file.MimeType == "application/pdf")
+                {
+                    try
+                    {
+                        using var pdfStream = await _googleDriveClient.GetFileStreamAsync(item.FileId, accessToken);
+
+                        var converter = new PdfToEpubConverter(new CloudflareR2Client(_config));
+                        var convertedPath = await converter.ConvertAndUploadAsync(pdfStream, job.TenantId.ToString(), Path.GetFileNameWithoutExtension(item.FileName));
+
+                        if (!string.IsNullOrEmpty(convertedPath))
+                        {
+                            fileMeta.ConvertedFilePath = convertedPath;
+                            fileMeta.IsConverted = true;
+                            Console.WriteLine($"[BulkImportProcessor] Conversion success → EPUB stored at {convertedPath}");
+
+                            _context.Files.Update(fileMeta);
+                            await _context.SaveChangesAsSystemAsync(scanDto.UserId, scanDto.IpAddress);
+                        }
+                        else
+                            Console.WriteLine($"[BulkImportProcessor] Conversion failed for {item.FileName}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[BulkImportProcessor] Error during conversion/upload for {item.FileName}: {ex.Message}");
+                    }
+                }
+
                 item.Status = "Success";
             }
             catch (Exception ex)

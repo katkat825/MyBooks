@@ -217,10 +217,12 @@ public class FileDbContext : DbContext
         {
             foreach (var prop in entry.Properties)
             {
-                // only allow active and last modified fields to be updated
+                // restrict updating to only fields allowed to be updated
                 if (prop.Metadata.Name != nameof(FileMetadata.IsActive) &&
                     prop.Metadata.Name != nameof(FileMetadata.LastModifiedBy) &&
-                    prop.Metadata.Name != nameof(FileMetadata.LastModifiedDate))
+                    prop.Metadata.Name != nameof(FileMetadata.LastModifiedDate) &&
+                    prop.Metadata.Name != nameof(FileMetadata.ConvertedFilePath) &&
+                    prop.Metadata.Name != nameof(FileMetadata.IsConverted))
                 {
                     prop.IsModified = false;
                 }
