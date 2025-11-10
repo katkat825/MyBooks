@@ -229,14 +229,6 @@ public class BulkImportProcessor
 
                 item.CreatedFileId = fileMeta.Id;
 
-                var linkDto = new BookFileLinkDto
-                {
-                    BookId = fileMeta.BookId,
-                    FileId = fileMeta.Id
-                };
-
-                var linkResponse = await _httpClient.PatchAsJsonAsync($"{catalogUrl}/api/book-import/file", linkDto);
-                linkResponse.EnsureSuccessStatusCode();
 
                 // convert to epub 
                 if (file.MimeType == "application/pdf")
@@ -265,6 +257,14 @@ public class BulkImportProcessor
                         Console.WriteLine($"[BulkImportProcessor] Error during conversion/upload for {item.FileName}: {ex.Message}");
                     }
                 }
+                var linkDto = new BookFileLinkDto
+                {
+                    BookId = fileMeta.BookId,
+                    FileId = fileMeta.Id
+                };
+
+                var linkResponse = await _httpClient.PatchAsJsonAsync($"{catalogUrl}/api/book-import/file", linkDto);
+                linkResponse.EnsureSuccessStatusCode();
 
                 item.Status = "Success";
             }
