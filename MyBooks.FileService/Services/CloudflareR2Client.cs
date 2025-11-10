@@ -86,13 +86,20 @@ public class CloudflareR2Client
     {
         try
         {
+            using var memoryStream = new MemoryStream();
+            await fileStream.CopyToAsync(memoryStream);
+            memoryStream.Position = 0;
+
             var request = new PutObjectRequest
             {
                 BucketName = _bucketName,
                 Key = key,
-                InputStream = fileStream,
-                ContentType = contentType
+                InputStream = memoryStream,
+                ContentType = contentType,
+                AutoCloseStream = false
             };
+
+            request.Headers.ContentLength = memoryStream.Length;
 
             var response = await _s3Client.PutObjectAsync(request);
             Console.WriteLine($"[CloudflareR2Client] Uploaded {key} (HTTP {response.HttpStatusCode})");
