@@ -71,7 +71,7 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.fileId = Number(this.route.snapshot.paramMap.get('fileId'));
-
+    
     this.viewerService.getFileMetadata(this.fileId).subscribe({
       next: (metadata) => {
         if (!metadata) {
@@ -94,6 +94,8 @@ export class BookViewerComponent implements OnInit, AfterViewInit, OnDestroy {
             // safe to continue with fileType logic
             if (metadata.contentType === 'application/pdf') {
               this.fileType = 'pdf';
+              if (metadata.isConverted === true)
+                this.fileType = 'epub';
             } else if (metadata.contentType === 'application/epub+zip') {
               this.fileType = 'epub';
             } else {
