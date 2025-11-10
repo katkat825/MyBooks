@@ -182,6 +182,17 @@ public class FileController : ControllerBase
         if (file == null)
             return NotFound("File not found.");
 
+        // delete converted file from mybookcatalog storage if exists
+        if (!string.IsNullOrEmpty(file.ConvertedFilePath))
+        {
+            var deleted = await _r2Client.DeleteFileAsync(file.ConvertedFilePath);
+            Console.WriteLine($"[FileController] Delete R2 file result: {deleted}");
+        }
+        else
+        {
+            Console.WriteLine("no file.ConvertedFilePath value - R2 deletion skipped");
+        }
+
         file.IsActive = false;
         _context.Files.Update(file);
         await _context.SaveChangesAsync();
