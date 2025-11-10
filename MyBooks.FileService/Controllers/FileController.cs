@@ -19,12 +19,18 @@ public class FileController : ControllerBase
     private readonly FileDbContext _context;
     private readonly HtmlSanitizationService _sanitizationService;
     private readonly GoogleDriveClient _googleDriveClient;
+    private readonly CloudflareR2Client _r2Client;
 
-    public FileController(FileDbContext context, HtmlSanitizationService sanitizationService, GoogleDriveClient googleDriveClient)
+    public FileController(
+        FileDbContext context,
+        HtmlSanitizationService sanitizationService,
+        GoogleDriveClient googleDriveClient,
+        CloudflareR2Client r2Client)
     {
         _context = context;
         _sanitizationService = sanitizationService;
         _googleDriveClient = googleDriveClient;
+        _r2Client = r2Client;
     }
 
     // upload File - only owner or superadmin
@@ -131,11 +137,27 @@ public class FileController : ControllerBase
         if (file == null)
             return NotFound("File not found.");
 
-        var stream = await _googleDriveClient.GetFileStreamAsync(
-            file.FilePath, file.GoogleIntegration.RefreshToken);
+        Stream stream;
+        string contentType = file.ContentType;
+        string path = file.FilePath;
 
+        if(!string.IsNullOrEmpty(file.ConvertedFilePath) || file.StorageSource == StorageSource.MyBookCatalog)
+        {
+            if (inline && file.IsConverted == true)
+            {
+                path = file.ConvertedFilePath;
+                contentType = "application/epub+zip";
+            }
+            stream = await _r2Client.GetFileStreamAsync(path);
+        }
+        else
+        {
+            stream = await _googleDriveClient.GetFileStreamAsync(
+                file.FilePath, file.GoogleIntegration.RefreshToken);
+        }
+            
         if (inline)
-            return File(stream, file.ContentType);
+            return File(stream, contentType);
         return File(stream, file.ContentType, file.FileName);
     }
 
