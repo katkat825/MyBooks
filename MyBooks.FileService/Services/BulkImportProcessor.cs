@@ -229,7 +229,7 @@ public class BulkImportProcessor
 
                 item.CreatedFileId = fileMeta.Id;
 
-                
+                /* looks like crap
                 // convert to epub 
                 if (file.MimeType == "application/pdf")
                 {
@@ -257,7 +257,7 @@ public class BulkImportProcessor
                         Console.WriteLine($"[BulkImportProcessor] Error during conversion/upload for {item.FileName}: {ex.Message}");
                     }
                 }
-                
+                */
 
                 var linkDto = new BookFileLinkDto
                 {
