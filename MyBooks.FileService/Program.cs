@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,9 +52,6 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddHttpContextAccessor();
-
-// Add services to the container.
-
 builder.Services.AddControllers();
 
 var jwtKey = builder.Configuration["Jwt:Key"];
@@ -78,6 +76,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
         };
     });
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("ActiveUser", policy =>
@@ -108,7 +107,6 @@ builder.Services.AddHttpClient<SystemTokenHelper>()
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<FileMetaValidator>();
-builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddDbContext<FileDbContext>(options =>
     options.UseSqlServer(
@@ -117,6 +115,13 @@ builder.Services.AddDbContext<FileDbContext>(options =>
 ));
 
 var app = builder.Build();
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+    KnownNetworks = { },
+    KnownProxies = { }
+});
 
 // ensure database is created at startup (for docker/local dev)
 using (var scope = app.Services.CreateScope())
@@ -152,18 +157,11 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors("AllowLocalHost");
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
-
-app.UseHttpsRedirection();
-
 app.MapControllers();
 
 app.Run();
