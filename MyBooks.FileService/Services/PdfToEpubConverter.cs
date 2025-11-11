@@ -37,7 +37,6 @@ public class PdfToEpubConverter
                         "--keep-ligatures " +                  // fix missing f/fi/fl
                         "--disable-font-rescaling " +          // consistent text sizes
                         "--unwrap-factor 0.5 " +               // better paragraph flow
-                        "--line-height 120% " +                // improve spacing on mobile
                         "--smarten-punctuation " +             // cleaner quotes and dashes
                         "--asciiize " +                        // remove stray control chars
                         "--pretty-print " +                    // clean internal HTML
