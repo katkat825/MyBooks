@@ -126,6 +126,8 @@ public class FileController : ControllerBase
         _context.Files.Add(fileMetadata);
         await _context.SaveChangesAsync();
 
+        /* failed
+        //covert pdf to epub 
         if(extension.Equals(".pdf", StringComparison.OrdinalIgnoreCase))
         {
             try
@@ -155,6 +157,7 @@ public class FileController : ControllerBase
                 Console.WriteLine($"[FileController] Error during conversion/upload: {ex.Message}");
             }
         }
+        */
 
         return Ok(new { FileId = fileMetadata.Id, Message = "File uploaded successfully" });
     }
