@@ -37,6 +37,14 @@ public class FileDbContext : DbContext
 
     public string GetCurrentUserIpAddress()
     {
+        var context = _contextAccessor.HttpContext;
+        if (context == null)
+            return "unknown";
+            
+        var forwardedFor = context.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+        if (!string.IsNullOrEmpty(forwardedFor))
+            return forwardedFor.Split(',')[0].Trim();
+        
         return _contextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
     }
 
