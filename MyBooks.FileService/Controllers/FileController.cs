@@ -126,39 +126,6 @@ public class FileController : ControllerBase
         _context.Files.Add(fileMetadata);
         await _context.SaveChangesAsync();
 
-        /* failed
-        //covert pdf to epub 
-        if(extension.Equals(".pdf", StringComparison.OrdinalIgnoreCase))
-        {
-            try
-            {
-                using var pdfStream = file.OpenReadStream();
-                var converter = new PdfToEpubConverter(_r2Client);
-                var convertedPath = await converter.ConvertAndUploadAsync(pdfStream, tenantId.ToString(), fileNameWithoutExt);
-
-                if (!string.IsNullOrEmpty(convertedPath))
-                {
-                    fileMetadata.ConvertedFilePath = convertedPath;
-                    fileMetadata.IsConverted = true;
-                    Console.WriteLine($"[FileController] Conversion success → EPUB stored at {convertedPath}");
-                }
-                else
-                {
-                    fileMetadata.ConvertedFilePath = null;
-                    fileMetadata.IsConverted = false;
-                    Console.WriteLine($"[FileController] Conversion failed for {fileName}");
-                }
-
-                _context.Files.Update(fileMetadata);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[FileController] Error during conversion/upload: {ex.Message}");
-            }
-        }
-        */
-
         return Ok(new { FileId = fileMetadata.Id, Message = "File uploaded successfully" });
     }
 

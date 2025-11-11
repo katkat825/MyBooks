@@ -229,36 +229,6 @@ public class BulkImportProcessor
 
                 item.CreatedFileId = fileMeta.Id;
 
-                /* looks like crap
-                // convert to epub 
-                if (file.MimeType == "application/pdf")
-                {
-                    try
-                    {
-                        using var pdfStream = await _googleDriveClient.GetFileStreamAsync(item.FileId, accessToken);
-
-                        var converter = new PdfToEpubConverter(new CloudflareR2Client(_config));
-                        var convertedPath = await converter.ConvertAndUploadAsync(pdfStream, job.TenantId.ToString(), Path.GetFileNameWithoutExtension(item.FileName));
-
-                        if (!string.IsNullOrEmpty(convertedPath))
-                        {
-                            fileMeta.ConvertedFilePath = convertedPath;
-                            fileMeta.IsConverted = true;
-                            Console.WriteLine($"[BulkImportProcessor] Conversion success → EPUB stored at {convertedPath}");
-
-                            _context.Files.Update(fileMeta);
-                            await _context.SaveChangesAsSystemAsync(scanDto.UserId, scanDto.IpAddress);
-                        }
-                        else
-                            Console.WriteLine($"[BulkImportProcessor] Conversion failed for {item.FileName}");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"[BulkImportProcessor] Error during conversion/upload for {item.FileName}: {ex.Message}");
-                    }
-                }
-                */
-
                 var linkDto = new BookFileLinkDto
                 {
                     BookId = fileMeta.BookId,
