@@ -116,13 +116,6 @@ builder.Services.AddDbContext<FileDbContext>(options =>
 
 var app = builder.Build();
 
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-    KnownNetworks = { },
-    KnownProxies = { }
-});
-
 // ensure database is created at startup (for docker/local dev)
 using (var scope = app.Services.CreateScope())
 {
