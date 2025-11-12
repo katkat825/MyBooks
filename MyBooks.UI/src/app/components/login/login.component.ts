@@ -48,7 +48,7 @@ export class LoginComponent {
     this.http.post<any>(`${environment.authBaseUrl}/login`, payload).subscribe({
       next: (response) => {
         localStorage.setItem('token', response.token);
-        this.router.navigate(['/']); 
+        this.router.navigate(['/books']); 
       },
       error: () => {
         this.errorMessage = 'Invalid email or password.';

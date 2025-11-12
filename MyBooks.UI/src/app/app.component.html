@@ -15,10 +15,26 @@
     <a href="/" id="home" class="app-title">My Book Catalog</a>
     <span class="spacer"></span>
 
-    <ng-container *ngIf="isAuthenticated()" class="menu-class">
-      <button mat-button id="account-menu" [matMenuTriggerFor]="accountMenu" aria-label="Main Menu">
+    <ng-container class="menu-class">
+      <!-- Theme menu button: visible for unauthenticated users -->
+      <button 
+        mat-icon-button 
+        id="theme-menu-btn" 
+        *ngIf="!isAuthenticated()" 
+        [matMenuTriggerFor]="themeMenu" 
+        aria-label="Theme Settings">
+        <mat-icon>brightness_6</mat-icon>
+      </button>
+
+      <!-- Main 3-dot menu: visible for authenticated users -->
+      <button 
+        mat-button 
+        id="account-menu" 
+        *ngIf="isAuthenticated()" 
+        [matMenuTriggerFor]="accountMenu" 
+        aria-label="Main Menu">
         <mat-icon>more_vert</mat-icon>
-      </button>    
+      </button> 
 
       <div class="menu-class">
         <mat-menu #accountMenu="matMenu" xPosition="before" yPosition="below">

@@ -64,9 +64,21 @@ export class AppComponent {
   }
 
   ngOnInit() { 
-    const publicRoutes = ['/login', '/signup', '/aup'];
+     const publicRoutes = ['/login', '/signup', '/aup', '/terms', '/privacy', '/report-abuse'];
 
     if (publicRoutes.some(r => this.router.url.startsWith(r))) return;
+
+    const token = localStorage.getItem('token');
+
+    if (token && this.router.url === '/') {
+      this.router.navigate(['/books']);
+      return;
+    }
+
+    if (!token && !publicRoutes.includes(this.router.url) && this.router.url !== '/') {
+      this.router.navigate(['/login']);
+      return;
+    }
 
     const savedTheme = localStorage.getItem('theme');
     this.setTheme(savedTheme || 'light');

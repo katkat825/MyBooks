@@ -107,7 +107,7 @@ mat-divider {
 
 .read-icon, .restricted-icon {
   font-size: 22px;
-  color: var(--title-color);
+  color: var(--book-title);
   pointer-events: none;  /* allow clicks to pass through to wrapper */
 }
 
@@ -124,7 +124,7 @@ mat-divider {
   margin-top: 30px;
   font-size: 1.1rem;
   font-weight: bold;
-  color: var(--title-color);
+  color: var(--book-title);
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
@@ -137,11 +137,15 @@ mat-divider {
 .book-author {
   font-size: 0.9rem;
   font-weight: normal;
-  color: var(--subtitle-color);
+  color: var(--book-subtitle);
   margin-bottom: 10px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.book-series {
+  color: var(--book-subtitle);
 }
 
 .book-spine {

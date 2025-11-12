@@ -32,19 +32,21 @@ import { ContentReviewComponent } from './support-user/components/content-review
 import { GlobalReviewerGuard } from './utilities/global-reviewer.guard';
 import { TermsOfServiceComponent } from './components/policies/terms-of-service.component';
 import { PrivacyPolicyComponent } from './components/policies/privacy-policy.component';
+import { HomeComponent } from './marketing/home/home.component';
 
 export const routes: Routes = [
-  { path: '', component: BookListComponent, canActivate: [AupGuard, AuthGuard] },
+  { path: '', component: HomeComponent},
+  { path: 'aup', component: AcceptableUsePolicyComponent},
+  { path: 'terms', component: TermsOfServiceComponent },
+  { path: 'privacy', component: PrivacyPolicyComponent },
+  { path: 'report-abuse', component: ReportAbuseComponent},
+  { path: 'books', component: BookListComponent, canActivate: [AupGuard, AuthGuard] },
   { path: 'login', component: LoginComponent},
   { path: 'create', component: BookFormComponent, canActivate: [AupGuard, AuthGuard, OwnerGuard] },
   { path: 'create/:id', component: BookFormComponent, canActivate: [AupGuard, AuthGuard, OwnerGuard] },
   { path: 'book/:id', component: BookDetailsComponent, canActivate: [AupGuard, AuthGuard] },
   { path: 'profile', component: MyProfileComponent, canActivate:[AuthGuard] },
   { path: 'book-viewer/:fileId', component: BookViewerComponent, canActivate: [AupGuard, AuthGuard], providers: [{ provide: 'ViewerService', useClass: BookService }] },
-  { path: 'aup', component: AcceptableUsePolicyComponent},
-  { path: 'terms', component: TermsOfServiceComponent },
-  { path: 'privacy', component: PrivacyPolicyComponent },
-  { path: 'report-abuse', component: ReportAbuseComponent},
   { path: 'account', canActivate: [OwnerGuard, AupGuard, AuthGuard], 
     children: [
       { path: '', redirectTo: 'users', pathMatch: 'full' },
