@@ -17,10 +17,18 @@ namespace MyBooks.EmailService.Services
         public async Task SendEmailAsync(string toEmail, string subject, string body)
         {
             var message = new MimeMessage();
+
+            var footer = @"
+
+---
+This message was sent automatically by My Book Catalog. 
+Replies to this address are not monitored. 
+For assistance, contact support@mybookcatalog.com.";
+
             message.From.Add(new MailboxAddress(_settings.SenderName, _settings.SenderEmail));
             message.To.Add(MailboxAddress.Parse(toEmail));
             message.Subject = subject;
-            message.Body = new TextPart("plain") { Text = body };
+            message.Body = new TextPart("plain") { Text = body + footer };
 
             using var client = new SmtpClient();
             await client.ConnectAsync(
