@@ -345,7 +345,7 @@ export class BookFormComponent implements OnInit {
   }
 
   skipFile() {
-    this.router.navigate(['/']);
+    this.router.navigate(['/books']);
   }
 
   uploadFileWithBookId() {
@@ -394,7 +394,7 @@ export class BookFormComponent implements OnInit {
           this.bookService.updateBookFileId(this.bookId, this.fileId).subscribe({
             next: () => {
               this.globalLoading.hide();
-              this.router.navigate(['/']);
+              this.router.navigate(['/books']);
             },
             error: (error) => {
               console.error("Failed to update book with FileId", error);
