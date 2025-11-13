@@ -5,13 +5,18 @@ import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
+export interface UserUsageStatus {
+  activeCount: number;
+  maxCount: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
   private jwtHelper = new JwtHelperService();
   private usersApiUrl = `${environment.authServiceUrl}/users`;
-  private authBaseUrl = environment.authServiceUrl;
+  private authServiceUrl = environment.authServiceUrl;
   private accountApiUrl = `${environment.authServiceUrl}/account`;
   private userSubject = new BehaviorSubject<any>(null);
   user$ = this.userSubject.asObservable();
@@ -71,7 +76,7 @@ export class UserService {
   }
 
   getGlobalReviewers(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.authBaseUrl}/support/globalreviewer`, { headers: this.getAuthHeaders() });
+    return this.http.get<any[]>(`${this.authServiceUrl}/support/globalreviewer`, { headers: this.getAuthHeaders() });
   }
 
   getProfile(): Observable<any | null> {
@@ -110,6 +115,17 @@ export class UserService {
       catchError(error => {
         console.error("Error fetching users:", error);
         return throwError(() => error);
+      })
+    );
+  }
+
+  getUserUsageCounts(): Observable<UserUsageStatus> {
+    return this.http.get<UserUsageStatus>(
+      `${this.usersApiUrl}/active/status`, { headers: this.getAuthHeaders() }
+    ).pipe(
+      catchError(err => {
+        console.error("Error fetching user usage counts: ", err);
+        return of({ activeCount: 0, maxCount: 0 });
       })
     );
   }
