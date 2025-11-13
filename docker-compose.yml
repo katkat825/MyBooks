@@ -26,6 +26,11 @@ services:
       - .env
     ports:
       - "5001:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   catalog:
     depends_on:
@@ -38,10 +43,17 @@ services:
       - .env
     ports:
       - "5002:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   files:
     depends_on:
       db:
+        condition: service_healthy
+      clamav:
         condition: service_healthy
     build:
       context: .
@@ -50,6 +62,25 @@ services:
       - .env
     ports:
       - "5003:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+  clamav:
+    image: clamav/clamav:latest
+    container_name: mybooks-clamav
+    restart: always
+    mem_limit: 512m
+    cpus: 1.0
+    ports:
+      - "3310:3310"
+    healthcheck:
+      test: ["CMD", "clamdscan", "--version"]
+      interval: 60s
+      timeout: 10s
+      retries: 5
 
   tenants:
     depends_on:
@@ -62,6 +93,11 @@ services:
       - .env
     ports:
       - "5004:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   emails:
     build:
@@ -71,6 +107,11 @@ services:
       - .env
     ports:
       - "5005:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   support:
     depends_on:
@@ -83,6 +124,11 @@ services:
       - .env
     ports:
       - "5006:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   web:
     build:
@@ -99,6 +145,11 @@ services:
     ports:
       - "8081:80"
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   web-qa:
     build:
@@ -116,6 +167,11 @@ services:
     ports:
       - "8082:80"
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   sql_data:

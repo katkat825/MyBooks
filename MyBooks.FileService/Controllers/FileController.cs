@@ -20,17 +20,20 @@ public class FileController : ControllerBase
     private readonly HtmlSanitizationService _sanitizationService;
     private readonly GoogleDriveClient _googleDriveClient;
     private readonly CloudflareR2Client _r2Client;
+    private readonly ClamAvScanService _clamAv;
 
     public FileController(
         FileDbContext context,
         HtmlSanitizationService sanitizationService,
         GoogleDriveClient googleDriveClient,
-        CloudflareR2Client r2Client)
+        CloudflareR2Client r2Client,
+        ClamAvScanService clamAv)
     {
         _context = context;
         _sanitizationService = sanitizationService;
         _googleDriveClient = googleDriveClient;
         _r2Client = r2Client;
+        _clamAv = clamAv;
     }
 
     // upload File - only owner or superadmin
@@ -47,16 +50,28 @@ public class FileController : ControllerBase
             .FirstOrDefaultAsync(g => g.TenantId == tenantId && g.IsActive);
         if (integration == null)
             return BadRequest("Google Drive not configured for this tenant.");
-
-        await using var corruptionCheckStream = file.OpenReadStream();
         
         if (string.IsNullOrWhiteSpace(folderId))
             folderId = await _googleDriveClient.GetOrCreateFolderAsync("MyBookCatalog", "root", integration.RefreshToken);
 
+        // basic validation check (size, extension, MIME, signature)
         var fileValidator = new FileValidator();
         var fileValidationResult = fileValidator.Validate(file);
         if (!fileValidationResult.IsValid)
             return BadRequest(fileValidationResult.Errors);
+
+        // structural validation (pdf or epub integrity)
+        var structureValidator = new FileValidationService();
+        await using var structureStream = file.OpenReadStream();
+        var structureResult = await structureValidator.ValidateAsync(structureStream, file.FileName);
+        if(!structureResult.IsValid)
+            return BadRequest(structureResult.ErrorMessage);
+        
+        // malware scan (ClamAV)
+        await using var scanStream = file.OpenReadStream();
+        var isClean = await _clamAv.IsFileCleanAsync(scanStream);
+        if (!isClean)
+            return BadRequest("Malware detected in uploaded file.");
             
         var extension = Path.GetExtension(file.FileName);
         var sanitizedBookTitle = Regex.Replace(_sanitizationService.Sanitize(bookTitle).Trim(), @"\s+", "_");
