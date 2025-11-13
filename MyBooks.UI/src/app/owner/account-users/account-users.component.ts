@@ -48,6 +48,8 @@ export class AccountUsersComponent {
   //roles: string[] = ['Admin', 'Editor', 'User'];
   showInactiveUsers = false;
   currentUserId: number | null = null;
+  userUsageStatus!: { activeCount: number; maxCount: number };
+  canAddUser: boolean = false;
 
   constructor(
     private userService: UserService,
@@ -78,7 +80,17 @@ export class AccountUsersComponent {
       error: (err) => {
         console.error("Error fetching profile: ", err);
       }
-    })
+    });
+
+    this.userService.getUserUsageCounts().subscribe({
+      next: (status)  => {
+        this.userUsageStatus = status;
+        this.canAddUser = status.activeCount < status.maxCount;
+      },
+      error: (err) => {
+        console.error("Error loading user usage status: ", err)
+      }
+    });
   }
 
   toggleAddUserForm() {

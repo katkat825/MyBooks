@@ -41,7 +41,7 @@ public class AuthController : Controller
 
     private async Task<(int ActiveCount, int MaxCount)> GetUserUsageStatusAsync()
     {
-        var activeCount = await _context.Users.CountAsync(u => u.IsActive);
+        var activeCount = await _context.Users.CountAsync(u => u.IsActive && AppRoles.CustomerRolesArray.Contains(u.Role));
         var tenantId = _context.GetCurrentTenantId();
         var maxCount = await _tenantClient.GetMaxUserCountAsync(tenantId);
 

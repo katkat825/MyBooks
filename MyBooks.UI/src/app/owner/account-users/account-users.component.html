@@ -9,54 +9,63 @@
     </button>
 
     <!-- Button to Show Add User Form -->
-    <button id="toggle-add-user" mat-button (click)="toggleAddUserForm()">
+    <button id="toggle-add-user" mat-button (click)="toggleAddUserForm()" [disabled]="!canAddUser">
       <mat-icon aria-hidden="true">{{ showAddUserForm ? 'close' : 'add' }}</mat-icon>
       {{ showAddUserForm ? 'Cancel' : 'Add User' }}
     </button>
   </div>
 
   <!-- Add User Form inside a Card -->
-    <mat-card *ngIf="showAddUserForm" class="add-user-card">
-      <mat-card-title class="add-user-card-title">Add New User</mat-card-title>
-      <form [formGroup]="userForm" (ngSubmit)="addUser()" class="user-form">
+  <mat-card *ngIf="showAddUserForm" class="add-user-card">
+    <mat-card-title class="add-user-card-title">Add New User</mat-card-title>
+    <form [formGroup]="userForm" (ngSubmit)="addUser()" class="user-form">
 
-        <mat-form-field>
-          <mat-label>First Name</mat-label>
-          <input id="first-name" matInput formControlName="firstName" required aria-required="true"/>
-        </mat-form-field>
+      <mat-form-field>
+        <mat-label>First Name</mat-label>
+        <input id="first-name" matInput formControlName="firstName" required aria-required="true"/>
+      </mat-form-field>
 
-        <mat-form-field>
-          <mat-label>Last Name</mat-label>
-          <input id="last-name" matInput formControlName="lastName" required aria-required="true"/>
-        </mat-form-field>
+      <mat-form-field>
+        <mat-label>Last Name</mat-label>
+        <input id="last-name" matInput formControlName="lastName" required aria-required="true"/>
+      </mat-form-field>
 
-        <mat-form-field>
-          <mat-label>Email</mat-label>
-          <input id="email" matInput formControlName="email" type="email" required aria-required="true"/>
-          <mat-error role="alert" *ngIf="userForm.get('email')?.hasError('email')" class="validation-error">
-            Invalid email format
-          </mat-error>
-          <mat-error role="alert" *ngIf="userForm.get('email')?.hasError('emailTaken')" class="validation-error">
-            This email address is already in use
-          </mat-error>
-        </mat-form-field>
+      <mat-form-field>
+        <mat-label>Email</mat-label>
+        <input id="email" matInput formControlName="email" type="email" required aria-required="true"/>
+        <mat-error role="alert" *ngIf="userForm.get('email')?.hasError('email')" class="validation-error">
+          Invalid email format
+        </mat-error>
+        <mat-error role="alert" *ngIf="userForm.get('email')?.hasError('emailTaken')" class="validation-error">
+          This email address is already in use
+        </mat-error>
+      </mat-form-field>
 
-        <mat-form-field>
-          <mat-label>Age Category</mat-label>
-          <mat-select formControlName="ageCategoryId" required>
-            <mat-option *ngFor="let category of ageCategories" [value]="category.id">
-              {{ category.name }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+      <mat-form-field>
+        <mat-label>Age Category</mat-label>
+        <mat-select formControlName="ageCategoryId" required>
+          <mat-option *ngFor="let category of ageCategories" [value]="category.id">
+            {{ category.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
 
-        <div class="add-user-submit">
-          <button id="save-new-user" mat-button type="submit" [disabled]="userForm.invalid">
-            Save
-          </button>
-        </div>
-      </form>
-    </mat-card>
+      <div class="add-user-submit">
+        <button id="save-new-user" mat-button type="submit" [disabled]="userForm.invalid">
+          Save
+        </button>
+      </div>
+    </form>
+  </mat-card>
+
+  <div class="user-limits">
+    <span>
+      Active Users: {{ userUsageStatus.activeCount }} / {{ userUsageStatus.maxCount }} 
+    </span>
+    <span *ngIf="!canAddUser">
+      (Maximum users reached)
+    </span>
+  </div>
 
   <!-- List all users -->
   <table mat-table [dataSource]="users" class="mat-elevation-z8">
@@ -124,7 +133,7 @@
 
           <button mat-button 
                   (click)="toggleUserStatus(user)" 
-                  [disabled]="user.id === currentUserId || user.role === 'Owner' || user.role === 'SuperAdmin'">
+                  [disabled]="user.id === currentUserId || user.role === 'Owner' || user.role === 'SuperAdmin' || (!user.isActive && !canAddUser)">
             {{ user.isActive ? 'Deactivate' : 'Reactivate' }}
           </button>
           <button mat-button class="warn-btn" 
