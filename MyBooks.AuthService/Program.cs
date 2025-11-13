@@ -14,6 +14,7 @@ using MyBooks.Common.Configuration;
 using System.Text;
 using System.Security.Claims;
 using MyBooks.AuthService.Services;
+using MyBooks.Common.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,7 +51,19 @@ builder.Services.AddDbContext<AuthDbContext>(options =>
         sql => sql.MigrationsHistoryTable("__EFMigrationsHistory", "auth")
 ));
 
-//add security services from Common
+builder.Services.AddHttpClient<TenantClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ServiceUrls:TenantService"] ?? "http://tenants:8080");
+});
+
+builder.Services.AddHttpClient<SystemTokenHelper>()
+    .AddTypedClient((http, sp) =>
+    {
+        var config = sp.GetRequiredService<IConfiguration>();
+        var baseUrl = config["ServiceUrls:AuthService"];
+        return new SystemTokenHelper(http, baseUrl!);
+    });
+
 builder.Services.AddSingleton<HtmlSanitizationService>();
 builder.Services.AddScoped<InvitationService>();
 builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();

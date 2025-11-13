@@ -12,6 +12,8 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Linq;
 using MyBooks.AuthService.Services;
+using MyBooks.Common.Helpers;
+using System.Net.Http.Headers;
 
 namespace MyBooks.AuthService.Controllers;
 
@@ -23,12 +25,27 @@ public class AuthController : Controller
     private readonly AuthDbContext _context;
     private readonly HtmlSanitizationService _sanitizationService;
     private readonly InvitationService _invitationService;
+    private readonly TenantClient _tenantClient;
 
-    public AuthController(AuthDbContext context, IConfiguration config, HtmlSanitizationService sanitizationService, InvitationService invitationService)
+    public AuthController(
+        AuthDbContext context,
+        HtmlSanitizationService sanitizationService, 
+        InvitationService invitationService,
+        TenantClient tenantClient)
     {
         _context = context;
         _sanitizationService = sanitizationService;
         _invitationService = invitationService;
+        _tenantClient = tenantClient;
+    }
+
+    private async Task<(int ActiveCount, int MaxCount)> GetUserUsageStatusAsync()
+    {
+        var activeCount = await _context.Users.CountAsync(u => u.IsActive);
+        var tenantId = _context.GetCurrentTenantId();
+        var maxCount = await _tenantClient.GetMaxUserCountAsync(tenantId);
+
+        return (activeCount, maxCount);
     }
 
     [HttpGet]
@@ -38,6 +55,18 @@ public class AuthController : Controller
             .Where(u => u.Role != AppRoles.Support)
             .ToListAsync();
         return Ok(users);
+    }
+
+    [HttpGet("active/status")]
+    public async Task<IActionResult> GetActiveUserStatus()
+    {
+        var (activeCount, maxCount) = await GetUserUsageStatusAsync();
+
+        return Ok(new
+        {
+            activeCount,
+            maxCount
+        });
     }
 
     [HttpGet("all-users")]
@@ -75,7 +104,13 @@ public class AuthController : Controller
             var property = typeof(User).GetProperties()
                 .FirstOrDefault(p => string.Equals(p.Name, key, StringComparison.OrdinalIgnoreCase));
 
-            if (property != null && property.Name != "PasswordHash" && property.Name !="IsVisible" && property.Name != "CreatedBy" && property.Name != "CreatedDate" && property.Name != "LastModifiedBy" && property.Name != "LastModifiedDate")
+            if (property != null && 
+                property.Name != "PasswordHash" && 
+                property.Name !="IsVisible" && 
+                property.Name != "CreatedBy" && 
+                property.Name != "CreatedDate" && 
+                property.Name != "LastModifiedBy" && 
+                property.Name != "LastModifiedDate")
             {
                 try
                 {
@@ -203,9 +238,14 @@ public class AuthController : Controller
         }
     }
 
+    // create a new user
     [HttpPost("register")]
     public async Task<IActionResult> Register(UserDto request)
     {
+        var (activeCount, maxCount) = await GetUserUsageStatusAsync();
+        if (activeCount >= maxCount)
+            return Conflict("max_user_limit_reached");
+
         //sanitize inputs
         request.FirstName = _sanitizationService.Sanitize(request.FirstName);
         request.LastName = _sanitizationService.Sanitize(request.LastName);
@@ -285,6 +325,10 @@ public class AuthController : Controller
     [HttpPatch("reactivate/{id}")]
     public async Task<IActionResult> ReactivateUser(int id)
     {
+        var (activeCount, maxCount) = await GetUserUsageStatusAsync();
+        if (activeCount >= maxCount)
+            return Conflict("max_user_limit_reached");
+
         var user = await _context.Users.FindAsync(id);
         if (user == null || !AppRoles.AllRoles.Contains(user.Role))
             return NotFound("User not found.");
