@@ -149,5 +149,6 @@ app.UseEndpoints(endpoints =>
 { endpoints.MapControllers(); });
 
 app.MapControllers();
+app.MapGet("/health", () => Results.Ok(new { status = "Healthy" }));
 
 app.Run();
