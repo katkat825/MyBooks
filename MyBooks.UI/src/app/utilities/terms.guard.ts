@@ -7,7 +7,7 @@ import { map, catchError, filter, take } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
-export class AupGuard implements CanActivate {
+export class TermsGuard implements CanActivate {
   constructor(private userService: UserService, private router: Router) { }
 
   canActivate(): Observable<boolean | UrlTree> {
@@ -18,8 +18,8 @@ export class AupGuard implements CanActivate {
       filter((u): u is any => u !== null),
       take(1),
       map(user => {
-        const accepted = user.acceptedAup ?? user.AcceptedAup  ?? false;
-        return accepted ? true : this.router.createUrlTree(['/aup']);
+        const accepted = user.acceptedAup ?? user.AcceptedAup ?? false;
+        return accepted ? true : this.router.createUrlTree(['/terms']);
       })
     );
   }
