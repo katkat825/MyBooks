@@ -211,7 +211,7 @@ export class UserService {
     );
   }
 
-  acceptAup(): Observable<any> {
+  acceptTerms(): Observable<any> {
     const payload = {
       AcceptedAup: true
     };

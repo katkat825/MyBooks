@@ -5,8 +5,7 @@ import { BookDetailsComponent } from './components/book-details/book-details.com
 import { BookViewerComponent } from './components/book-viewer/book-viewer.component';
 import { LoginComponent } from './components/login/login.component';
 import { MyProfileComponent } from './components/my-profile/my-profile.component';
-import { AcceptableUsePolicyComponent } from './components/acceptable-use-policy/acceptable-use-policy.component';
-import { AupGuard } from './utilities/aup.guard';
+import { TermsGuard } from './utilities/terms.guard';
 import { OwnerGuard } from './utilities/owner.guard';
 import { ReportAbuseComponent } from './components/report-abuse/report-abuse.component';
 import { SignupComponent } from './support-user/components/signup/signup.component';
@@ -36,18 +35,17 @@ import { HomeComponent } from './marketing/home/home.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent},
-  { path: 'aup', component: AcceptableUsePolicyComponent},
   { path: 'terms', component: TermsOfServiceComponent },
   { path: 'privacy', component: PrivacyPolicyComponent },
   { path: 'report-abuse', component: ReportAbuseComponent},
-  { path: 'books', component: BookListComponent, canActivate: [AupGuard, AuthGuard] },
+  { path: 'books', component: BookListComponent, canActivate: [TermsGuard, AuthGuard] },
   { path: 'login', component: LoginComponent},
-  { path: 'create', component: BookFormComponent, canActivate: [AupGuard, AuthGuard, OwnerGuard] },
-  { path: 'create/:id', component: BookFormComponent, canActivate: [AupGuard, AuthGuard, OwnerGuard] },
-  { path: 'book/:id', component: BookDetailsComponent, canActivate: [AupGuard, AuthGuard] },
+  { path: 'create', component: BookFormComponent, canActivate: [TermsGuard, AuthGuard, OwnerGuard] },
+  { path: 'create/:id', component: BookFormComponent, canActivate: [TermsGuard, AuthGuard, OwnerGuard] },
+  { path: 'book/:id', component: BookDetailsComponent, canActivate: [TermsGuard, AuthGuard] },
   { path: 'profile', component: MyProfileComponent, canActivate:[AuthGuard] },
-  { path: 'book-viewer/:fileId', component: BookViewerComponent, canActivate: [AupGuard, AuthGuard], providers: [{ provide: 'ViewerService', useClass: BookService }] },
-  { path: 'account', canActivate: [OwnerGuard, AupGuard, AuthGuard], 
+  { path: 'book-viewer/:fileId', component: BookViewerComponent, canActivate: [TermsGuard, AuthGuard], providers: [{ provide: 'ViewerService', useClass: BookService }] },
+  { path: 'account', canActivate: [OwnerGuard, TermsGuard, AuthGuard], 
     children: [
       { path: '', redirectTo: 'users', pathMatch: 'full' },
       { path: 'users', component: AccountUsersComponent },
