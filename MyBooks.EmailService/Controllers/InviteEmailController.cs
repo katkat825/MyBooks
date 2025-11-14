@@ -6,7 +6,7 @@ using MyBooks.Common.Dtos;
 namespace MyBooks.EmailService.Services;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("invite")]
 [Authorize(Roles = AppRoles.AuthService)]
 public class InviteEmailController : ControllerBase
 {
@@ -19,8 +19,8 @@ public class InviteEmailController : ControllerBase
         _baseUrl = config["BaseUrl"];
     }
 
-    [HttpPost("invite")]
-    public async Task<IActionResult> Invite([FromBody] InviteDto dto)
+    [HttpPost("user")]
+    public async Task<IActionResult> InviteUser([FromBody] InviteDto dto)
     {
         try
         {
@@ -47,7 +47,7 @@ We’re glad to have you join!
         }
     }
 
-    [HttpPost("password-reset")]
+    [HttpPost("password")]
     public async Task<IActionResult> PasswordReset([FromBody] PwdResetDto dto)
     {
         try
@@ -73,7 +73,7 @@ If you did not submit this request, please reach out to support@mybookcatalog.co
         }
     }
 
-    [HttpPost("account-created")]
+    [HttpPost("owner")]
     public async Task<IActionResult> AccountCreated([FromBody] AccountCreatedDto dto)
     {
         try

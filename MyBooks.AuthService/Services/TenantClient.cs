@@ -33,7 +33,7 @@ public class TenantClient
     {
         await AddSystemAuthHeaderAsync();
 
-        var response = await _http.GetAsync($"/internaltenant/{tenantId}/max-user-count");
+        var response = await _http.GetAsync($"/system/{tenantId}/max-users");
         response.EnsureSuccessStatusCode();
 
         var count = await response.Content.ReadFromJsonAsync<int>();

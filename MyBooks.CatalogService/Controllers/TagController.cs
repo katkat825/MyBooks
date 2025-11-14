@@ -3,98 +3,101 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBooks.CatalogService.Data;
 using MyBooks.CatalogService.Models;
+using MyBooks.Common.BaseClasses;
 using MyBooks.Common.Services;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MyBooks.CatalogService.Controllers
+namespace MyBooks.CatalogService.Controllers;
+
+[Route("books/tag")]
+[ApiController]
+[Authorize]
+public class TagController : ControllerBase
 {
-    [Route("api/books/tag")]
-    [ApiController]
-    [Authorize]
-    public class TagController : ControllerBase
+    private readonly CatalogDbContext _context;
+    private readonly HtmlSanitizationService _htmlSanitizationService;
+
+    public TagController(CatalogDbContext context, HtmlSanitizationService htmlSanitizationService)
     {
-        private readonly CatalogDbContext _context;
-        private readonly HtmlSanitizationService _htmlSanitizationService;
+        _context = context;
+        _htmlSanitizationService = htmlSanitizationService;
+    }
 
-        public TagController(CatalogDbContext context, HtmlSanitizationService htmlSanitizationService)
-        {
-            _context = context;
-            _htmlSanitizationService = htmlSanitizationService;
-        }
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Tag>>> GetTags()
+    {
+        return await _context.Tags.ToListAsync();
+    }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Tag>>> GetTags()
-        {
-            return await _context.Tags.ToListAsync();
-        }
+    [HttpPost]
+    [Authorize(Roles = AppRoles.OwnerPlus)]
+    public async Task<ActionResult<Tag>> AddTag(Tag tag)
+    {
+        if (string.IsNullOrWhiteSpace(tag.Name))
+            return BadRequest("Tag name is required.");
 
-        [HttpPost]
-        public async Task<ActionResult<Tag>> AddTag(Tag tag)
-        {
-            if (string.IsNullOrWhiteSpace(tag.Name))
-                return BadRequest("Tag name is required.");
+        tag.Name = _htmlSanitizationService.Sanitize(tag.Name).Trim().ToLower();
 
-            tag.Name = _htmlSanitizationService.Sanitize(tag.Name).Trim().ToLower();
+        // Disallow duplicates
+        var existingTag = await _context.Tags
+            .Where(t => t.Name == tag.Name)
+            .FirstOrDefaultAsync();
 
-            // Disallow duplicates
-            var existingTag = await _context.Tags
-                .Where(t => t.Name == tag.Name)
-                .FirstOrDefaultAsync();
+        if (existingTag != null)
+            return Conflict($"A tag with the name '{tag.Name}' already exists.");
 
-            if (existingTag != null)
-                return Conflict($"A tag with the name '{tag.Name}' already exists.");
+        _context.Tags.Add(tag);
+        await _context.SaveChangesAsync();
 
-            _context.Tags.Add(tag);
-            await _context.SaveChangesAsync();
+        return CreatedAtAction(nameof(GetTags), new { id = tag.Id }, tag);
+    }
 
-            return CreatedAtAction(nameof(GetTags), new { id = tag.Id }, tag);
-        }
+    [HttpPut("{id}")]
+    [Authorize(Roles = AppRoles.OwnerPlus)]
+    public async Task<IActionResult> UpdateTag(int id, Tag tag)
+    {
+        if (id != tag.Id)
+            return BadRequest("Tag ID mismatch.");
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTag(int id, Tag tag)
-        {
-            if (id != tag.Id)
-                return BadRequest("Tag ID mismatch.");
+        var existingTag = await _context.Tags.FindAsync(id);
+        if (existingTag == null)
+            return NotFound("Tag not found.");
 
-            var existingTag = await _context.Tags.FindAsync(id);
-            if (existingTag == null)
-                return NotFound("Tag not found.");
+        tag.Name = _htmlSanitizationService.Sanitize(tag.Name).Trim().ToLower();
 
-            tag.Name = _htmlSanitizationService.Sanitize(tag.Name).Trim().ToLower();
+        // Check for duplicate name
+        var duplicateTag = await _context.Tags
+            .Where(t => t.Name == tag.Name && t.Id != id)
+            .FirstOrDefaultAsync();
 
-            // Check for duplicate name
-            var duplicateTag = await _context.Tags
-                .Where(t => t.Name == tag.Name && t.Id != id)
-                .FirstOrDefaultAsync();
+        if (duplicateTag != null)
+            return Conflict($"A tag with the name '{tag.Name}' already exists.");
 
-            if (duplicateTag != null)
-                return Conflict($"A tag with the name '{tag.Name}' already exists.");
+        existingTag.Name = tag.Name;
+        await _context.SaveChangesAsync();
 
-            existingTag.Name = tag.Name;
-            await _context.SaveChangesAsync();
+        return NoContent();
+    }
 
-            return NoContent();
-        }
+    [HttpDelete("{id}")]
+    [Authorize(Roles = AppRoles.OwnerPlus)]
+    public async Task<IActionResult> DeleteTag(int id)
+    {
+        var tag = await _context.Tags
+            .Include(t => t.Books) // Check if tag is used
+            .FirstOrDefaultAsync(t => t.Id == id);
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTag(int id)
-        {
-            var tag = await _context.Tags
-                .Include(t => t.Books) // Check if tag is used
-                .FirstOrDefaultAsync(t => t.Id == id);
+        if (tag == null)
+            return NotFound("Tag not found.");
 
-            if (tag == null)
-                return NotFound("Tag not found.");
+        if (tag.Books != null && tag.Books.Any())
+            return Conflict("Cannot delete this tag because it is in use.");
 
-            if (tag.Books != null && tag.Books.Any())
-                return Conflict("Cannot delete this tag because it is in use.");
+        _context.Tags.Remove(tag);
+        await _context.SaveChangesAsync();
 
-            _context.Tags.Remove(tag);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
+        return NoContent();
     }
 }

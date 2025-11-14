@@ -15,7 +15,7 @@ public class SystemTokenHelper
 
     public async Task<string> GetSystemTokenAsync(string serviceName, string serviceSecret)
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, $"{_baseUrl}/api/system/token");
+        var request = new HttpRequestMessage(HttpMethod.Post, $"{_baseUrl}/system/token");
         request.Headers.Add("X-Service-Name", serviceName);
         request.Headers.Add("X-Service-Secret", serviceSecret);
 

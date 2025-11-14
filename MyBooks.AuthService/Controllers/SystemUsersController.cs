@@ -13,15 +13,15 @@ using MyBooks.AuthService.Services;
 namespace MyBooks.AuthService.Controllers;
 
 [ApiController]
-[Route("api/internal/users")]
+[Route("system/users")]
 [Authorize(Roles = AppRoles.TenantService)]
-public class InternalUsersController : ControllerBase
+public class SystemUsersController : ControllerBase
 {
     private readonly AuthDbContext _context;
     private readonly HtmlSanitizationService _sanitizationService;
     private readonly InvitationService _invitationService;
 
-    public InternalUsersController(AuthDbContext context, HtmlSanitizationService sanitizationService, InvitationService invitationService)
+    public SystemUsersController(AuthDbContext context, HtmlSanitizationService sanitizationService, InvitationService invitationService)
     {
         _context = context;
         _sanitizationService = sanitizationService;
@@ -30,7 +30,7 @@ public class InternalUsersController : ControllerBase
 
     // new user, no tenant yet
     [HttpPost("create")]
-    public async Task<IActionResult> Create(OwnerUserDto request)
+    public async Task<IActionResult> CreateUser(OwnerUserDto request)
     {
         if (await _context.Users.AnyAsync(u => u.Email == request.Email))
             return Conflict(new { message = "Email already in use." });
@@ -63,7 +63,7 @@ public class InternalUsersController : ControllerBase
         });
     }
 
-    [HttpPost("assign-tenant")]
+    [HttpPost("tenant")]
     public async Task<IActionResult> AssignTenant(AssignTenantDto request)
     {
         var user = await _context.Users

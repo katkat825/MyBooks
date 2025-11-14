@@ -31,7 +31,7 @@ public class CatalogClient
         await AddSystemAuthHeaderAsync();
         
         var response = await _http.PostAsync(
-            $"api/books/genres/seed/{tenantId}",
+            $"/genres/{tenantId}/seed",
             null);
 
         response.EnsureSuccessStatusCode();

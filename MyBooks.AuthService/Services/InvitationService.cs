@@ -86,7 +86,7 @@ public class InvitationService
             InvitationToken = invite.InvitationToken
         };
 
-        var emailUrl = $"{_config["ServiceUrls:EmailService"]}/api/inviteemail/invite";
+        var emailUrl = $"{_config["ServiceUrls:EmailService"]}/invite/user";
         var response = await httpClient.PostAsJsonAsync(emailUrl, dto);
 
         if (!response.IsSuccessStatusCode)
@@ -148,7 +148,7 @@ public class InvitationService
             FirstName = user.FirstName
         };
 
-        var emailUrl = $"{_config["ServiceUrls:EmailService"]}/api/inviteemail/account-created";
+        var emailUrl = $"{_config["ServiceUrls:EmailService"]}/invite/owner";
         var response = await httpClient.PostAsJsonAsync(emailUrl, dto);
 
         if (!response.IsSuccessStatusCode)
@@ -209,7 +209,7 @@ public class InvitationService
             InvitationToken = invite.InvitationToken
         };
 
-        var emailUrl = $"{_config["ServiceUrls:EmailService"]}/api/inviteemail/password-reset";
+        var emailUrl = $"{_config["ServiceUrls:EmailService"]}/invite/password";
         var response = await httpClient.PostAsJsonAsync(emailUrl, dto);
 
         if (!response.IsSuccessStatusCode)

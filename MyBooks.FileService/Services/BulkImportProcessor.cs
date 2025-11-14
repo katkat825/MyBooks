@@ -192,7 +192,7 @@ public class BulkImportProcessor
                 };
 
                 var catalogUrl = _config["ServiceUrls:CatalogService"];
-                var bookResponse = await _httpClient.PostAsJsonAsync($"{catalogUrl}/api/book-import", requestDto);
+                var bookResponse = await _httpClient.PostAsJsonAsync($"{catalogUrl}system/books", requestDto);
                 bookResponse.EnsureSuccessStatusCode();
 
                 var responseDto = await bookResponse.Content.ReadFromJsonAsync<BookImportResponseDto>();
@@ -235,7 +235,7 @@ public class BulkImportProcessor
                     FileId = fileMeta.Id
                 };
 
-                var linkResponse = await _httpClient.PatchAsJsonAsync($"{catalogUrl}/api/book-import/file", linkDto);
+                var linkResponse = await _httpClient.PatchAsJsonAsync($"{catalogUrl}/system/books", linkDto);
                 linkResponse.EnsureSuccessStatusCode();
 
                 item.Status = "Success";

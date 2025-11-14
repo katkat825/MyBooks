@@ -8,7 +8,8 @@ using MyBooks.AuthService.Services;
 namespace MyBooks.AuthService.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("invitations")]
+[AllowAnonymous]
 public class InvitationController : ControllerBase
 {
     private readonly AuthDbContext _context;
@@ -20,7 +21,6 @@ public class InvitationController : ControllerBase
         _invitationService = invitationService;
     }
 
-    [AllowAnonymous]
     [HttpPost("validate")]    
     public async Task<IActionResult> Validate([FromBody] string token)
     {
@@ -62,7 +62,6 @@ public class InvitationController : ControllerBase
         return Ok(new { invite.Email, user.FirstName, user.LastName });
     }
 
-    [AllowAnonymous]
     [HttpPost("complete")]
     public async Task<IActionResult> Complete([FromBody] CompleteInvitationDto dto)
     {
@@ -98,7 +97,6 @@ public class InvitationController : ControllerBase
         return Ok(new { message = "Invitation completed. Password set." });
     }
 
-    [AllowAnonymous]
     [HttpPost("resend")]
     public async Task<IActionResult> Resend([FromBody] string email)
     {

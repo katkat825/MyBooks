@@ -34,7 +34,7 @@ public class AuthClient
     {
         await AddSystemAuthHeaderAsync();
 
-        var response = await _http.PostAsJsonAsync("/api/internal/users/create", request);
+        var response = await _http.PostAsJsonAsync("/system/users/create", request);
         response.EnsureSuccessStatusCode();
 
         var data = await response.Content.ReadFromJsonAsync<CreatedUserResponseDto>();
@@ -45,7 +45,7 @@ public class AuthClient
     {
         await AddSystemAuthHeaderAsync();
         
-        var response = await _http.PostAsJsonAsync("/api/internal/users/assign-tenant", request);
+        var response = await _http.PostAsJsonAsync("/system/users/tenant", request);
         if (!response.IsSuccessStatusCode)
         {
             var error = await response.Content.ReadAsStringAsync();

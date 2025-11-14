@@ -10,7 +10,7 @@ using System.Security.Claims;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using MyBooks.Common.Dtos;
 
-[Route("api/files/progress")]
+[Route("progress")]
 [ApiController]
 [Authorize]
 public class ReadingProgressController : ControllerBase
@@ -52,7 +52,6 @@ public class ReadingProgressController : ControllerBase
         }
     }
 
-    // GET api/files/progress/{fileId}
     [HttpGet("{fileId}")]
     public async Task<IActionResult> GetReadingProgress(int fileId)
     {
@@ -69,7 +68,6 @@ public class ReadingProgressController : ControllerBase
         return Ok(progress);
     }
 
-    // POST api/files/progress/{fileId}
     [HttpPost("{fileId}")]
     public async Task<IActionResult> UpdateReadingProgress(int fileId, [FromBody] ReadingProgressUpdateDto dto)
     {

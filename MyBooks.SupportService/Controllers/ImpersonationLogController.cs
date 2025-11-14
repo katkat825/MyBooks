@@ -9,7 +9,7 @@ using System.Security.Claims;
 namespace MyBooks.SupportService.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("logs/impersonations")]
 [Authorize(Roles = AppRoles.AuthService)]
 public class ImpersonationLogController : ControllerBase
 {
@@ -40,7 +40,7 @@ public class ImpersonationLogController : ControllerBase
     }
 
     // stop impersonation
-    [HttpPost("stop/{id}")]
+    [HttpPost("{id}/stop")]
     public async Task<IActionResult> Stop(int id)
     {
         var log = await _context.ImpersonationLogs.FindAsync(id);

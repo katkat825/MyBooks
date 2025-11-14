@@ -7,7 +7,7 @@ using System.Text;
 namespace MyBooks.AuthService.Controllers;
 
 [ApiController]
-[Route("api/system")]
+[Route("system/token")]
 public class SystemTokenController : ControllerBase
 {
     private readonly IConfiguration _config;
@@ -17,7 +17,7 @@ public class SystemTokenController : ControllerBase
         _config = config;
     }
 
-    [HttpPost("token")]
+    [HttpPost]
     public IActionResult GetSystemToken(
         [FromHeader(Name = "X-Service-Name")] string serviceName,
         [FromHeader(Name = "X-Service-Secret")] string serviceSecret)

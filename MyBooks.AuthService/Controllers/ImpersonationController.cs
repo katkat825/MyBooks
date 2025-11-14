@@ -16,7 +16,7 @@ using System.Text.Json;
 namespace MyBooks.AuthService.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("support/impersonate")]
 [Authorize(Roles = AppRoles.SuperAdmin)]
 public class ImpersonationController : ControllerBase
 {
@@ -53,7 +53,7 @@ public class ImpersonationController : ControllerBase
         throw new InvalidOperationException("Authenticated user id not found or invalid");
     }
 
-    [HttpPost("tenant/{tenantId}")]
+    [HttpPost("tenants/{tenantId}")]
     public async Task<IActionResult> ImpersonateByTenant(int tenantId)
     {
         var email = $"support+{tenantId}@mybookcatalog.com";
@@ -66,12 +66,12 @@ public class ImpersonationController : ControllerBase
             return NotFound($"Support user for tenant {tenantId} not found");
 
         // forward to the existing impersonation method
-        return await Impersonate(targetUser.Id);
+        return await ImpersonateByUser(targetUser.Id);
     }
 
 
     [HttpPost("{userId}")]
-    public async Task<IActionResult> Impersonate(int userId)
+    public async Task<IActionResult> ImpersonateByUser(int userId)
     {
         // get current superadmin (the impersonator)
         var impersonatorId = this.GetCurrentUserIdAsInt();
@@ -103,7 +103,7 @@ public class ImpersonationController : ControllerBase
                 ImpersonatingUserId = impersonatorId
             };
 
-            var response = await httpClient.PostAsJsonAsync($"{supportUrl}/api/ImpersonationLog/start", dto);
+            var response = await httpClient.PostAsJsonAsync($"{supportUrl}/logs/impersonations/start", dto);
 
             if (response.IsSuccessStatusCode)
             {
@@ -150,14 +150,14 @@ public class ImpersonationController : ControllerBase
     }
 
     [HttpPost("stop/{logId}")]
-    public async Task<IActionResult> Stop(int logId)
+    public async Task<IActionResult> StopImpersonation(int logId)
     {
         var httpClient = _httpClientFactory.CreateClient();
         httpClient.DefaultRequestHeaders.Authorization =
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await GetAuthSystemTokenAsync());
 
         var supportUrl = _config["ServiceUrls:SupportService"];
-        var response = await httpClient.PostAsJsonAsync($"{supportUrl}/api/ImpersonationLog/stop/{logId}", new { });
+        var response = await httpClient.PostAsJsonAsync($"{supportUrl}/logs/impersonations/{logId}/stop", new { });
 
         if (!response.IsSuccessStatusCode)
         {
