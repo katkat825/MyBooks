@@ -1,33 +1,28 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MyBooks.AuthService.Data;
-using MyBooks.AuthService.Dtos;
 using MyBooks.AuthService.Models;
 using MyBooks.Common.Services;
 using MyBooks.Common.BaseClasses;
 using MyBooks.Common.Dtos;
-using System.Security.Claims;
 using System.Text.Json;
 using System.Linq;
 using MyBooks.AuthService.Services;
-using MyBooks.Common.Helpers;
-using System.Net.Http.Headers;
 
 namespace MyBooks.AuthService.Controllers;
 
-[Route("api/users")]
+[Route("users")]
 [ApiController]
 [Authorize(Roles = AppRoles.OwnerPlus)]
-public class AuthController : Controller
+public class UsersController : Controller
 {
     private readonly AuthDbContext _context;
     private readonly HtmlSanitizationService _sanitizationService;
     private readonly InvitationService _invitationService;
     private readonly TenantClient _tenantClient;
 
-    public AuthController(
+    public UsersController(
         AuthDbContext context,
         HtmlSanitizationService sanitizationService, 
         InvitationService invitationService,
@@ -57,7 +52,7 @@ public class AuthController : Controller
         return Ok(users);
     }
 
-    [HttpGet("active/status")]
+    [HttpGet("usage")]
     public async Task<IActionResult> GetActiveUserStatus()
     {
         var (activeCount, maxCount) = await GetUserUsageStatusAsync();
@@ -67,18 +62,6 @@ public class AuthController : Controller
             activeCount,
             maxCount
         });
-    }
-
-    [HttpGet("all-users")]
-    [Authorize(Roles = AppRoles.SuperAdmin)]
-    public async Task<IActionResult> GetAllUsers()
-    {
-        var users = await _context.Users
-            .IgnoreQueryFilters()
-            .Where(u => u.Role != AppRoles.Support)
-            .ToArrayAsync();
-
-        return Ok(users);
     }
 
     [HttpGet("{id}")]
@@ -157,70 +140,6 @@ public class AuthController : Controller
 
         return Ok(new { message = "User updated successfully", updatedUser });
     }
-
-    // superadmin patch
-    [HttpPatch("superadmin/{id}")]
-    [Authorize(Roles = AppRoles.SuperAdmin)]
-    public async Task<IActionResult> SuperadminPatchUser(int id, [FromBody] Dictionary<string, object> updates)
-    {
-        var user = await _context.Users
-            .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(u => u.Id == id);
-
-        if (user == null || !AppRoles.AllRoles.Contains(user.Role))
-        {
-            return NotFound("User not found.");
-        }
-
-        foreach (var key in updates.Keys)
-        {
-            var property = typeof(User).GetProperties()
-                .FirstOrDefault(p => string.Equals(p.Name, key, StringComparison.OrdinalIgnoreCase));
-
-            if (property != null && property.Name != "PasswordHash" && property.Name != "CreatedBy" && property.Name != "CreatedDate" && property.Name != "LastModifiedBy" && property.Name != "LastModifiedDate")
-            {
-                try
-                {
-                    Type targetType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
-                    object newValue = updates[key] is JsonElement jsonElement
-                        ? JsonElementToObject(jsonElement, targetType)
-                        : Convert.ChangeType(updates[key], targetType);
-
-                    if (string.Equals(property.Name, nameof(user.Role), StringComparison.OrdinalIgnoreCase))
-                    {
-                        var newRole = newValue?.ToString();
-
-                        if (!AppRoles.AllRoles.Contains(newRole))
-                            return BadRequest("Invalid role");
-                    }
-
-                    property.SetValue(user, newValue);
-
-                    _context.Entry(user).Property(property.Name).IsModified = true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"❌ Failed to update {property.Name}: {ex.Message}");
-                }
-            }
-            else
-            {
-                Console.WriteLine($"⚠ Skipping invalid field: {key}");
-            }
-        }
-
-        _context.Entry(user).State = EntityState.Modified;
-
-        await _context.SaveChangesAsSuperadminAsync();
-
-        var updatedUser = await _context.Users
-            .IgnoreQueryFilters()
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == id);
-
-        return Ok(new { message = "User updated successfully", updatedUser });
-    }
-
     private static object JsonElementToObject(JsonElement element, Type targetType)
     {
         try
@@ -239,8 +158,8 @@ public class AuthController : Controller
     }
 
     // create a new user
-    [HttpPost("register")]
-    public async Task<IActionResult> Register(UserDto request)
+    [HttpPost]
+    public async Task<IActionResult> CreateUser(UserDto request)
     {
         var (activeCount, maxCount) = await GetUserUsageStatusAsync();
         if (activeCount >= maxCount)
@@ -305,7 +224,7 @@ public class AuthController : Controller
         return Ok();
     }
 
-    [HttpPatch("deactivate/{id}")]
+    [HttpPatch("{id}/deactivate")]
     public async Task<IActionResult> DeactivateUser(int id)
     {
         var user = await _context.Users.FindAsync(id);
@@ -322,7 +241,7 @@ public class AuthController : Controller
         return Ok(new { message = "User deactivated successfully" });
     }
 
-    [HttpPatch("reactivate/{id}")]
+    [HttpPatch("{id}/reactivate")]
     public async Task<IActionResult> ReactivateUser(int id)
     {
         var (activeCount, maxCount) = await GetUserUsageStatusAsync();
@@ -343,36 +262,8 @@ public class AuthController : Controller
         return Ok(new { message = "User reactivated successfully" });
     }
 
-    [HttpPatch("superadmin-reactivate/{id}")]
-    [Authorize(Roles = AppRoles.SuperAdmin)]
-    public async Task<IActionResult> SuperReactivateUser(int id)
-    {
-        var user = await _context.Users
-            .IgnoreQueryFilters()  // bypass IsVisible & tenantId filter
-            .FirstOrDefaultAsync(u => u.Id == id);
-
-        if (user == null)
-            return NotFound("User not found.");
-
-        if (!AppRoles.AllRoles.Contains(user.Role))
-            return BadRequest("Invalid role.");
-
-        user.IsActive = true;
-        user.IsVisible = true; // also restore visibility
-        _context.Entry(user).Property(u => u.IsActive).IsModified = true;
-        _context.Entry(user).Property(u => u.IsVisible).IsModified = true;
-
-        await _context.SaveChangesAsSuperadminAsync();
-        var updatedUser = await _context.Users
-            .IgnoreQueryFilters()
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == id);
-
-        return Ok(new { message = "User reactivated successfully by SuperAdmin", updatedUser });
-    }
-
-    [HttpPatch("delete/{id}")]
-    public async Task<IActionResult> DeleteUser(int id)
+    [HttpPatch("{id}/visibility")]
+    public async Task<IActionResult> SoftDeleteUser(int id)
     {
         var user = await _context.Users.FindAsync(id);
         if (user == null)

@@ -10,7 +10,7 @@ using MyBooks.FileService.Services;
 namespace MyBooks.FileService.Controllers;
 
 [ApiController]
-[Route("api/bulk-import")]
+[Route("import")]
 [Authorize(Roles = AppRoles.OwnerPlus)]
 public class BulkImportController : ControllerBase
 {
@@ -93,12 +93,12 @@ public class BulkImportController : ControllerBase
         return Ok();
     }
 
-    [HttpGet("status/{jobId}")]
-    public async Task<IActionResult> GetJobStatus(int jobId)
+    [HttpGet("{id}/status}")]
+    public async Task<IActionResult> GetJobStatus(int id)
     {
         var job = await _context.BulkImportJobs
             .Include(j => j.Items)
-            .FirstOrDefaultAsync(j => j.Id == jobId);
+            .FirstOrDefaultAsync(j => j.Id == id);
 
         if (job == null)
             return NotFound();

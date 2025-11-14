@@ -12,7 +12,7 @@ using System.Security.Claims;
 namespace MyBooks.FileService.Controllers;
 
 [ApiController]
-[Route("api/support/files")]
+[Route("support")]
 [Authorize(Roles = AppRoles.AllBooksAccess)]
 public class SupportFileController : ControllerBase
 {
@@ -82,9 +82,8 @@ public class SupportFileController : ControllerBase
         return Ok(file);
     }
 
-    // GET api/files/progress/{fileId}
-    [HttpGet("progress/{fileId}")]
-    public async Task<IActionResult> GetReadingProgress(int fileId)
+    [HttpGet("progress/{id}")]
+    public async Task<IActionResult> GetReadingProgress(int id)
     {
         var userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrWhiteSpace(userClaim) || !int.TryParse(userClaim, out int userId))
@@ -92,7 +91,7 @@ public class SupportFileController : ControllerBase
 
         var progress = await _context.ReadingProgresses
             .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(r => r.FileId == fileId && r.UserId == userId);
+            .FirstOrDefaultAsync(r => r.FileId == id && r.UserId == userId);
 
         if (progress == null)
             return Ok(new { ProgressPercent = 0 });
@@ -100,9 +99,8 @@ public class SupportFileController : ControllerBase
         return Ok(progress);
     }
 
-    // POST api/files/progress/{fileId}
-    [HttpPost("progress/{fileId}")]
-    public async Task<IActionResult> UpdateReadingProgress(int fileId, [FromBody] ReadingProgressUpdateDto dto)
+    [HttpPost("progress/{id}")]
+    public async Task<IActionResult> UpdateReadingProgress(int id, [FromBody] ReadingProgressUpdateDto dto)
     {
         var userClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrWhiteSpace(userClaim) || !int.TryParse(userClaim, out int userId))
@@ -113,13 +111,13 @@ public class SupportFileController : ControllerBase
 
         var progress = await _context.ReadingProgresses
             .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(r => r.FileId == fileId && r.UserId == userId);
+            .FirstOrDefaultAsync(r => r.FileId == id && r.UserId == userId);
 
         if (progress == null)
         {
             progress = new ReadingProgress
             {
-                FileId = fileId,
+                FileId = id,
                 UserId = userId,
                 ProgressPercent = dto.ProgressPercent,
                 LastUpdated = DateTime.UtcNow
@@ -138,13 +136,13 @@ public class SupportFileController : ControllerBase
     }
 
     // flip active flag by duplicating the file row, and sync Book.FileId in CatalogService
-    [HttpPatch("{fileId}/activate")]
+    [HttpPatch("{id}/activate")]
     [Authorize(Roles = AppRoles.SuperAdmin)]
-    public async Task<IActionResult> ActivateFile(int fileId)
+    public async Task<IActionResult> ActivateFile(int id)
     {
         var file = await _context.Files
             .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(f => f.Id == fileId);
+            .FirstOrDefaultAsync(f => f.Id == id);
 
         if (file == null)
             return NotFound("File not found.");
@@ -194,7 +192,7 @@ public class SupportFileController : ControllerBase
         var dto = new BookFileLinkDto { BookId = newFile.BookId, FileId = newFile.Id };
 
         var response = await _httpClient.PatchAsJsonAsync(
-            $"{catalogUrl}/api/support/book/{newFile.BookId}/file", dto);
+            $"{catalogUrl}/system/books/{newFile.BookId}/file", dto);
 
         if (!response.IsSuccessStatusCode)
         {

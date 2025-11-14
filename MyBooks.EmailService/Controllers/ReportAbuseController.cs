@@ -7,7 +7,8 @@ using System.Security.Claims;
 namespace MyBooks.EmailService.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("abuse")]
+    [AllowAnonymous]
     public class ReportAbuseController : ControllerBase
     {
         private readonly EmailSenderService _emailSender;
@@ -17,8 +18,7 @@ namespace MyBooks.EmailService.Controllers
             _emailSender = emailSender;
         }
 
-        [HttpPost]
-        [Authorize] 
+        [HttpPost("report")]
         public async Task<IActionResult> Report([FromBody] ReportAbuseDto dto)
         {
             var authHeader = HttpContext.Request.Headers["Authorization"].ToString();

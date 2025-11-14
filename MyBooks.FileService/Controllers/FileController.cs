@@ -11,7 +11,8 @@ using System.Text.RegularExpressions;
 using MyBooks.Common.BaseClasses;
 
 namespace MyBooks.FileService.Controllers;
-[Route("api/files")]
+
+[Route("")]
 [ApiController]
 [Authorize]
 public class FileController : ControllerBase
@@ -37,7 +38,7 @@ public class FileController : ControllerBase
     }
 
     // upload File - only owner or superadmin
-    [HttpPost("upload")]
+    [HttpPost]
     [Authorize(Roles = AppRoles.OwnerPlus)]
     public async Task<IActionResult> UploadFile([FromForm] IFormFile file, [FromForm] int bookId, [FromForm] string bookTitle, [FromForm] string? folderId)
     {
@@ -239,8 +240,7 @@ public class FileController : ControllerBase
         return Ok(file);
     }
 
-    // GET: api/files/ids/{integrationId}
-    [HttpGet("ids/{integrationId}")]
+    [HttpGet("ids/integration/{integrationId}")]
     [Authorize(Roles = AppRoles.OwnerPlus)]
     public async Task<IActionResult> GetAllFileIds(int integrationId)
     {

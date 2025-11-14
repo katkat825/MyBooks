@@ -12,7 +12,7 @@ using MyBooks.Common.Dtos;
 
 namespace MyBooks.CatalogService.Controllers;
 
-[Route("api/books")]
+[Route("books")]
 [ApiController]
 [Authorize]
 public class BookController : ControllerBase
@@ -56,13 +56,19 @@ public class BookController : ControllerBase
             var userIdString = _context.GetCurrentUserId();
             if (string.IsNullOrWhiteSpace(userIdString) || !int.TryParse(userIdString, out int userId))
                 return Unauthorized("User not identified.");
+                
+            var ageCategoryClaim = User.FindFirst("AgeCategoryId")?.Value;
+            if (string.IsNullOrWhiteSpace(ageCategoryClaim))
+                return Unauthorized("User age category could not be determined.");
+
+            int userAgeCategory = int.Parse(ageCategoryClaim);
 
             var tokenHelper = new SystemTokenHelper(_httpClient, _authServiceBaseUrl);
             var systemToken = await tokenHelper.GetSystemTokenAsync(serviceName, _systemTokenSecret);
 
             _httpClient.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", systemToken);
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{_fileServiceBaseUrl}/api/files/progress/recent?userId={userId}&count={count}");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{_fileServiceBaseUrl}/progress/recent?userId={userId}&count={count}");
 
             var response = await _httpClient.SendAsync(request);
             if (!response.IsSuccessStatusCode)
@@ -88,7 +94,11 @@ public class BookController : ControllerBase
             }
             else {
                 query = _context.Books
-                    .Where(b => b.FileId.HasValue && fileIds.Contains(b.FileId.Value))
+                    .Where(b => 
+                        b.FileId.HasValue && 
+                        fileIds.Contains(b.FileId.Value) && 
+                        !b.IsRestricted &&
+                        b.AgeCategoryId <= userAgeCategory)
                     .Include(b => b.Genre)
                     .Include(b => b.AgeCategory)
                     .Include(b => b.Tags)
@@ -296,7 +306,7 @@ public class BookController : ControllerBase
 
         if (book.FileId.HasValue)
         {
-            var response = await _httpClient.GetAsync($"{_fileServiceBaseUrl}/api/files/{book.FileId}");
+            var response = await _httpClient.GetAsync($"{_fileServiceBaseUrl}/metadata/{book.FileId}");
             if (!response.IsSuccessStatusCode) return BadRequest("Invalid FileId. File not found.");
         }
 
@@ -319,14 +329,6 @@ public class BookController : ControllerBase
 
         if (existingBook.IsRestricted)
             return Forbid($"Book '{existingBook.Title}' is restricted and cannot be modified.");
-
-        //verify authenticated user is either admin, editor, or creator
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
-        var canEdit = AppRoles.EditorsArray.Any(User.IsInRole);
-        var isCreator = book.CreatedBy == userId.ToString();
-
-        if (!canEdit && !isCreator) return Forbid("Only an admin, editor, or the book's creator is authorized to update this book.");
 
         //sanitize all text fields, if they exist
         book.Title = _htmlSanitizationService.Sanitize(book.Title);
@@ -364,7 +366,7 @@ public class BookController : ControllerBase
 
         if (book.FileId.HasValue)
         {
-            var response = await _httpClient.GetAsync($"{_fileServiceBaseUrl}/api/files/{book.FileId}");
+            var response = await _httpClient.GetAsync($"{_fileServiceBaseUrl}/metadata/{book.FileId}");
             if (!response.IsSuccessStatusCode) return BadRequest("Invalid FileId. File not found.");
             existingBook.FileId = book.FileId;
         }
@@ -380,7 +382,6 @@ public class BookController : ControllerBase
         existingBook.PublishedDate = book.PublishedDate;
         existingBook.ISBN = book.ISBN;
         existingBook.GenreId = book.GenreId;
-
 
         _context.Entry(existingBook).State = EntityState.Modified;
 
@@ -412,7 +413,6 @@ public class BookController : ControllerBase
 
         await _context.SaveChangesAsync();
 
-
         return NoContent();
     }
 
@@ -430,13 +430,6 @@ public class BookController : ControllerBase
 
         if (book.IsRestricted)
             return Forbid($"Book '{book.Title}' is restricted and cannot be deleted.");
-
-        //verify authenticated user is either admin, editor, or creator
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        var canEdit = AppRoles.EditorsArray.Any(User.IsInRole);
-        var isCreator = book.CreatedBy == userId.ToString();
-
-        if (!canEdit && !isCreator) return Forbid("Only an admin, editor, or the book's creator is authorized to delete this book.");
 
         _context.Books.Remove(book);
         await _context.SaveChangesAsync();

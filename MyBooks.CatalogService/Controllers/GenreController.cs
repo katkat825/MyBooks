@@ -9,7 +9,7 @@ using MyBooks.Common.Services;
 
 namespace MyBooks.CatalogService.Controllers
 {
-    [Route("api/books/genres")]
+    [Route("genres")]
     [ApiController]
     [Authorize] 
     public class GenreController : ControllerBase
@@ -31,7 +31,7 @@ namespace MyBooks.CatalogService.Controllers
         }
 
         // seed initial genres
-        [HttpPost("seed/{tenantId}")]
+        [HttpPost("{tenantId}/seed")]
         [Authorize(Roles = AppRoles.TenantService)]
         public async Task<IActionResult> SeedDefaultGenres(int tenantId)
         {
@@ -57,16 +57,18 @@ namespace MyBooks.CatalogService.Controllers
 
         // add a new genre
         [HttpPost]
-        [Authorize(Roles = AppRoles.Editors)]
+        [Authorize(Roles = AppRoles.OwnerPlus)]
         public async Task<ActionResult<Genre>> AddGenre(Genre genre)
         {
             if (genre == null) return BadRequest("Invalid genre data.");
 
             genre.Name = _htmlSanitizationService.Sanitize(genre.Name).Trim();
+            var tenantId = _context.GetCurrentTenantId();
 
             //disallow duplicates
             var existingGenre = await _context.Genres
-                .Where(g => g.Name.ToLower() == genre.Name.ToLower())
+                .IgnoreQueryFilters()
+                .Where(g => g.Name.ToLower() == genre.Name.ToLower() && g.TenantId == tenantId)
                 .FirstOrDefaultAsync();
 
             if (existingGenre != null)
@@ -92,7 +94,7 @@ namespace MyBooks.CatalogService.Controllers
 
         //update genre
         [HttpPut("{id}")]
-        [Authorize(Roles = AppRoles.Editors)]
+        [Authorize(Roles = AppRoles.OwnerPlus)]
         public async Task<IActionResult> PutGenre(int id, Genre genre)
         {
             if (id != genre.Id)
@@ -124,7 +126,7 @@ namespace MyBooks.CatalogService.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = AppRoles.Editors)]
+        [Authorize(Roles = AppRoles.OwnerPlus)]
         public async Task<IActionResult> DeleteGenre(int id)
         {
             var genre = await _context.Genres

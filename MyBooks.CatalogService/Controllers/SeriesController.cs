@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyBooks.CatalogService.Data;
 using MyBooks.CatalogService.Models;
+using MyBooks.Common.BaseClasses;
 using MyBooks.Common.Services;
 
 namespace MyBooks.CatalogService.Controllers
 {
-    [Route("api/books/series")]
+    [Route("series")]
     [ApiController]
     [Authorize]
     public class SeriesController : ControllerBase
@@ -44,6 +45,7 @@ namespace MyBooks.CatalogService.Controllers
 
         // create a new series
         [HttpPost]
+        [Authorize(Roles = AppRoles.OwnerPlus)]
         public async Task<ActionResult<Series>> CreateSeries(Series series)
         {
             if (string.IsNullOrWhiteSpace(series.Name))
@@ -79,6 +81,7 @@ namespace MyBooks.CatalogService.Controllers
 
         // update an existing series
         [HttpPut("{id}")]
+        [Authorize(Roles = AppRoles.OwnerPlus)]
         public async Task<IActionResult> UpdateSeries(int id, Series updatedSeries)
         {
             if (id != updatedSeries.Id)
@@ -123,6 +126,7 @@ namespace MyBooks.CatalogService.Controllers
 
         //delete series
         [HttpDelete("{id}")]
+        [Authorize(Roles = AppRoles.OwnerPlus)]
         public async Task<IActionResult> DeleteSeries(int id)
         {
             var series = await _context.Series

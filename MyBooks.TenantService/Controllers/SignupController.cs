@@ -11,8 +11,8 @@ using MyBooks.TenantService.Services;
 namespace MyBooks.TenantService.Controllers;
 
 [ApiController]
-[Route("api/signup")]
-//[Authorize(Roles = AppRoles.SuperAdmin)]
+[Route("signup")]
+[Authorize(Roles = AppRoles.SuperAdmin)]
 public class SignupController : ControllerBase
 {
     private readonly TenantDbContext _context;

@@ -12,7 +12,7 @@ using System.IdentityModel.Tokens.Jwt;
 namespace MyBooks.AuthService.Controllers;
 
 [ApiController]
-[Route("api/support/[controller]")]
+[Route("support/reviewers")]
 [Authorize(Roles = AppRoles.SuperAdmin)]
 public class GlobalReviewerController : ControllerBase
 {
@@ -25,9 +25,8 @@ public class GlobalReviewerController : ControllerBase
         _config = config;
     }
 
-    // GET: api/support/globalreviewer
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<GlobalReviewerAccess>>> GetAll()
+    public async Task<ActionResult<IEnumerable<GlobalReviewerAccess>>> GetAllReviewers()
     {
         var reviewers = await _context.GlobalReviewerAccess
             .Include(g => g.User)
@@ -37,14 +36,13 @@ public class GlobalReviewerController : ControllerBase
         return Ok(reviewers);
     }
 
-    // GET: api/support/globalreviewer/{userId}
-    [HttpGet("{userId:int}")]
-    public async Task<ActionResult<GlobalReviewerAccess>> GetByUserId(int userId)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<GlobalReviewerAccess>> GetByUserId(int id)
     {
         var access = await _context.GlobalReviewerAccess
             .Include(g => g.User)
             .AsNoTracking()
-            .FirstOrDefaultAsync(g => g.UserId == userId);
+            .FirstOrDefaultAsync(g => g.UserId == id);
 
         if (access == null)
             return NotFound();
@@ -52,27 +50,26 @@ public class GlobalReviewerController : ControllerBase
         return Ok(access);
     }
 
-    // POST: api/support/globalreviewer/{userId}
-    [HttpPost("{userId:int}")]
-    public async Task<IActionResult> GrantAccess(int userId)
+    [HttpPost("{id}")]
+    public async Task<IActionResult> GrantReviewerAccess(int id)
     {
         var user = await _context.Users
             .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(u => u.Id == userId);
+            .FirstOrDefaultAsync(u => u.Id == id);
 
         if (user == null)
-            return NotFound($"User {userId} not found.");
+            return NotFound($"User {id} not found.");
 
         // check if already has access
         var existingAccess = await _context.GlobalReviewerAccess
             .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(r => r.UserId == userId);
+            .FirstOrDefaultAsync(r => r.UserId == id);
 
         if (existingAccess == null)
         {
             var access = new GlobalReviewerAccess
             {
-                UserId = userId,
+                UserId = id,
                 IsActive = true
             };
 
@@ -123,15 +120,14 @@ public class GlobalReviewerController : ControllerBase
         }
 
         await _context.SaveChangesAsync();
-        return Ok(new { message = $"Reviewer access granted for user {userId}." });
+        return Ok(new { message = $"Reviewer access granted for user {id}." });
     }
 
-    // DELETE: api/support/globalreviewer/{userId}
-    [HttpDelete("{userId:int}")]
-    public async Task<IActionResult> RevokeAccess(int userId)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> RevokeAccess(int id)
     {
         var access = await _context.GlobalReviewerAccess
-            .FirstOrDefaultAsync(r => r.UserId == userId);
+            .FirstOrDefaultAsync(r => r.UserId == id);
 
         if (access == null)
             return NotFound();
@@ -142,7 +138,7 @@ public class GlobalReviewerController : ControllerBase
 
         var sourceUser = await _context.Users
         .IgnoreQueryFilters()
-        .FirstOrDefaultAsync(u => u.Id == userId);
+        .FirstOrDefaultAsync(u => u.Id == id);
 
         var reviewerEmail = sourceUser.Email + "-9999";
 
@@ -160,10 +156,9 @@ public class GlobalReviewerController : ControllerBase
                 await _context.SaveChangesAsSuperadminAsync();
             }
         }
-        return Ok(new { message = $"Reviewer access revoked for user {userId}." });
+        return Ok(new { message = $"Reviewer access revoked for user {id}." });
     }
 
-    // POST: api/support/globalreviewer/switch
     [HttpPost("switch")]
     [Authorize]
     public async Task<IActionResult> SwitchToReviewerPortal()

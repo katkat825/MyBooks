@@ -4,11 +4,13 @@ using System.Linq;
 using MyBooks.CatalogService.Models;
 using MyBooks.CatalogService.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MyBooks.CatalogService.Controllers
 {
-    [Route("api/books/agecategories")]
+    [Route("age-ratings")]
     [ApiController]
+    [AllowAnonymous]
     public class AgeCategoryController : ControllerBase
     {
         private readonly CatalogDbContext _context;

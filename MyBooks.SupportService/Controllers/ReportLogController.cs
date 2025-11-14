@@ -9,7 +9,7 @@ using Microsoft.Identity.Client;
 namespace MyBooks.SupportService.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("logs/violations")]
 [Authorize(Roles = AppRoles.SuperAdmin + "," + AppRoles.GlobalReviewer)]
 public class ReportLogController : ControllerBase
 {
