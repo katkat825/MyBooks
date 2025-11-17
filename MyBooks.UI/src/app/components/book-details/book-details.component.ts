@@ -101,6 +101,7 @@ export class BookDetailsComponent implements OnInit {
           this.bookService.deleteFile(book.fileId).subscribe({
             next: () => {
               this.deleteBookRecord(id);
+              this.router.navigate(['/books'])
             },
             error: (error) => console.error("Error deleting file", error),
           });
@@ -114,7 +115,7 @@ export class BookDetailsComponent implements OnInit {
   private deleteBookRecord(id: number) {
     this.bookService.deleteBook(id).subscribe({
       next: () => {
-        this.router.navigate(['/']);
+        this.router.navigate(['/books']);
       },
       error: (error) => console.error("Error deleting book: ", error),
     });
