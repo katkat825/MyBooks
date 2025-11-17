@@ -126,7 +126,7 @@ export class SupportUserService {
 
   toggleBookRestricted(id: number, restricted: boolean): Observable<void> {
     return this.http.patch<void>(
-      `${this.catalogSupportUrl}/${id}/restricted?restricted=${restricted}`, {}, { headers: this.getAuthHeaders() }
+      `${this.catalogSupportUrl}/${id}?restricted=${restricted}`, {}, { headers: this.getAuthHeaders() }
     );
   }
 
