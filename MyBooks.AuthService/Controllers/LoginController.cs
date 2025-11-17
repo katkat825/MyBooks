@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using MyBooks.AuthService.Data;
 using MyBooks.AuthService.Dtos;
 using MyBooks.AuthService.Models;
+using MyBooks.AuthService.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -18,15 +19,13 @@ public class LoginController : Controller
 {
     private readonly AuthDbContext _context;
     private readonly IConfiguration _config;
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly string tenantServiceUrl;
+    private readonly TenantClient _tenantClient;
 
-    public LoginController(AuthDbContext context, IConfiguration config, IHttpClientFactory httpClientFactory)
+    public LoginController(AuthDbContext context, IConfiguration config, TenantClient tenantClient)
     {
         _context = context;
         _config = config;
-        _httpClientFactory = httpClientFactory;
-        tenantServiceUrl = _config["ServiceUrls:TenantService"];
+        _tenantClient = tenantClient;
     }
 
     [HttpPost]
@@ -46,14 +45,7 @@ public class LoginController : Controller
         if (user.TenantId == null || user.TenantId == 0)
             return Unauthorized("User is not assigned to an account.");
 
-        var httpClient = _httpClientFactory.CreateClient();
-        var tenantResponse = await httpClient.GetAsync(
-            $"{tenantServiceUrl}/api/tenant/by-id/{user.TenantId}");
-
-        if (!tenantResponse.IsSuccessStatusCode)
-            return Unauthorized("Account lookup failed.");
-
-        var tenant = await tenantResponse.Content.ReadFromJsonAsync<TenantLookupDto>();
+        var tenant = await _tenantClient.GetTenantLookupAsync(user.TenantId ?? 0);
         if (tenant == null || !tenant.IsActive)
             return Unauthorized("Account is deactivated.");
 

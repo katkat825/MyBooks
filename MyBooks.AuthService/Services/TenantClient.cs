@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using MyBooks.AuthService.Dtos;
 using MyBooks.Common.BaseClasses;
 using MyBooks.Common.Helpers;
 
@@ -38,5 +39,16 @@ public class TenantClient
 
         var count = await response.Content.ReadFromJsonAsync<int>();
         return count;
+    }
+
+    public async Task<TenantLookupDto?> GetTenantLookupAsync(int tenantId)
+    {
+        // clear any previous default headers
+        _http.DefaultRequestHeaders.Authorization = null;
+
+        var response = await _http.GetAsync($"/{tenantId}/anon");
+        if (!response.IsSuccessStatusCode)
+            return null;
+        return await response.Content.ReadFromJsonAsync<TenantLookupDto>();
     }
 }
