@@ -93,7 +93,7 @@ public class BulkImportController : ControllerBase
         return Ok();
     }
 
-    [HttpGet("{id}/status}")]
+    [HttpGet("{id}/status")]
     public async Task<IActionResult> GetJobStatus(int id)
     {
         var job = await _context.BulkImportJobs
