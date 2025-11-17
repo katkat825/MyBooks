@@ -192,7 +192,7 @@ public class BulkImportProcessor
                 };
 
                 var catalogUrl = _config["ServiceUrls:CatalogService"];
-                var bookResponse = await _httpClient.PostAsJsonAsync($"{catalogUrl}system/books", requestDto);
+                var bookResponse = await _httpClient.PostAsJsonAsync($"{catalogUrl}/system/books", requestDto);
                 bookResponse.EnsureSuccessStatusCode();
 
                 var responseDto = await bookResponse.Content.ReadFromJsonAsync<BookImportResponseDto>();
