@@ -596,15 +596,9 @@ mat-tab {
 
 /* laptops */
 @media (min-width: 1024px) and (max-width: 1499px) {
-  .breadcrumb {
-    margin-left: 24px; 
-  }
 }
 
 /* large desktops */
 @media (min-width: 1500px) {
-  .breadcrumb {
-    margin-left: 10%;
-  }  
 }
 

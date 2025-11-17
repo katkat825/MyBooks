@@ -2,13 +2,10 @@ export const environment = {
   production: true,
   environmentName: 'prod',
 
-  apiUrl: 'https://mybookcatalog.com/api/catalog/api',
-  authServiceUrl: 'https://mybookcatalog.com/api/auth/api',
-  fileApiUrl: 'https://mybookcatalog.com/api/file/api/files',
-  tenantApiUrl: 'https://mybookcatalog.com/api/tenant/api',
-  integrationApiUrl: 'https://mybookcatalog.com/api/file/api',
+  catalogBaseUrl: 'https://mybookcatalog.com/api/catalog',
+  tenantBaseUrl: 'https://mybookcatalog.com/api/tenant',
   authBaseUrl: 'https://mybookcatalog.com/api/auth',
-  emailServiceUrl: 'https://mybookcatalog.com/api/email/api',
+  emailBaseUrl: 'https://mybookcatalog.com/api/email',
   fileBaseUrl: 'https://mybookcatalog.com/api/file',
   supportBaseUrl: 'https://mybookcatalog.com/api/support',
   googlePickerApiKey: 'AIzaSyCDhTaYWXXx_qkyxuXYwDjrLJXfEchQJ9Q'

@@ -15,14 +15,16 @@ export interface UserUsageStatus {
 })
 export class UserService {
   private jwtHelper = new JwtHelperService();
-  private usersApiUrl = `${environment.authServiceUrl}/users`;
-  private authServiceUrl = environment.authServiceUrl;
-  private accountApiUrl = `${environment.authServiceUrl}/account`;
-  private userSubject = new BehaviorSubject<any>(null);
+  private usersUrl = `${environment.authBaseUrl}/users`;
+  private loginUrl = `${environment.authBaseUrl}/login`;
+  private accountUrl = `${environment.authBaseUrl}/account`;
+  private globalReviewersUrl = `${environment.authBaseUrl}/support/reviewers`;
+  private ageCategoryUrl = `${environment.catalogBaseUrl}/age-ratings`;
+  private userSubject = new BehaviorSubject<any>(null); 
   user$ = this.userSubject.asObservable();
 
   canAccessAdmin$ = this.user$.pipe(
-    map(u => !!u && (u.role === 'Admin' || u.role === 'Editor' || u.role === 'SuperAdmin' || u.role === 'Owner' || u.role === 'Support')),
+    map(u => !!u && (u.role === 'SuperAdmin' || u.role === 'Owner' || u.role === 'Support')),
     shareReplay({ bufferSize: 1, refCount: true })
   );
 
@@ -76,7 +78,7 @@ export class UserService {
   }
 
   getGlobalReviewers(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.authServiceUrl}/support/globalreviewer`, { headers: this.getAuthHeaders() });
+    return this.http.get<any[]>(this.globalReviewersUrl, { headers: this.getAuthHeaders() });
   }
 
   getProfile(): Observable<any | null> {
@@ -90,7 +92,7 @@ export class UserService {
       return;
     }
 
-    this.http.get<any>(`${this.accountApiUrl}/profile`, { headers: this.getAuthHeaders() })
+    this.http.get<any>(`${this.accountUrl}/profile`, { headers: this.getAuthHeaders() })
       .pipe(
         catchError((error: HttpErrorResponse) => {
           if (error.status === 401) {
@@ -109,8 +111,23 @@ export class UserService {
       .subscribe(user => this.userSubject.next(user));
   }
 
+  login(dto: { email: string, password: string }): Observable<any> {
+    return this.http.post<any>(this.loginUrl, dto).pipe(
+      tap(response => {
+        if (response?.token) {
+          localStorage.setItem('token', response.token);
+          this.loadProfile();
+        }
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error("Login error:", error);
+        return throwError(() => error);
+      })
+    )
+  }
+
   getUsers(includeSupport = false): Observable<any[]> {
-    return this.http.get<any[]>(this.usersApiUrl, { headers: this.getAuthHeaders() }).pipe(
+    return this.http.get<any[]>(this.usersUrl, { headers: this.getAuthHeaders() }).pipe(
       map(users => includeSupport ? users : users.filter(u => !this.isSupportAccount(u))),
       catchError(error => {
         console.error("Error fetching users:", error);
@@ -121,7 +138,7 @@ export class UserService {
 
   getUserUsageCounts(): Observable<UserUsageStatus> {
     return this.http.get<UserUsageStatus>(
-      `${this.usersApiUrl}/active/status`, { headers: this.getAuthHeaders() }
+      `${this.usersUrl}/usage`, { headers: this.getAuthHeaders() }
     ).pipe(
       catchError(err => {
         console.error("Error fetching user usage counts: ", err);
@@ -132,30 +149,27 @@ export class UserService {
 
   private isSupportAccount(u: any): boolean {
     if (!u) return false;
-    // Hide by role…
-    if (u.role === 'SuperAdmin' || u.role === 'Support') return true;
-    // …and/or by service email convention (adjust if you picked a different prefix)
-    const email = String(u.email || '').toLowerCase();
-    return email.startsWith('svc+') && email.endsWith('@mybookcatalog.com');
+    if (u.role === 'SuperAdmin' || u.role === 'Support' || u.role === 'GlobalReviewer') return true;
+    else return false
   }
 
   getUserById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.usersApiUrl}/${id}`, { headers: this.getAuthHeaders() }).pipe(
+    return this.http.get<any>(`${this.usersUrl}/${id}`, { headers: this.getAuthHeaders() }).pipe(
       catchError(error => {
         console.error("Error fetching user: ", error);
-        return throwError(error);
+        return throwError(() => error);
       })
     );
   }  
 
   updateUser(id: number, updates: any): Observable<any> {
-    return this.http.patch<any>(`${this.usersApiUrl}/${id}`, updates, { headers: this.getAuthHeaders() }).pipe(
+    return this.http.patch<any>(`${this.usersUrl}/${id}`, updates, { headers: this.getAuthHeaders() }).pipe(
       tap(response => {
         console.log("api response (patch_: ", response);
       }),
       catchError(error => {
         console.error("Error updating user:", error);
-        return throwError(error);
+        return throwError(() => error);
       })
     );
   }
@@ -163,16 +177,16 @@ export class UserService {
   createUser(user: any): Observable<any> {
     user.password = crypto.randomUUID();
     
-    return this.http.post<any>(`${this.usersApiUrl}/register`, user, { headers: this.getAuthHeaders() }).pipe(
+    return this.http.post<any>(this.usersUrl, user, { headers: this.getAuthHeaders() }).pipe(
       catchError(error => {
         console.error("Error creating user:", error);
-        return throwError(error);
+        return throwError(() => error);
       })
     );
   }
 
   deactivateUser(id: number): Observable<any> {
-    return this.http.patch<any>(`${this.usersApiUrl}/deactivate/${id}`, {}, { headers: this.getAuthHeaders() }).pipe(
+    return this.http.patch<any>(`${this.usersUrl}/${id}/deactivate`, {}, { headers: this.getAuthHeaders() }).pipe(
       tap(() => console.log("successfully deactivated user ID: ${id}")),
       catchError(error => {
         console.error("error deactivating user. ", error);
@@ -182,7 +196,7 @@ export class UserService {
   }
 
   reactivateUser(id: number): Observable<any> {
-    return this.http.patch<any>(`${this.usersApiUrl}/reactivate/${id}`, {}, { headers: this.getAuthHeaders() }).pipe(
+    return this.http.patch<any>(`${this.usersUrl}/${id}/reactivate`, {}, { headers: this.getAuthHeaders() }).pipe(
       tap(() => console.log(`✅ Successfully reactivated user ID: ${id}`)),
       catchError(error => {
         console.error("❌ Error reactivating user:", error);
@@ -193,7 +207,7 @@ export class UserService {
 
   // soft-delete only
   deleteUser(id: number): Observable<any> {
-    return this.http.patch<any>(`${this.usersApiUrl}/delete/${id}`, {}, { headers: this.getAuthHeaders() }).pipe(
+    return this.http.patch<any>(`${this.usersUrl}/${id}/visibility`, {}, { headers: this.getAuthHeaders() }).pipe(
       tap(() => console.log(`✅ Successfully deleted user ID: ${id}`)),
       catchError(error => {
         console.error("❌ Error deleting user:", error);
@@ -203,11 +217,11 @@ export class UserService {
   }
 
   updateProfile(dto: any): Observable<any> {
-    return this.http.patch<any>(`${environment.authServiceUrl}/account/profile`, dto, { headers: this.getAuthHeaders() }).pipe(
+    return this.http.patch<any>(`${this.accountUrl}/profile`, dto, { headers: this.getAuthHeaders() }).pipe(
       tap(response => console.log("Profile updated:", response)),
       catchError(error => {
         console.error("Error updating profile:", error);
-        return throwError(error);
+        return throwError(() => error);
       })
     );
   }
@@ -218,11 +232,11 @@ export class UserService {
   }
 
   getAgeCategories(): Observable<any[]> {
-    return this.http.get<any>(`${environment.apiUrl}/books/agecategories`, { headers: this.getAuthHeaders() }).pipe(
+    return this.http.get<any>(this.ageCategoryUrl, { headers: this.getAuthHeaders() }).pipe(
       map(response => Array.isArray(response) ? response : response?.$values || []),
       catchError(error => {
         console.error("Error fetching age categories:", error);
-        return throwError(error);
+        return throwError(() => error);
       })
     );
   }
@@ -235,7 +249,7 @@ export class UserService {
       tap(response => console.log("AUP accepted:", response)),
       catchError(error => {
         console.error("Error updating AUP:", error);
-        return throwError(error);
+        return throwError(() => error);
       })
     );
   }
@@ -254,7 +268,7 @@ export class UserService {
 
   checkEmailExists(email: string, excludeUserId: number = 0): Observable<{ exists: boolean }> {
     return this.http.get<{ exists: boolean }>(
-      `${this.usersApiUrl}/check-email?email=${encodeURIComponent(email)}&excludeUserId=${excludeUserId}`,
+      `${this.usersUrl}/check-email?email=${encodeURIComponent(email)}&excludeUserId=${excludeUserId}`,
       { headers: this.getAuthHeaders() }
     ).pipe(
       catchError(error => {

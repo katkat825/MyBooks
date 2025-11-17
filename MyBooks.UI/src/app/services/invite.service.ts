@@ -18,25 +18,25 @@ export interface CompleteInvitationDto {
   providedIn: 'root'
 })
 export class InviteService {
-  private apiUrl = `${environment.authServiceUrl}/invitation`;
+  private invitationsUrl = `${environment.authBaseUrl}/invitations`;
 
   constructor(private http: HttpClient) {}
 
   validate(token: string): Observable<InvitationValidation> {
     return this.http.post<InvitationValidation>(
-      `${this.apiUrl}/validate`,
+      `${this.invitationsUrl}/validate`,
       JSON.stringify(token),  // ensure raw string
       { headers: { 'Content-Type': 'application/json' } }
     );
   }
 
   complete(dto: CompleteInvitationDto): Observable<any> {
-    return this.http.post(`${this.apiUrl}/complete`, dto);
+    return this.http.post(`${this.invitationsUrl}/complete`, dto);
   }
 
   resend(email: string): Observable<any> {
     return this.http.post(
-      `${this.apiUrl}/resend`,
+      `${this.invitationsUrl}/resend`,
       JSON.stringify(email),   // send raw string
       { headers: { 'Content-Type': 'application/json' } }
     );

@@ -7,8 +7,11 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class BookService {
-  private apiUrl = `${environment.apiUrl}/books`;
-  public fileApiUrl =  `${environment.fileBaseUrl}/api/files`;
+  private genresUrl = `${environment.catalogBaseUrl}/genres`;
+  private booksUrl = `${environment.catalogBaseUrl}/books`;
+  private ageUrl = `${environment.catalogBaseUrl}/age-ratings`;
+  private seriesUrl = `${environment.catalogBaseUrl}/series`;
+  public fileBaseUrl =  `${environment.fileBaseUrl}`;
 
   constructor(private http: HttpClient) { }
 
@@ -21,7 +24,7 @@ export class BookService {
   }
 
   getRecentlyRead(count: number = 10): Observable<any[]> {
-      return this.http.get<any>(`${this.apiUrl}/recently-read?count=${count}`, { headers: this.getAuthHeaders() }).pipe(
+      return this.http.get<any>(`${this.booksUrl}/recently-read?count=${count}`, { headers: this.getAuthHeaders() }).pipe(
         map(response => {
           const list = response.$values ?? response;
           return list;
@@ -34,7 +37,7 @@ export class BookService {
     }
 
   getBooks(page: number, pageSize: number = 20): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}?page=${page}&pageSize=${pageSize}`, { headers: this.getAuthHeaders() }).pipe(
+    return this.http.get<any>(`${this.booksUrl}?page=${page}&pageSize=${pageSize}`, { headers: this.getAuthHeaders() }).pipe(
       map(response => {
         // handle $values (JSON.NET or EF weird serialization)
         const resultsRaw = response.results ?? response.Results ?? response.$values ?? response.Results?.$values;
@@ -70,7 +73,7 @@ export class BookService {
   }
 
   getAllBooks(): Observable<any[]> {
-    return this.http.get<any>(this.apiUrl, { headers: this.getAuthHeaders() }).pipe(
+    return this.http.get<any>(this.booksUrl, { headers: this.getAuthHeaders() }).pipe(
       map(response => {
         const list = response.$values ?? response;
         return Array.isArray(list)
@@ -85,11 +88,11 @@ export class BookService {
   }
 
   deleteBook(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() });
+    return this.http.delete<void>(`${this.booksUrl}/${id}`, { headers: this.getAuthHeaders() });
   }
 
   createBook(book: any): Observable<any> {
-    return this.http.post(this.apiUrl, book, { headers: this.getAuthHeaders() }).pipe(
+    return this.http.post(this.booksUrl, book, { headers: this.getAuthHeaders() }).pipe(
       tap(() => console.log("Book created successfully.")),
       catchError((error) => {
         console.error("Error creating book:", error);
@@ -101,11 +104,11 @@ export class BookService {
   updateBook(id: number, book: any): Observable<any> {
     const updatedBook = {
       ...book, id};
-    return this.http.put(`${this.apiUrl}/${id}`, updatedBook, { headers: this.getAuthHeaders() });
+    return this.http.put(`${this.booksUrl}/${id}`, updatedBook, { headers: this.getAuthHeaders() });
   }
 
   updateBookFileId(bookId: number, fileId: number): Observable<any> {
-    return this.http.patch(`${environment.apiUrl}/books/${bookId}/file`, { fileId }, { headers: this.getAuthHeaders() }).pipe(
+    return this.http.patch(`${this.booksUrl}/${bookId}/file`, { fileId }, { headers: this.getAuthHeaders() }).pipe(
       catchError(error => {
         console.error("❌ Error updating book with FileId:", error);
         return throwError(() => new Error("Failed to update book with FileId"));
@@ -114,11 +117,11 @@ export class BookService {
   }
 
   getBook(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() });
+    return this.http.get<any>(`${this.booksUrl}/${id}`, { headers: this.getAuthHeaders() });
   }
 
   getGenres(): Observable<any[]> {
-    return this.http.get<any>(`${this.apiUrl}/genres`, { headers: this.getAuthHeaders() }).pipe(
+    return this.http.get<any>(`${this.genresUrl}`, { headers: this.getAuthHeaders() }).pipe(
       map(response => {
         const list = response && typeof response === 'object' && '$values' in response
           ? response.$values
@@ -135,19 +138,19 @@ export class BookService {
   }
 
   createGenre(genre: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/genres`, genre, { headers: this.getAuthHeaders() });
+    return this.http.post(`${this.genresUrl}`, genre, { headers: this.getAuthHeaders() });
   }
 
   updateGenre(id: number, genre: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/genres/${id}`, genre, { headers: this.getAuthHeaders() });
+    return this.http.put(`${this.genresUrl}/${id}`, genre, { headers: this.getAuthHeaders() });
   }
 
   deleteGenre(id: number): Observable<any> {
-    return this.http.delete<void>(`${this.apiUrl}/genres/${id}`, { headers: this.getAuthHeaders() });
+    return this.http.delete<void>(`${this.genresUrl}/${id}`, { headers: this.getAuthHeaders() });
   }
 
   getAgeCategories(): Observable<any[]> {
-    return this.http.get<any>(`${this.apiUrl}/agecategories`, { headers: this.getAuthHeaders() }).pipe(
+    return this.http.get<any>(this.ageUrl, { headers: this.getAuthHeaders() }).pipe(
       map(response => {
         return response && typeof response === 'object' && '$values' in response
           ? response.$values
@@ -161,7 +164,7 @@ export class BookService {
   }
 
   getSeries(): Observable<any[]> {
-    return this.http.get<any>(`${this.apiUrl}/series`, { headers: this.getAuthHeaders() }).pipe(
+    return this.http.get<any>(this.seriesUrl, { headers: this.getAuthHeaders() }).pipe(
       map(response => {
         const list = response && typeof response === 'object' && '$values' in response
           ? response.$values
@@ -178,15 +181,15 @@ export class BookService {
   }
 
   createSeries(series: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/series`, series, { headers: this.getAuthHeaders() });
+    return this.http.post(this.seriesUrl, series, { headers: this.getAuthHeaders() });
   }
 
   updateSeries(id: number, series: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/series/${id}`, series, { headers: this.getAuthHeaders() });
+    return this.http.put(`${this.seriesUrl}/${id}`, series, { headers: this.getAuthHeaders() });
   }
 
   deleteSeries(id: number): Observable<any> {
-    return this.http.delete<void>(`${this.apiUrl}/series/${id}`, { headers: this.getAuthHeaders() });
+    return this.http.delete<void>(`${this.seriesUrl}/${id}`, { headers: this.getAuthHeaders() });
   }
 
   uploadFile(file: File, bookId: number, bookTitle: string): Observable<any> {
@@ -195,7 +198,7 @@ export class BookService {
     formData.append('bookId', bookId.toString());
     formData.append('bookTitle', bookTitle);
 
-    return this.http.post(`${this.fileApiUrl}/upload`, formData, {
+    return this.http.post(this.fileBaseUrl, formData, {
       headers: new HttpHeaders({
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       }),
@@ -203,22 +206,22 @@ export class BookService {
   }
 
   downloadFile(fileId: number, inline: boolean = false): Observable<Blob> {
-    return this.http.get(`${this.fileApiUrl}/${fileId}?inline=${inline}`, { responseType: 'blob', headers: this.getAuthHeaders() });
+    return this.http.get(`${this.fileBaseUrl}/${fileId}?inline=${inline}`, { responseType: 'blob', headers: this.getAuthHeaders() });
   }
 
   deleteFile(fileId: number) {
-    return this.http.delete(`${this.fileApiUrl}/${fileId}`, { headers: this.getAuthHeaders() });
+    return this.http.delete(`${this.fileBaseUrl}/${fileId}`, { headers: this.getAuthHeaders() });
   }
 
   getFileMetadata(fileId: number): Observable<any> {
-    return this.http.get(`${this.fileApiUrl}/metadata/${fileId}`, { headers: this.getAuthHeaders() });
+    return this.http.get(`${this.fileBaseUrl}/metadata/${fileId}`, { headers: this.getAuthHeaders() });
   }
 
   getReadingProgress(fileId: number): Observable<any> {
-    return this.http.get(`${this.fileApiUrl}/progress/${fileId}`, { headers: this.getAuthHeaders() });
+    return this.http.get(`${this.fileBaseUrl}/progress/${fileId}`, { headers: this.getAuthHeaders() });
   }
 
   updateReadingProgress(fileId: number, progress: number): Observable<any> {
-    return this.http.post(`${this.fileApiUrl}/progress/${fileId}`, { ProgressPercent: progress }, { headers: this.getAuthHeaders() });
+    return this.http.post(`${this.fileBaseUrl}/progress/${fileId}`, { ProgressPercent: progress }, { headers: this.getAuthHeaders() });
   }
 }

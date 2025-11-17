@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { environment } from '../../../environments/environment';
+import { EmailService } from '../../services/email.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-report-abuse',
@@ -29,14 +28,12 @@ export class ReportAbuseComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private http: HttpClient,
-    private route: ActivatedRoute
+    private emailService: EmailService,
+    private toast: ToastService
   ) {}
 
   ngOnInit() {
-    const url = this.route.snapshot.queryParamMap.get('url') || '';
     this.form = this.fb.group({
-      pageUrl: [window.location.href],
       description: ['', Validators.required],
       contactEmail: ['']
     });
@@ -46,15 +43,12 @@ export class ReportAbuseComponent implements OnInit {
     if (this.form.invalid) return;
 
     this.isSubmitting = true;
-    const token = localStorage.getItem('token');
-    const headers = { Authorization: `Bearer ${token}` };
 
-    this.http.post(`${environment.emailServiceUrl}/reportabuse`, this.form.value, { headers })
-      .subscribe({
+    this.emailService.sendViolationReport(this.form.value).subscribe({
       next: () => {
         this.isSubmitting = false;
-        this.form.reset({ pageUrl: window.location.href });
-        alert('Report submitted successfully.');
+        this.toast.show('Report submitted successfully');
+        this.form.reset()
       },
       error: () => {
         this.isSubmitting = false;

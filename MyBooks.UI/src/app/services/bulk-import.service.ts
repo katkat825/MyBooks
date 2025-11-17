@@ -22,8 +22,8 @@ export interface BulkImportStartDto {
 })
 
 export class BulkImportService {
-  private readonly baseUrl = `${environment.fileBaseUrl}/api/bulk-import`;
-  private readonly filesUrl = `${environment.fileBaseUrl}/api/files`;
+  private readonly importUrl = `${environment.fileBaseUrl}/import`;
+  private readonly fileBaseUrl = environment.fileBaseUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -36,25 +36,25 @@ export class BulkImportService {
   }
 
   startBulkImport(dto: BulkImportStartDto): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/start`, dto, {
+    return this.http.post<void>(`${this.importUrl}/start`, dto, {
         headers: this.getAuthHeaders(),
     });
   }
 
   getJobs(): Observable<any[]> {
-      return this.http.get<any[]>(`${this.baseUrl}/jobs`, {
+      return this.http.get<any[]>(`${this.importUrl}/jobs`, {
         headers: this.getAuthHeaders(),
       });
   }
 
   getJobStatus(jobId: number): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/status/${jobId}`, {
+    return this.http.get<any>(`${this.importUrl}/${jobId}/status`, {
       headers: this.getAuthHeaders(),
     });
   }
 
   getExistingFileIds(integrationId: number): Observable<string[]> {
-      return this.http.get<string[]>(`${this.filesUrl}/ids/${integrationId}`, {
+      return this.http.get<string[]>(`${this.fileBaseUrl}/ids/integration/${integrationId}`, {
         headers: this.getAuthHeaders(),
       });
   }
