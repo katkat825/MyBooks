@@ -72,4 +72,37 @@ public class SupportBookController : ControllerBase
         await _context.SaveFlipRestrictedAsync();
         return NoContent();
     }
+
+    [HttpPatch("{id}/file")]
+    public async Task<IActionResult> UpdateBookFileId(int id, [FromBody] FileUpdateDto request)
+    {
+        var book = await _context.Books
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(b => b.Id == id);
+            
+        if (book == null)
+        {
+            return NotFound("Book not found.");
+        }
+
+        if (book.IsRestricted)
+            return Forbid($"Book '{book.Title}' is restricted and its file cannot be changed.");
+
+        if (request.FileId <= 0)
+        {
+            return BadRequest("Invalid FileId.");
+        }
+
+        book.FileId = request.FileId;
+        _context.Entry(book).State = EntityState.Modified;
+
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+    
+    public class FileUpdateDto
+    {
+        public int FileId { get; set; }
+    }
 }
