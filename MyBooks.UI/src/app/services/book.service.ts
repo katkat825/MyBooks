@@ -198,7 +198,7 @@ export class BookService {
     formData.append('bookId', bookId.toString());
     formData.append('bookTitle', bookTitle);
 
-    return this.http.post(`&{this.fileBaseUrl}/upload`, formData, {
+    return this.http.post(`${this.fileBaseUrl}/upload`, formData, {
       headers: new HttpHeaders({
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       }),
