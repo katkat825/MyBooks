@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { environment } from '../../../environments/environment';
 import { GlobalLoadingService, LoadingContext } from '../../services/global-loading.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -29,7 +30,7 @@ export class LoginComponent {
   loginForm: FormGroup;
   errorMessage: string = '';
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private router: Router, private globalLoading: GlobalLoadingService) {
+  constructor(private fb: FormBuilder, private userService: UserService, private router: Router, private globalLoading: GlobalLoadingService) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
@@ -42,16 +43,13 @@ export class LoginComponent {
     }
 
     this.globalLoading.show("Logging in...", LoadingContext.Login);
-
-    const payload = { ...this.loginForm.value };
-
-    this.http.post<any>(`${environment.authBaseUrl}/login`, payload).subscribe({
-      next: (response) => {
-        localStorage.setItem('token', response.token);
-        this.router.navigate(['/books']); 
+    
+    this.userService.login(this.loginForm.value).subscribe({
+      next: () => {
+        this.router.navigate(['/books']);
       },
       error: () => {
-        this.errorMessage = 'Invalid email or password.';
+        this.errorMessage = 'Invalid email or password';
         this.globalLoading.hide();
       }
     });

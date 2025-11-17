@@ -45,7 +45,6 @@ export class AccountUsersComponent {
   editingUserId: number | null = null;
   editingField: string | null = null;
   ageCategories: any[] = [];
-  //roles: string[] = ['Admin', 'Editor', 'User'];
   showInactiveUsers = false;
   currentUserId: number | null = null;
   userUsageStatus!: { activeCount: number; maxCount: number };

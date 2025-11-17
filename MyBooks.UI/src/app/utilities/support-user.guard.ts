@@ -22,7 +22,7 @@ export class SupportUserGuard implements CanActivate {
             take(1),
             map(user => {
                 const role = user.role ?? user.Role ?? '';
-                const allowed = role === 'SuperAdmin' || role === 'GlobalReviewer';
+                const allowed = role === 'SuperAdmin';
                 return allowed ? true : this.router.createUrlTree(['/']);
             }),
             catchError(() => of(this.router.createUrlTree(['/login'])))

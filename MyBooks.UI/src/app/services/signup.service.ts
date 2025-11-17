@@ -21,7 +21,7 @@ export interface SignupResponse {
 })
 
 export class SignupService {
-  private apiUrl = `${environment.tenantApiUrl}/signup`;
+  private signupUrl = `${environment.tenantBaseUrl}/signup`;
 
   constructor(private http: HttpClient) {}
 
@@ -34,6 +34,6 @@ export class SignupService {
   }
 
   createTenant(request: SignupRequest): Observable<SignupResponse> {
-    return this.http.post<SignupResponse>(this.apiUrl, request, {headers: this.getAuthHeaders() });
+    return this.http.post<SignupResponse>(this.signupUrl, request, {headers: this.getAuthHeaders() });
   }
 }

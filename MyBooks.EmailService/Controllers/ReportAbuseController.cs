@@ -30,7 +30,6 @@ namespace MyBooks.EmailService.Controllers
 
             var body = $@"Abuse Report Submitted:
 
-                Page URL: {dto.PageUrl}
                 Description: {dto.Description}
 
                 Submitted By:

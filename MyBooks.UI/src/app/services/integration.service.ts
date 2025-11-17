@@ -7,7 +7,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class IntegrationService {
-  private apiUrl = `${environment.integrationApiUrl}/google-integrations`;
+  private googleIntegrationUrl = `${environment.fileBaseUrl}/integrations/google`;
 
   constructor(private http: HttpClient) {}
 
@@ -20,7 +20,7 @@ export class IntegrationService {
   }
 
   getAuthorizeUrl(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/authorize-url`, { headers: this.getAuthHeaders() })
+    return this.http.get(`${this.googleIntegrationUrl}/oauth/url`, { headers: this.getAuthHeaders() })
       .pipe(
         catchError(err => {
           console.error("Error getting authorize URL:", err);
@@ -30,35 +30,28 @@ export class IntegrationService {
   }
 
   getIntegrations(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl, { headers: this.getAuthHeaders() });
+    return this.http.get<any[]>(this.googleIntegrationUrl, { headers: this.getAuthHeaders() });
   }
 
   deleteIntegration(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() });
+    return this.http.delete<void>(`${this.googleIntegrationUrl}/${id}`, { headers: this.getAuthHeaders() });
   }
 
   getFolders(integrationId: number): Observable<any[]> {
     return this.http.get<any[]>(
-      `${this.apiUrl}/${integrationId}/folders`,
+      `${this.googleIntegrationUrl}/${integrationId}/folders`,
       { headers: this.getAuthHeaders() }
     );
   }
 
   getAccessToken(id: number): Observable<{ accessToken: string }> {
-    return this.http.get<{ accessToken: string }>(`${this.apiUrl}/${id}/access-token`, { headers: this.getAuthHeaders() });
+    return this.http.get<{ accessToken: string }>(`${this.googleIntegrationUrl}/${id}/access-token`, { headers: this.getAuthHeaders() });
   }
 
   updateFolders(integrationId: number, folderIds: string[]): Observable<void> {
     return this.http.put<void>(
-      `${this.apiUrl}/${integrationId}/folders`,
+      `${this.googleIntegrationUrl}/${integrationId}/folders`,
       folderIds,
-      { headers: this.getAuthHeaders() }
-    );
-  }
-
-  getImportableFiles(integrationId: number, folderId: string = 'root'): Observable<any[]> {
-    return this.http.get<any[]>(
-      `${this.apiUrl}/${integrationId}/importable-files?folderId=${folderId}`,
       { headers: this.getAuthHeaders() }
     );
   }

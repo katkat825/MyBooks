@@ -1,5 +1,4 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,8 +9,6 @@ import { ConfirmDialogComponent } from '../../../components/shared/confirmation.
 import { AddGoogleDriveFolderComponent } from '../add-google-drive-folder/add-google-drive-folder.component';
 import { environment } from '../../../../environments/environment';
 import { firstValueFrom } from 'rxjs';
-import { BulkImportService } from '../../../services/bulk-import.service';
-import { ToastService } from '../../../services/toast.service';
 
 declare const gapi: any;
 declare const google: any;
@@ -36,7 +33,6 @@ export class GoogleDriveComponent implements OnInit {
   selectedIntegrationId!: number;
 
   constructor(
-    private http: HttpClient,
     private integrationService: IntegrationService,
     private dialog: MatDialog,
     private cdr: ChangeDetectorRef
