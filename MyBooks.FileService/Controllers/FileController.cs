@@ -38,8 +38,7 @@ public class FileController : ControllerBase
     }
 
     // upload File - only owner or superadmin
-    [HttpPost("")]
-    [HttpPost("/")]
+    [HttpPost("upload")]
     [Authorize(Roles = AppRoles.OwnerPlus)]
     public async Task<IActionResult> UploadFile([FromForm] IFormFile file, [FromForm] int bookId, [FromForm] string bookTitle, [FromForm] string? folderId)
     {
