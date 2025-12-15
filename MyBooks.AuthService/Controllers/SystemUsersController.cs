@@ -32,6 +32,8 @@ public class SystemUsersController : ControllerBase
     [HttpPost("create")]
     public async Task<IActionResult> CreateUser(OwnerUserDto request)
     {
+        Console.WriteLine("[SystemUsers] CreateUser called");
+        
         if (await _context.Users.AnyAsync(u => u.Email == request.Email))
             return Conflict(new { message = "Email already in use." });
 
