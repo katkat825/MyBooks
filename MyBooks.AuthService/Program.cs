@@ -82,28 +82,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = "MyBooks",
             ValidAudience = "MyBooksUsers",
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-            RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role", 
+            RoleClaimType = "role", 
             NameClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
-        };
-        options.Events = new JwtBearerEvents
-        {
-            OnTokenValidated = context =>
-            {
-                var identity = (ClaimsIdentity)context.Principal.Identity;
-                var roleClaim = identity.FindFirst("http://schemas.microsoft.com/ws/2008/06/identity/claims/role");
-
-                if (roleClaim != null)
-                {
-                    identity.AddClaim(new Claim(ClaimTypes.Role, roleClaim.Value)); // ?? Force-add role claim
-                    Console.WriteLine($"? Role '{roleClaim.Value}' added manually.");
-                }
-                else
-                {
-                    Console.WriteLine("? No role claim found!");
-                }
-
-                return Task.CompletedTask;
-            }
         };
     });
 
