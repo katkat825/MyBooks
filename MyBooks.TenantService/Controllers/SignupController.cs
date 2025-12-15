@@ -12,7 +12,7 @@ namespace MyBooks.TenantService.Controllers;
 
 [ApiController]
 [Route("signup")]
-[Authorize(Roles = AppRoles.SuperAdmin)]
+//[Authorize(Roles = AppRoles.SuperAdmin)]
 public class SignupController : ControllerBase
 {
     private readonly TenantDbContext _context;
