@@ -15,7 +15,7 @@ namespace MyBooks.AuthService.Controllers;
 
 [ApiController]
 [Route("system/users")]
-//[Authorize(Roles = AppRoles.TenantService)]
+[Authorize(Roles = AppRoles.TenantService)]
 public class SystemUsersController : ControllerBase
 {
     private readonly AuthDbContext _context;
@@ -33,26 +33,7 @@ public class SystemUsersController : ControllerBase
     [HttpPost("create")]
     public async Task<IActionResult> CreateUser(OwnerUserDto request)
     {
-        //debugging
-        Console.WriteLine("[SystemUsers] CreateUser called");
-
-        var identity = User.Identity as ClaimsIdentity;
-
-        if (identity == null)
-        {
-            Console.WriteLine("❌ No ClaimsIdentity present");
-        }
-        else
-        {
-            Console.WriteLine("🔎 Claims seen by controller:");
-            foreach (var claim in identity.Claims)
-            {
-                Console.WriteLine($"  {claim.Type} = {claim.Value}");
-            }
-        }
-        //end debugging
-
-        if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+       if (await _context.Users.AnyAsync(u => u.Email == request.Email))
             return Conflict(new { message = "Email already in use." });
 
         var userRole = string.IsNullOrEmpty(request.Role) ? AppRoles.Owner : request.Role;

@@ -82,8 +82,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-            RoleClaimType = "role", 
-            NameClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
         };
     });
 
@@ -97,8 +95,6 @@ builder.Services.AddAuthorization(options =>
             return isActive == "True";
         });
     });
-    options.AddPolicy("AdminsOnly", p => p.RequireRole(AppRoles.Admin, AppRoles.SuperAdmin));
-    options.AddPolicy("SuperAdminsOnly", p => p.RequireRole(AppRoles.SuperAdmin));
 });
 
 builder.Services.AddControllers();
@@ -136,12 +132,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
 app.UseRouting();
 app.UseCors("AllowLocalHost");
 
@@ -150,12 +140,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
-
 app.MapControllers();
-app.MapGet("/health", () => Results.Ok(new { status = "Healthy" }));
+app.MapGet("/health", () => Results.Ok(new { status = "Healthy" })).AllowAnonymous();
 
 app.Run();
