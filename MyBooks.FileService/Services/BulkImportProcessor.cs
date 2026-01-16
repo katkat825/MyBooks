@@ -134,8 +134,38 @@ public class BulkImportProcessor
             Console.WriteLine($"TenantId: {job.TenantId}");
             Console.WriteLine("About to call GetFileWithAccessTokenAsync");
 
+            Console.WriteLine("=== DRIVE VISIBILITY CHECK ===");
+
             try
             {
+                var service = _googleDriveClient.CreateService(accessToken);
+
+                var list = service.Files.List();
+                list.PageSize = 5;
+                list.Fields = "files(id,name)";
+                // do NOT set SupportsAllDrives here
+
+                var result = await list.ExecuteAsync();
+
+                Console.WriteLine($"Visible files count: {result.Files?.Count ?? 0}");
+
+                if (result.Files != null)
+                {
+                    foreach (var f in result.Files)
+                    {
+                        Console.WriteLine($"Visible file: {f.Name} ({f.Id})");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Visibility check failed");
+                Console.WriteLine(ex.ToString());
+            }
+
+            try
+            {
+                
                 var file = await _googleDriveClient.GetFileWithAccessTokenAsync(item.FileId, accessToken);
                 Console.WriteLine("GetFileWithAccessTokenAsync returned");
                 Console.WriteLine($"File.Name: {file?.Name}");
