@@ -56,6 +56,10 @@ public class GoogleDriveClient
     // system-facing: reuse cached access token
     public async Task<Stream?> GetFileStreamAsSystemAsync(string fileId, string accessToken)
     {
+        Console.WriteLine("=== GET FILE STREAM START ===");
+        Console.WriteLine($"FileId: {fileId}");
+        Console.WriteLine($"AccessToken length: {accessToken?.Length}");
+
         var service = CreateService(accessToken);
         var open = service.Files.Get(fileId);
         open.Fields = "id, name";
@@ -245,6 +249,10 @@ public class GoogleDriveClient
         string fileId,
         string accessToken)
     {
+        Console.WriteLine("=== GET FILE METADATA START ===");
+        Console.WriteLine($"FileId: {fileId}");
+        Console.WriteLine($"AccessToken length: {accessToken?.Length}");
+
         var service = CreateService(accessToken);
 
         var request = service.Files.Get(fileId);

@@ -126,9 +126,22 @@ public class BulkImportProcessor
     {
         foreach (var item in job.Items.Where(i => i.Status == "Pending"))
         {
+            Console.WriteLine("=== PROCESS ITEM START ===");
+            Console.WriteLine($"ItemId: {item.Id}");
+            Console.WriteLine($"FileId: {item.FileId}");
+            Console.WriteLine($"AccessToken length: {accessToken?.Length}");
+            Console.WriteLine($"JobId: {job.Id}");
+            Console.WriteLine($"TenantId: {job.TenantId}");
+            Console.WriteLine("About to call GetFileWithAccessTokenAsync");
+
             try
             {
                 var file = await _googleDriveClient.GetFileWithAccessTokenAsync(item.FileId, accessToken);
+                Console.WriteLine("GetFileWithAccessTokenAsync returned");
+                Console.WriteLine($"File.Name: {file?.Name}");
+                Console.WriteLine($"File.MimeType: {file?.MimeType}");
+                Console.WriteLine($"File.Size: {file?.Size}");
+
                 if (file == null)
                 {
                     item.Status = "Failed";
@@ -137,6 +150,8 @@ public class BulkImportProcessor
                 }
 
                 item.FileName = _sanitizer.Sanitize(file.Name);
+
+                Console.WriteLine("About to call GetFileStreamAsSystemAsync");
 
                 using var stream = await _googleDriveClient.GetFileStreamAsSystemAsync(item.FileId, accessToken);
 
