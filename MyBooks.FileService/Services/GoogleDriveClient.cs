@@ -58,7 +58,7 @@ public class GoogleDriveClient
     {
         var service = CreateService(accessToken);
         var open = service.Files.Get(fileId);
-        open.Fields = "*";
+        open.Fields = "id, name";
         open.SupportsAllDrives = true;
         await open.ExecuteAsync();
         
