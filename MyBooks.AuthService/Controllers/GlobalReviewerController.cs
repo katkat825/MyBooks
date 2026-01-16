@@ -26,6 +26,7 @@ public class GlobalReviewerController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<GlobalReviewerAccess>>> GetAllReviewers()
     {
         var reviewers = await _context.GlobalReviewerAccess
