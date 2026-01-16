@@ -40,7 +40,6 @@ public class GoogleIntegrationController : ControllerBase
 
         var clientId = _config["GoogleOAuth:ClientId"];
         var environment = _config["ASPNETCORE_ENVIRONMENT"];
-
         var redirectUri = environment switch
         {
           "Production" => _config["GoogleOAuth:RedirectUriProd"],
@@ -88,9 +87,14 @@ public class GoogleIntegrationController : ControllerBase
 
         var clientId = _config["GoogleOAuth:ClientId"];
         var clientSecret = _config["GoogleOAuth:ClientSecret"];
-        var redirectUri = _config["ASPNETCORE_ENVIRONMENT"] == "Production"
-            ? _config["GoogleOAuth:RedirectUriProd"]
-            : _config["GoogleOAuth:RedirectUriLocal"];
+        
+        var environment = _config["ASPNETCORE_ENVIRONMENT"];
+        var redirectUri = environment switch
+        {
+          "Production" => _config["GoogleOAuth:RedirectUriProd"],
+          "Qa" or "QA" or "qa" => _config["GoogleOAuth:RedirectUriQa"],
+          _ => _config["GoogleOAuth:RedirectUriLocal"]
+        };
 
         var http = _httpClientFactory.CreateClient();
 
