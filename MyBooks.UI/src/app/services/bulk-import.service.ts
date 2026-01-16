@@ -15,6 +15,7 @@ export interface BulkImportStartDto {
   ageCategoryId: number;
   integrationId: number;
   overrides?: BulkImportFileOverrideDto[];
+  pickerAccessToken?: string;
 }
 
 @Injectable({

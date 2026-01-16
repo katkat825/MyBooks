@@ -57,6 +57,7 @@ export class BulkImportComponent implements OnInit {
   genres: any[] = [];
   ageCategories: any[] = [];
   selectedIntegrationId!: number;
+  accessToken: string = '';
 
   globalGenreId!: number;
   globalAgeCategoryId!: number;
@@ -124,8 +125,8 @@ export class BulkImportComponent implements OnInit {
       const tokenResponse = await firstValueFrom(
         this.integrationService.getAccessToken(this.selectedIntegrationId)
       );
-      const accessToken = tokenResponse?.accessToken;
-      if (!accessToken) throw new Error('Failed to get access token');
+      this.accessToken = tokenResponse?.accessToken;
+      if (!this.accessToken) throw new Error('Failed to get access token');
 
       // load the picker API
       await new Promise<void>((resolve, reject) => {
@@ -140,7 +141,7 @@ export class BulkImportComponent implements OnInit {
       const picker = new google.picker.PickerBuilder()
         .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
         .addView(view)
-        .setOAuthToken(accessToken)
+        .setOAuthToken(this.accessToken)
         .setDeveloperKey(environment.googlePickerApiKey)
         .setCallback(async (data: any) => {
           if (data.action === google.picker.Action.PICKED) {
@@ -161,7 +162,7 @@ export class BulkImportComponent implements OnInit {
                 selected: true,
                 skipFile: existingFileIds.includes(f.id), // skip importing
                 overrideGenreId: this.globalGenreId,
-                overrideAgeCategoryId: this.globalAgeCategoryId
+                overrideAgeCategoryId: this.globalAgeCategoryId,
               }));
             });
         
@@ -245,7 +246,8 @@ export class BulkImportComponent implements OnInit {
           genreId: this.globalGenreId,
           ageCategoryId: this.globalAgeCategoryId,
           integrationId: this.selectedIntegrationId,
-          overrides: overrides.length > 0 ? overrides : undefined
+          overrides: overrides.length > 0 ? overrides : undefined,
+          pickerAccessToken: this.accessToken
         };
 
         this.globalLoading.show("Setting up your bulk import... Don't leave this page until setup finishes", LoadingContext.BulkImport);

@@ -128,7 +128,7 @@ public class BulkImportProcessor
         {
             try
             {
-                var file = await _googleDriveClient.GetFileWithAccessTokenAsync(item.FileId, accessToken);
+                var file = await _googleDriveClient.GetFileWithAccessTokenAsync(item.FileId, accessToken, scanDto.BulkImportStart.PickerAccessToken);
                 if (file == null)
                 {
                     item.Status = "Failed";
