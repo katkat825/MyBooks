@@ -148,6 +148,21 @@ export class BulkImportComponent implements OnInit {
               (d: any) => d.mimeType !== 'application/vnd.google-apps.folder'
             );
 
+            for (const f of pickedFiles) {
+              try {
+                await fetch(
+                  `https://www.googleapis.com/drive/v3/files/${f.id}?fields=id`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${this.accessToken}`
+                    }
+                  }
+                );
+              } catch (e) {
+                console.error('drive touch failed for', f.id, e);
+              }
+            }
+
             // get list of existing files
             const existingFileIds = await firstValueFrom(
               this.bulkImportService.getExistingFileIds(this.selectedIntegrationId)
