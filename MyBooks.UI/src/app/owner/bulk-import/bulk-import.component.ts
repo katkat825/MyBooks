@@ -138,7 +138,7 @@ export class BulkImportComponent implements OnInit {
 
       const picker = new google.picker.PickerBuilder()
         .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
-        .addView(new google.picker.View(google.picker.ViewId.Docs))
+        .addView(view)
         .setOAuthToken(this.accessToken)
         .setDeveloperKey(environment.googlePickerApiKey)
         .setCallback(async (data: any) => {
