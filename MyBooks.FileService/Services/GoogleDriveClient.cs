@@ -57,9 +57,16 @@ public class GoogleDriveClient
     public async Task<Stream?> GetFileStreamAsSystemAsync(string fileId, string accessToken)
     {
         var service = CreateService(accessToken);
-        var request = service.Files.Get(fileId);
+        var open = service.Files.Get(fileId);
+        open.Fields = "id";
+        open.SupportsAllDrives = true;
+        await open.ExecuteAsync();
+        
+        var download = service.Files.Get(fileId);
+        download.SupportsAllDrives = true;
+
         var stream = new MemoryStream();
-        await request.DownloadAsync(stream);
+        await download.DownloadAsync(stream);
         stream.Position = 0;
         return stream;
     }        
