@@ -129,7 +129,7 @@ export class BulkImportComponent implements OnInit {
 
       // load the picker API
       await new Promise<void>((resolve, reject) => {
-        gapi.load('picker', { callback: resolve, onerror: reject });
+        gapi.load('auth,picker', { callback: resolve, onerror: reject });
       });
 
       const view = new google.picker.DocsView(google.picker.ViewId.DOCS)
