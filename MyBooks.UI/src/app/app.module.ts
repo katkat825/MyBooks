@@ -38,6 +38,7 @@ import { ReportDetailsComponent } from './support-user/components/report-log/rep
 import { ReportUpdateFormComponent } from './support-user/components/report-log/report-update-form/report-update-form.component';
 import { ContentReviewComponent } from './support-user/components/content-review/content-review.component';
 import { GlobalreviewerDialogComponent } from './support-user/components/globalreviewer-dialog/globalreviewer-dialog.component';
+import { GoogleDriveOpenComponent } from './owner/bulk-import/google-drive-open/google-drive-open.component';
 
 @NgModule({
   imports: [
@@ -82,7 +83,8 @@ import { GlobalreviewerDialogComponent } from './support-user/components/globalr
     ReportDetailsComponent,
     ReportUpdateFormComponent,
     ContentReviewComponent,
-    GlobalreviewerDialogComponent
+    GlobalreviewerDialogComponent,
+    GoogleDriveOpenComponent
   ]
 })
 export class AppModule { }
