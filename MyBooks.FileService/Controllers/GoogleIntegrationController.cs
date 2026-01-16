@@ -39,9 +39,14 @@ public class GoogleIntegrationController : ControllerBase
         var state = $"{tenantId}:{nonce}:{userId}:{today}";
 
         var clientId = _config["GoogleOAuth:ClientId"];
-        var redirectUri = _config["ASPNETCORE_ENVIRONMENT"] == "Production"
-            ? _config["GoogleOAuth:RedirectUriProd"]
-            : _config["GoogleOAuth:RedirectUriLocal"];
+        var environment = _config["ASPNETCORE_ENVIRONMENT"];
+
+        var redirectUri = environment switch
+        {
+          "Production" => _config["GoogleOAuth:RedirectUriProd"],
+          "Qa" or "QA" or "qa" => _config["GoogleOAuth:RedirectUriQa"],
+          _ => _config["GoogleOAuth:RedirectUriLocal"]
+        };
 
         var scopes = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email";
 
