@@ -241,16 +241,50 @@ public class GoogleDriveClient
         return await GetFileWithAccessTokenAsync(fileId, accessToken);
     }
 
-    public async Task<Google.Apis.Drive.v3.Data.File?> GetFileWithAccessTokenAsync(string fileId, string accessToken)
+    public async Task<Google.Apis.Drive.v3.Data.File?> GetFileWithAccessTokenAsync(
+        string fileId,
+        string accessToken)
     {
         var service = CreateService(accessToken);
-        var open = service.Files.Get(fileId);
-        open.Fields = "id";
-        open.SupportsAllDrives = true;
-        await open.ExecuteAsync();
+
         var request = service.Files.Get(fileId);
         request.Fields = "id, name, mimeType, size";
         request.SupportsAllDrives = true;
-        return await request.ExecuteAsync();
+
+        try
+        {
+            return await request.ExecuteAsync();
+        }
+        catch (Google.GoogleApiException ex)
+        {
+            Console.WriteLine("=== DRIVE METADATA ERROR ===");
+            Console.WriteLine($"FileId: {fileId}");
+            Console.WriteLine($"Status: {ex.HttpStatusCode}");
+            Console.WriteLine($"Message: {ex.Message}");
+
+            if (ex.Error != null)
+            {
+                Console.WriteLine($"Error.Message: {ex.Error.Message}");
+
+                if (ex.Error.Errors != null)
+                {
+                    foreach (var err in ex.Error.Errors)
+                    {
+                        Console.WriteLine($"Reason: {err.Reason}");
+                        Console.WriteLine($"Domain: {err.Domain}");
+                        Console.WriteLine($"Message: {err.Message}");
+                    }
+                }
+            }
+
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("=== NON-GOOGLE METADATA EXCEPTION ===");
+            Console.WriteLine(ex.ToString());
+            throw;
+        }
     }
+
 }
