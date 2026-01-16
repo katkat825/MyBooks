@@ -17,7 +17,7 @@ public class GoogleDriveClient
 
     private DriveService CreateService(string accessToken)
     {
-        var credential = GoogleCredential.FromAccessToken(accessToken);
+        var credential = GoogleCredential.FromAccessToken(accessToken).CreateScoped(DriveService.Scope.DriveFile);
         return new DriveService(new BaseClientService.Initializer
         {
             HttpClientInitializer = credential,
