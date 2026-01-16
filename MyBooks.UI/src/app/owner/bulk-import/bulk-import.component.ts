@@ -134,7 +134,6 @@ export class BulkImportComponent implements OnInit {
       });
 
       const view = new google.picker.DocsView(google.picker.ViewId.DOCS)
-        .setMode(google.picker.ViewMode.OPEN)
         .setMimeTypes('application/pdf,application/epub+zip');
 
       const picker = new google.picker.PickerBuilder()
