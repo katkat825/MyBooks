@@ -129,7 +129,7 @@ export class BulkImportComponent implements OnInit {
 
       // load the picker API
       await new Promise<void>((resolve, reject) => {
-        gapi.load('auth,picker', { callback: resolve, onerror: reject });
+        gapi.load('picker', { callback: resolve, onerror: reject });
       });
 
       const view = new google.picker.DocsView(google.picker.ViewId.DOCS)
@@ -142,6 +142,7 @@ export class BulkImportComponent implements OnInit {
         .addView(view)
         .setOAuthToken(accessToken)
         .setDeveloperKey(environment.googlePickerApiKey)
+        .setOrigin(window.location.origin)
         .setCallback(async (data: any) => {
           if (data.action === google.picker.Action.PICKED) {
             const pickedFiles = data.docs.filter(
