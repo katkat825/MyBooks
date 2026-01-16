@@ -206,10 +206,16 @@ public class GoogleDriveClient
     public async Task<Google.Apis.Drive.v3.Data.File?> GetFileAsync(string fileId, string refreshToken)
     {
         var accessToken = await RefreshAccessTokenAsync(refreshToken);
+        return await GetFileWithAccessTokenAsync(fileId, accessToken);
+    }
+
+    public async Task<Google.Apis.Drive.v3.Data.File?> GetFileWithAccessTokenAsync(string fileId, string accessToken)
+    {
         var service = CreateService(accessToken);
 
         var request = service.Files.Get(fileId);
         request.Fields = "id, name, mimeType, size";
+        request.SupportsAllDrives = true;
         return await request.ExecuteAsync();
     }
 }

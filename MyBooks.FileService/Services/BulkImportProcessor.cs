@@ -128,7 +128,7 @@ public class BulkImportProcessor
         {
             try
             {
-                var file = await _googleDriveClient.GetFileAsync(item.FileId, accessToken);
+                var file = await _googleDriveClient.GetFileWithAccessTokenAsync(item.FileId, accessToken);
                 if (file == null)
                 {
                     item.Status = "Failed";
@@ -138,7 +138,7 @@ public class BulkImportProcessor
 
                 item.FileName = _sanitizer.Sanitize(file.Name);
 
-                using var stream = await _googleDriveClient.GetFileStreamAsync(item.FileId, accessToken);
+                using var stream = await _googleDriveClient.GetFileStreamAsSystemAsync(item.FileId, accessToken);
 
                 var notCorrupted = await _antiCorrpution.ValidateAsync(stream, file.Name);
                 if (!notCorrupted.IsValid)
