@@ -77,7 +77,7 @@ public class BulkImportProcessor
             return;
         }
 
-        var accessToken = await _googleDriveClient.RefreshAccessTokenAsync(integration.RefreshToken);
+        var accessToken = scanDto.BulkImportStart.PickerAccessToken;
 
         // process items - first run
         await ProcessItemsAsync(job, integration, scanDto, accessToken);
@@ -128,7 +128,7 @@ public class BulkImportProcessor
         {
             try
             {
-                var file = await _googleDriveClient.GetFileWithAccessTokenAsync(item.FileId, accessToken, scanDto.BulkImportStart.PickerAccessToken);
+                var file = await _googleDriveClient.GetFileWithAccessTokenAsync(item.FileId, accessToken);
                 if (file == null)
                 {
                     item.Status = "Failed";
