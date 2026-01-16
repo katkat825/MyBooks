@@ -7,6 +7,11 @@ RUN dotnet publish MyBooks.SupportService.csproj -c Release -o /app/publish /p:U
 
 # ===== runtime stage =====
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+
+RUN apt-get update \
+    && apt-get install -y curl \
+    && rm -fr /var/lib/apt/lists/*
+    
 WORKDIR /app
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "MyBooks.SupportService.dll"]
