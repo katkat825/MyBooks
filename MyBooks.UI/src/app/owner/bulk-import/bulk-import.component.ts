@@ -142,7 +142,6 @@ export class BulkImportComponent implements OnInit {
         .addView(view)
         .setOAuthToken(accessToken)
         .setDeveloperKey(environment.googlePickerApiKey)
-        .setOrigin(window.location.origin)
         .setCallback(async (data: any) => {
           if (data.action === google.picker.Action.PICKED) {
             const pickedFiles = data.docs.filter(
