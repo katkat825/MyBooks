@@ -209,8 +209,17 @@ public class GoogleDriveClient
         return await GetFileWithAccessTokenAsync(fileId, accessToken);
     }
 
-    public async Task<Google.Apis.Drive.v3.Data.File?> GetFileWithAccessTokenAsync(string fileId, string accessToken)
+    public async Task<Google.Apis.Drive.v3.Data.File?> GetFileWithAccessTokenAsync(string fileId, string accessToken, string? pickerAccessToken = null)
     {
+        if (pickerAccessToken != null)
+        {
+            var pickerService = CreateService(pickerAccessToken);
+            var open = pickerService.Files.Get(fileId);
+            open.Fields = "id";
+            open.SupportsAllDrives = true;
+            await open.ExecuteAsync();
+        }
+
         var service = CreateService(accessToken);
 
         var request = service.Files.Get(fileId);
