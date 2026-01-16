@@ -66,7 +66,39 @@ public class GoogleDriveClient
         download.SupportsAllDrives = true;
 
         var stream = new MemoryStream();
-        await download.DownloadAsync(stream);
+        try {
+            await download.DownloadAsync(stream);
+        } 
+        catch (Google.GoogleApiException ex)
+        {
+            Console.WriteLine("=== GOOGLE DRIVE ERROR ===");
+            Console.WriteLine($"Status: {ex.HttpStatusCode}");
+            Console.WriteLine($"Message: {ex.Message}");
+
+            if (ex.Error != null)
+            {
+                Console.WriteLine($"Error.Message: {ex.Error.Message}");
+
+                if (ex.Error.Errors != null)
+                {
+                    foreach (var err in ex.Error.Errors)
+                    {
+                        Console.WriteLine($"Reason: {err.Reason}");
+                        Console.WriteLine($"Domain: {err.Domain}");
+                        Console.WriteLine($"Message: {err.Message}");
+                    }
+                }
+            }
+
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("=== NON-GOOGLE EXCEPTION ===");
+            Console.WriteLine(ex.ToString());
+            throw;
+        }
+
         stream.Position = 0;
         return stream;
     }        
