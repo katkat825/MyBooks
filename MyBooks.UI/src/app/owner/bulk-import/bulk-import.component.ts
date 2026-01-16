@@ -282,8 +282,8 @@ export class BulkImportComponent implements OnInit {
   }
 
   private async forceDrivePermission(fileId: string): Promise<void> {
-    await fetch(
-      `https://www.googleapis.com/drive/v3/files/${fileId}/permissions`,
+    const res = await fetch(
+      `https://www.googleapis.com/drive/v3/files/${fileId}/permissions?supportsAllDrives=true`,
       {
         method: 'POST',
         headers: {
@@ -292,10 +292,15 @@ export class BulkImportComponent implements OnInit {
         },
         body: JSON.stringify({
           type: 'user',
-          role: 'reader',
-          emailAddress: 'kathleen.malone.8251@gmail.com'
+          role: 'reader'
         })
       }
     );
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error('permission create failed', res.status, text);
+      throw new Error('permission create failed');
+    }
   }
 }
