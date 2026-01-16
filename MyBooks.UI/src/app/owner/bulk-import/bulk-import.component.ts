@@ -292,7 +292,8 @@ export class BulkImportComponent implements OnInit {
         },
         body: JSON.stringify({
           type: 'user',
-          role: 'reader'
+          role: 'reader',
+          emailAddress: 'kathleen.malone.8251@gmail.com'
         })
       }
     );
