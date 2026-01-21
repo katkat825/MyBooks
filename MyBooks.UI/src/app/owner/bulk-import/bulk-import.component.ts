@@ -142,6 +142,14 @@ export class BulkImportComponent implements OnInit {
         .setCallback(async (data: any) => {
           if(data.action === google.picker.Action.PICKED) {
             const folder = data.docs[0];
+            await fetch(
+              `https://www.googleapis.com/drive/v3/files/${folder.Id}?fields=id`,
+              {
+                headers: {
+                  Authorization: `Bearer ${accessToken}`
+                }
+              }
+            );
 
             await firstValueFrom(
               this.integrationService.updateFolders(
