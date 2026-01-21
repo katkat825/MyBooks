@@ -132,52 +132,41 @@ export class BulkImportComponent implements OnInit {
         gapi.load('picker', { callback: resolve, onerror: reject });
       });
 
-      const view = new google.picker.DocsView(google.picker.ViewId.DOCS)
-        .setMimeTypes('application/pdf,application/epub+zip')
+      const view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
         .setIncludeFolders(true)
-        .setSelectFolderEnabled(false);
+        .setSelectFolderEnabled(true);
 
       const picker = new google.picker.PickerBuilder()
         .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
         .addView(view)
         .setOAuthToken(accessToken)
-        .setDeveloperKey(environment.googlePickerApiKey)
         .setCallback(async (data: any) => {
-          if (data.action === google.picker.Action.PICKED) {
-            const pickedFiles = data.docs.filter(
-              (d: any) => d.mimeType !== 'application/vnd.google-apps.folder'
+          if(data.action === google.picker.Action.PICKED) {
+            const folders = data.docs.map((d: any) => ({
+              id: d.id
+            }));
+
+            const folder = data.docs[0];
+
+            await firstValueFrom(
+              this.integrationService.updateFolders(
+                this.selectedIntegrationId,
+                [folder.id]
+              )
             );
 
-            // get list of existing files
-            const existingFileIds = await firstValueFrom(
-              this.bulkImportService.getExistingFileIds(this.selectedIntegrationId)
+            this.toastService.show(
+              folders.length === 1
+              ? `Folder connected`
+              : `${folders.length} folders connected`
             );
-
-            // replace the current file list with new selections
-            this.zone.run(() => {
-              this.files = pickedFiles.map((f: any) => ({
-                id: f.id,
-                name: f.name,
-                selected: true,
-                skipFile: existingFileIds.includes(f.id), // skip importing
-                overrideGenreId: this.globalGenreId,
-                overrideAgeCategoryId: this.globalAgeCategoryId
-              }));
-            });
-        
-            this.newFiles = this.files.filter(f => !f.skipFile);
-            if(this.newFiles.length === 0) {
-              this.toastService.show('All selected files were previously imported.');
-              return;
-            }
-
-            this.cd.detectChanges();
-            this.toastService.show(`${this.newFiles.length} file(s) ready for import`);
           }
         })
         .build();
 
       picker.setVisible(true);
+
+      this.loadFilesFromFolders();
     } catch (error) {
       console.error('Error opening Google Picker:', error);
       this.toastService.show('Error opening Google Picker');
@@ -275,5 +264,15 @@ export class BulkImportComponent implements OnInit {
   private resetForm(): void {
     this.form.reset();
     this.files = [];
+  }
+
+  private loadFilesFromFolders(): void {
+    this.integrationService
+      .getFiles(this.selectedIntegrationId)
+      .subscribe(files => {
+        this.files = files.map((f: any) => {
+          id: f.id
+        })
+      })
   }
 }

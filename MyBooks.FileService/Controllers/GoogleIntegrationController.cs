@@ -170,6 +170,8 @@ public class GoogleIntegrationController : ControllerBase
         return Ok(list);
     }
 
+    // not currently used - keeping in case
+    /*
     [HttpGet("{id}/folders")]
     public async Task<IActionResult> GetFolders(int id, [FromQuery] string? parentId = "root")
     {
@@ -192,6 +194,7 @@ public class GoogleIntegrationController : ControllerBase
 
         return Ok(folders);
     }
+    */
 
     [HttpPut("{id}/folders")]
     public async Task<IActionResult> UpdateFolders(int id, [FromBody] List<string> folderIds)
@@ -206,7 +209,12 @@ public class GoogleIntegrationController : ControllerBase
             return NotFound("Integration not found.");
 
         // update folder list
-        integration.DriveFolderIds = folderIds ?? new List<string>();
+        integration.DriveFolderIds ??= new List<string>();
+        foreach (var folderId in folderIds)
+        {
+            if (!integration.DriveFolderIds.Contains(folderId))
+                integration.DriveFolderIds.Add(folderId);
+        }
 
         _context.GoogleIntegrations.Update(integration);
         await _context.SaveChangesAsync();
@@ -216,6 +224,39 @@ public class GoogleIntegrationController : ControllerBase
             IntegrationId = integration.Id,
             FolderIds = integration.DriveFolderIds
         });
+    }
+
+    [HttpGet("{id}/files")]
+    public async Task<IActionResult> GetFilesFromFolder(int id)
+    {
+        var integration = await _context.GoogleIntegrations
+            .FirstOrDefaultAsync(g => g.Id == id);
+        
+        if (integration == null)
+            return NotFound("Integration not found.");
+
+        if (integration.DriveFolderIds == null || !integration.DriveFolderIds.Any())
+            return Ok(new List<object>());
+        
+        var allFiles = new List<Google.Apis.Drive.v3.Data.File>();
+
+        foreach (var folderId in integration.DriveFolderIds)
+        {
+            var files = await _googleDriveClient.ListFilesAsync(
+                folderId,
+                integration.RefreshToken
+            );
+
+            allFiles.AddRange(files);
+        }
+
+        return Ok(allFiles.Select(f => new
+        {
+            id = f.Id,
+            name = f.Name,
+            mimeType = f.MimeType,
+            size = f.Size
+        }));
     }
 
     // optional: deactivate
