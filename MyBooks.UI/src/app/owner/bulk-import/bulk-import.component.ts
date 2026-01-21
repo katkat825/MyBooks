@@ -1,34 +1,31 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { firstValueFrom } from 'rxjs';
-
-import { MatDialog } from '@angular/material/dialog';
+import { ChangeDetectorRef, Component, OnInit, NgZone } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormArray } from '@angular/forms';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { CommonModule } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
+import { firstValueFrom } from 'rxjs';
 
 import { IntegrationService } from '../../services/integration.service';
 import { BookService } from '../../services/book.service';
-import {
-  BulkImportService,
-  BulkImportStartDto,
-  BulkImportFileOverrideDto
-} from '../../services/bulk-import.service';
-
+import { BulkImportService, BulkImportStartDto, BulkImportFileOverrideDto } from '../../services/bulk-import.service';
 import { BulkImportJobsDialogComponent } from './bulk-import-dialog/bulk-import-dialog.component';
 import { ConfirmDialogComponent } from '../../components/shared/confirmation.component';
 import { ToastService } from '../../services/toast.service';
 import { ToastComponent } from '../../components/shared/toast.component';
 import { GlobalLoadingService, LoadingContext } from '../../services/global-loading.service';
+import { environment } from '../../../environments/environment';
+
+declare const gapi: any;
+declare const google: any;
 
 @Component({
   selector: 'app-bulk-import',
@@ -54,14 +51,11 @@ import { GlobalLoadingService, LoadingContext } from '../../services/global-load
 })
 export class BulkImportComponent implements OnInit {
   form!: FormGroup;
-
   integrations: any[] = [];
   files: any[] = [];
   newFiles: any[] = [];
-
   genres: any[] = [];
   ageCategories: any[] = [];
-
   selectedIntegrationId!: number;
 
   globalGenreId!: number;
@@ -72,75 +66,81 @@ export class BulkImportComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private route: ActivatedRoute,
     private integrationService: IntegrationService,
     private bulkImportService: BulkImportService,
     private bookService: BookService,
     private toastService: ToastService,
     private dialog: MatDialog,
     private globalLoading: GlobalLoadingService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private zone: NgZone
   ) {}
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     this.form = this.fb.group({
       integrationId: [null, Validators.required],
-      files: [[]]
+      files: this.fb.array([])
     });
 
-    await this.loadIntegrations();
-    await this.loadLookups();
-    await this.loadFilesFromQuery();
+    this.loadIntegrations();
+    this.loadLookups();
   }
 
-  private async loadIntegrations(): Promise<void> {
-    this.integrations = await firstValueFrom(this.integrationService.getIntegrations());
+  private loadIntegrations(): void {
+    this.integrationService.getIntegrations().subscribe((integrations: any[]) => {
+      this.integrations = integrations;
 
-    if (this.integrations.length === 1) {
-      this.onIntegrationSelected(this.integrations[0].id);
-    }
+      // auto-select if only one
+      if (this.integrations.length === 1) {
+        this.onIntegrationSelected(this.integrations[0].id);
+      }
+    });
   }
 
-  private async loadLookups(): Promise<void> {
-    this.genres = await firstValueFrom(this.bookService.getGenres());
-    this.ageCategories = await firstValueFrom(this.bookService.getAgeCategories());
-
-    this.globalGenreId = this.genres[0]?.id;
-    this.globalAgeCategoryId = 3;
-
-    this.originalGlobalGenreId = this.globalGenreId;
-    this.originalGlobalAgeCategoryId = this.globalAgeCategoryId;
+  private loadLookups(): void {
+    this.bookService.getGenres().subscribe((genres: any[]) => {
+      this.genres = genres;
+      if (this.genres.length > 0 && !this.globalGenreId) {
+        this.globalGenreId = this.genres[0].id;
+        this.originalGlobalGenreId = this.globalGenreId;
+      }
+    });
+    this.bookService.getAgeCategories().subscribe((cats: any[]) => {
+      this.ageCategories = cats;
+      if (!this.globalAgeCategoryId) {
+        this.globalAgeCategoryId = 3;
+        this.originalGlobalAgeCategoryId = this.globalAgeCategoryId;
+      }
+    });
   }
 
-  private async loadFilesFromQuery(): Promise<void> {
-    const idsParam = this.route.snapshot.queryParamMap.get('ids');
-    if (!idsParam) return;
-
+  async openGooglePicker(): Promise<void> {
     if (!this.selectedIntegrationId) {
-      this.toastService.show('No Google Drive integration selected.');
+      this.toastService.show('Please select a Google Drive integration first.');
       return;
     }
 
-    const fileIds = idsParam.split(',');
+    try {
+      const tokenResponse = await firstValueFrom(
+        this.integrationService.getAccessToken(this.selectedIntegrationId)
+      );
+      const accessToken = tokenResponse?.accessToken;
+      if (!accessToken) throw new Error('Failed to get access token');
 
-    const existingFileIds = await firstValueFrom(
-      this.bulkImportService.getExistingFileIds(this.selectedIntegrationId)
-    );
+      // load the picker API
+      await new Promise<void>((resolve, reject) => {
+        gapi.load('picker', { callback: resolve, onerror: reject });
+      });
 
       const view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
         .setIncludeFolders(true)
         .setSelectFolderEnabled(true);
 
       const picker = new google.picker.PickerBuilder()
-        .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
         .addView(view)
         .setOAuthToken(accessToken)
         .setCallback(async (data: any) => {
           if(data.action === google.picker.Action.PICKED) {
-            const folders = data.docs.map((d: any) => ({
-              id: d.id
-            }));
-
             const folder = data.docs[0];
 
             await firstValueFrom(
@@ -150,18 +150,14 @@ export class BulkImportComponent implements OnInit {
               )
             );
 
-            this.toastService.show(
-              folders.length === 1
-              ? `Folder connected`
-              : `${folders.length} folders connected`
-            );
+            this.toastService.show(`${folder.length} folders connected`);
+            this.loadFilesFromFolders();
           }
         })
         .build();
 
       picker.setVisible(true);
 
-      this.loadFilesFromFolders();
     } catch (error) {
       console.error('Error opening Google Picker:', error);
       this.toastService.show('Error opening Google Picker');
@@ -175,7 +171,7 @@ export class BulkImportComponent implements OnInit {
 
   applyGlobalGenre(): void {
     this.files.forEach(f => {
-      if (f.overrideGenreId === this.originalGlobalGenreId) {
+      if (f.overrideGenreId == null || f.overrideGenreId === this.originalGlobalGenreId) {
         f.overrideGenreId = this.globalGenreId;
       }
     });
@@ -184,7 +180,7 @@ export class BulkImportComponent implements OnInit {
 
   applyGlobalAge(): void {
     this.files.forEach(f => {
-      if (f.overrideAgeCategoryId === this.originalGlobalAgeCategoryId) {
+      if (f.overrideAgeCategoryId == null || f.overrideAgeCategoryId === this.originalGlobalAgeCategoryId) {
         f.overrideAgeCategoryId = this.globalAgeCategoryId;
       }
     });
@@ -192,7 +188,8 @@ export class BulkImportComponent implements OnInit {
   }
 
   submit(): void {
-    if (this.form.invalid || this.newFiles.length === 0) {
+    if (this.form.invalid) return;
+    if (this.files.length === 0) {
       this.toastService.show('No files selected for import.');
       return;
     }
@@ -200,49 +197,51 @@ export class BulkImportComponent implements OnInit {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: 'Metadata Warning',
-        message: `Book titles may be extracted from file metadata. If unavailable, filenames will be used.`,
-        confirmText: 'Import'
+        message: `We will try to extract the book title from each PDF. 
+                However, many PDFs do not contain this information in a readable form. 
+                If that happens, the book title in this app will default to the filename.
+                <br/><br/>
+                Click the red Import button to proceed.`,
+        confirmText: 'Import',
+        permanent: false
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (!result) return;
+      if (result) {
+        const overrides: BulkImportFileOverrideDto[] = this.files
+          .filter(f =>
+            f.overrideGenreId !== this.globalGenreId ||
+            f.overrideAgeCategoryId !== this.globalAgeCategoryId
+          )
+          .map(f => ({
+            fileId: f.id,
+            genreId: f.overrideGenreId,
+            ageCategoryId: f.overrideAgeCategoryId
+          }));
 
-      const overrides: BulkImportFileOverrideDto[] = this.files
-        .filter(f =>
-          f.overrideGenreId !== this.globalGenreId ||
-          f.overrideAgeCategoryId !== this.globalAgeCategoryId
-        )
-        .map(f => ({
-          fileId: f.id,
-          genreId: f.overrideGenreId,
-          ageCategoryId: f.overrideAgeCategoryId
-        }));
+        const dto: BulkImportStartDto = {
+          fileIds: this.newFiles.map(f => f.id),
+          genreId: this.globalGenreId,
+          ageCategoryId: this.globalAgeCategoryId,
+          integrationId: this.selectedIntegrationId,
+          overrides: overrides.length > 0 ? overrides : undefined
+        };
 
-      const dto: BulkImportStartDto = {
-        fileIds: this.newFiles.map(f => f.id),
-        genreId: this.globalGenreId,
-        ageCategoryId: this.globalAgeCategoryId,
-        integrationId: this.selectedIntegrationId,
-        overrides: overrides.length ? overrides : undefined
-      };
-
-      this.globalLoading.show(
-        'Setting up your bulk import…',
-        LoadingContext.BulkImport
-      );
-
-      this.bulkImportService.startBulkImport(dto).subscribe({
-        next: () => {
-          this.toastService.show('Bulk import running');
-          this.resetForm();
-          this.globalLoading.hide();
-        },
-        error: () => {
-          this.toastService.show('Failed to start bulk import');
-          this.globalLoading.hide();
-        }
-      });
+        this.globalLoading.show("Setting up your bulk import... Don't leave this page until setup finishes", LoadingContext.BulkImport);
+        this.bulkImportService.startBulkImport(dto).subscribe({
+          next: () => {
+            this.toastService.show('Bulk import now running in the background');
+            this.resetForm();
+            this.globalLoading.hide();
+          },
+          error: err => {
+            console.error('Error starting bulk import:', err);
+            this.toastService.show('Failed to start bulk import');
+            this.globalLoading.hide();
+          }
+        });
+      }
     });
   }
 
@@ -256,16 +255,22 @@ export class BulkImportComponent implements OnInit {
   private resetForm(): void {
     this.form.reset();
     this.files = [];
-    this.newFiles = [];
   }
 
   private loadFilesFromFolders(): void {
     this.integrationService
       .getFiles(this.selectedIntegrationId)
       .subscribe(files => {
-        this.files = files.map((f: any) => {
-          id: f.id
-        })
-      })
+        this.files = files.map((f: any) => ({
+          id: f.id,
+          selected: true,
+          skipFile: false,
+          overrideGenreId: this.globalGenreId,
+          overrideAgeCategoryId: this.globalAgeCategoryId
+        }));
+
+        this.newFiles = this.files;
+        this.cd.detectChanges();
+      });
   }
 }
