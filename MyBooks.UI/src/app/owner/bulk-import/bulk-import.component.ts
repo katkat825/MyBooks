@@ -148,7 +148,14 @@ export class BulkImportComponent implements OnInit {
               console.log('could not determine folder id from picker', folder);
               return;
             }
-            await gapi.client.load('drive', 'v3');
+
+            await new Promise<void>((resolve, reject) => {
+              gapi.load('client', { callback: resolve, onerror: reject });
+            });
+
+            await gapi.client.init({
+              discoverDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']
+            });
             await gapi.client.drive.files.get({
               fileId: folderId,
               fields: 'id'
