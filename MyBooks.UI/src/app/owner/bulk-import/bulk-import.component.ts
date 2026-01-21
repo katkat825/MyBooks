@@ -153,9 +153,12 @@ export class BulkImportComponent implements OnInit {
               gapi.load('client', { callback: resolve, onerror: reject });
             });
 
-            await gapi.client.init({
-              discoverDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']
+            await new Promise<void>((resolve, reject) => {
+              gapi.client.load('drive', 'v3', {
+                callback: resolve, onerror: reject
+              });
             });
+            
             await gapi.client.drive.files.get({
               fileId: folderId,
               fields: 'id'
