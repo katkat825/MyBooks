@@ -55,4 +55,11 @@ export class IntegrationService {
       { headers: this.getAuthHeaders() }
     );
   }
+
+  getFiles(integrationId: number): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${this.googleIntegrationUrl}/${integrationId}/files`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
 }

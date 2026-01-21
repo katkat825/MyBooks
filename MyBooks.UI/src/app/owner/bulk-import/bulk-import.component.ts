@@ -127,17 +127,45 @@ export class BulkImportComponent implements OnInit {
       this.bulkImportService.getExistingFileIds(this.selectedIntegrationId)
     );
 
-    this.files = fileIds.map(id => ({
-      id,
-      name: id, // backend resolves real name
-      selected: true,
-      skipFile: existingFileIds.includes(id),
-      overrideGenreId: this.globalGenreId,
-      overrideAgeCategoryId: this.globalAgeCategoryId
-    }));
+      const view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
+        .setIncludeFolders(true)
+        .setSelectFolderEnabled(true);
 
-    this.newFiles = this.files.filter(f => !f.skipFile);
-    this.cd.detectChanges();
+      const picker = new google.picker.PickerBuilder()
+        .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+        .addView(view)
+        .setOAuthToken(accessToken)
+        .setCallback(async (data: any) => {
+          if(data.action === google.picker.Action.PICKED) {
+            const folders = data.docs.map((d: any) => ({
+              id: d.id
+            }));
+
+            const folder = data.docs[0];
+
+            await firstValueFrom(
+              this.integrationService.updateFolders(
+                this.selectedIntegrationId,
+                [folder.id]
+              )
+            );
+
+            this.toastService.show(
+              folders.length === 1
+              ? `Folder connected`
+              : `${folders.length} folders connected`
+            );
+          }
+        })
+        .build();
+
+      picker.setVisible(true);
+
+      this.loadFilesFromFolders();
+    } catch (error) {
+      console.error('Error opening Google Picker:', error);
+      this.toastService.show('Error opening Google Picker');
+    }
   }
 
   onIntegrationSelected(integrationId: number): void {
@@ -229,5 +257,15 @@ export class BulkImportComponent implements OnInit {
     this.form.reset();
     this.files = [];
     this.newFiles = [];
+  }
+
+  private loadFilesFromFolders(): void {
+    this.integrationService
+      .getFiles(this.selectedIntegrationId)
+      .subscribe(files => {
+        this.files = files.map((f: any) => {
+          id: f.id
+        })
+      })
   }
 }
