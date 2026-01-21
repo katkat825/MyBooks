@@ -132,7 +132,7 @@ export class BulkImportComponent implements OnInit {
         gapi.load('picker', { callback: resolve, onerror: reject });
       });
 
-      const view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
+      const view = new google.picker.DocsView(google.picker.ViewId.DOCS)
         .setIncludeFolders(true)
         .setSelectFolderEnabled(true);
 
@@ -143,31 +143,17 @@ export class BulkImportComponent implements OnInit {
           if(data.action === google.picker.Action.PICKED) {
             const folder = data.docs[0];
             const folderId = folder?.id || folder?.resourceId || folder?.docId;
+            console.log('folder found', folderId);
 
             if (!folderId) {
               console.log('could not determine folder id from picker', folder);
               return;
             }
 
-            await new Promise<void>((resolve, reject) => {
-              gapi.load('client', { callback: resolve, onerror: reject });
-            });
-
-            await new Promise<void>((resolve, reject) => {
-              gapi.client.load('drive', 'v3', {
-                callback: resolve, onerror: reject
-              });
-            });
-            
-            await gapi.client.drive.files.get({
-              fileId: folderId,
-              fields: 'id'
-            });
-
             await firstValueFrom(
               this.integrationService.updateFolders(
                 this.selectedIntegrationId,
-                [folder.id]
+                [folderId]
               )
             );
 
