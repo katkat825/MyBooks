@@ -142,14 +142,17 @@ export class BulkImportComponent implements OnInit {
         .setCallback(async (data: any) => {
           if(data.action === google.picker.Action.PICKED) {
             const folder = data.docs[0];
-            await fetch(
-              `https://www.googleapis.com/drive/v3/files/${folder.Id}?fields=id`,
-              {
-                headers: {
-                  Authorization: `Bearer ${accessToken}`
-                }
-              }
-            );
+            const folderId = folder?.id || folder?.resourceId || folder?.docId;
+
+            if (!folderId) {
+              console.log('could not determine folder id from picker', folder);
+              return;
+            }
+            await gapi.client.load('drive', 'v3');
+            await gapi.client.drive.files.get({
+              fileId: folderId,
+              fields: 'id'
+            });
 
             await firstValueFrom(
               this.integrationService.updateFolders(
