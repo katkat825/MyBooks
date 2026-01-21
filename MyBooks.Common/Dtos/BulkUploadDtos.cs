@@ -31,6 +31,7 @@ public class BulkImportStartDto
     public int GenreId { get; set; }
     public int AgeCategoryId { get; set; }
     public int IntegrationId { get; set; }
+    public string? PickerAccessToken { get; set; }
     
     // Optional: allow per-file overrides if UI adds them later
     public List<BulkImportFileOverrideDto>? Overrides { get; set; }

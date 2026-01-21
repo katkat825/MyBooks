@@ -10,16 +10,6 @@
 
     <button
       mat-button
-      id="open-picker"
-      (click)="openGooglePicker()"
-      [disabled]="!selectedIntegrationId"
-    >
-      <mat-icon>sync_alt</mat-icon>
-      Select Files
-    </button>
-
-    <button
-      mat-button
       id="start-bulk-import"
       [disabled]="form.invalid || newFiles.length === 0 || files.length === 0"
       (click)="submit()"
@@ -28,26 +18,6 @@
       Start Import
     </button>
   </div>
-
-  <!-- select integration -->
-  <mat-form-field
-    *ngIf="integrations.length > 1"
-    appearance="outline"
-    class="integration-select"
-  >
-    <mat-label>Select Drive</mat-label>
-    <mat-select
-      [value]="selectedIntegrationId"
-      (selectionChange)="onIntegrationSelected($event.value)"
-    >
-      <mat-option
-        *ngFor="let integration of integrations"
-        [value]="integration.id"
-      >
-        {{ integration.accountEmail }}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
 
   <!-- files table -->
   <div class="owner-container" *ngIf="files.length > 0">

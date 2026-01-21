@@ -15,9 +15,9 @@ public class GoogleDriveClient
         _httpClient = httpClient;
     }
 
-    private DriveService CreateService(string accessToken)
+    public DriveService CreateService(string accessToken)
     {
-        var credential = GoogleCredential.FromAccessToken(accessToken);
+        var credential = GoogleCredential.FromAccessToken(accessToken).CreateScoped(DriveService.Scope.DriveFile);
         return new DriveService(new BaseClientService.Initializer
         {
             HttpClientInitializer = credential,
@@ -56,10 +56,53 @@ public class GoogleDriveClient
     // system-facing: reuse cached access token
     public async Task<Stream?> GetFileStreamAsSystemAsync(string fileId, string accessToken)
     {
+        Console.WriteLine("=== GET FILE STREAM START ===");
+        Console.WriteLine($"FileId: {fileId}");
+        Console.WriteLine($"AccessToken length: {accessToken?.Length}");
+
         var service = CreateService(accessToken);
-        var request = service.Files.Get(fileId);
+        var open = service.Files.Get(fileId);
+        open.Fields = "id, name";
+        open.SupportsAllDrives = true;
+        await open.ExecuteAsync();
+        
+        var download = service.Files.Get(fileId);
+        download.SupportsAllDrives = true;
+
         var stream = new MemoryStream();
-        await request.DownloadAsync(stream);
+        try {
+            await download.DownloadAsync(stream);
+        } 
+        catch (Google.GoogleApiException ex)
+        {
+            Console.WriteLine("=== GOOGLE DRIVE ERROR ===");
+            Console.WriteLine($"Status: {ex.HttpStatusCode}");
+            Console.WriteLine($"Message: {ex.Message}");
+
+            if (ex.Error != null)
+            {
+                Console.WriteLine($"Error.Message: {ex.Error.Message}");
+
+                if (ex.Error.Errors != null)
+                {
+                    foreach (var err in ex.Error.Errors)
+                    {
+                        Console.WriteLine($"Reason: {err.Reason}");
+                        Console.WriteLine($"Domain: {err.Domain}");
+                        Console.WriteLine($"Message: {err.Message}");
+                    }
+                }
+            }
+
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("=== NON-GOOGLE EXCEPTION ===");
+            Console.WriteLine(ex.ToString());
+            throw;
+        }
+
         stream.Position = 0;
         return stream;
     }        
@@ -199,10 +242,57 @@ public class GoogleDriveClient
     public async Task<Google.Apis.Drive.v3.Data.File?> GetFileAsync(string fileId, string refreshToken)
     {
         var accessToken = await RefreshAccessTokenAsync(refreshToken);
+        return await GetFileWithAccessTokenAsync(fileId, accessToken);
+    }
+
+    public async Task<Google.Apis.Drive.v3.Data.File?> GetFileWithAccessTokenAsync(
+        string fileId,
+        string accessToken)
+    {
+        Console.WriteLine("=== GET FILE METADATA START ===");
+        Console.WriteLine($"FileId: {fileId}");
+        Console.WriteLine($"AccessToken length: {accessToken?.Length}");
+
         var service = CreateService(accessToken);
 
         var request = service.Files.Get(fileId);
         request.Fields = "id, name, mimeType, size";
-        return await request.ExecuteAsync();
+        request.SupportsAllDrives = true;
+
+        try
+        {
+            return await request.ExecuteAsync();
+        }
+        catch (Google.GoogleApiException ex)
+        {
+            Console.WriteLine("=== DRIVE METADATA ERROR ===");
+            Console.WriteLine($"FileId: {fileId}");
+            Console.WriteLine($"Status: {ex.HttpStatusCode}");
+            Console.WriteLine($"Message: {ex.Message}");
+
+            if (ex.Error != null)
+            {
+                Console.WriteLine($"Error.Message: {ex.Error.Message}");
+
+                if (ex.Error.Errors != null)
+                {
+                    foreach (var err in ex.Error.Errors)
+                    {
+                        Console.WriteLine($"Reason: {err.Reason}");
+                        Console.WriteLine($"Domain: {err.Domain}");
+                        Console.WriteLine($"Message: {err.Message}");
+                    }
+                }
+            }
+
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("=== NON-GOOGLE METADATA EXCEPTION ===");
+            Console.WriteLine(ex.ToString());
+            throw;
+        }
     }
+
 }

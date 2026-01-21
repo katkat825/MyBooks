@@ -77,7 +77,7 @@ public class BulkImportProcessor
             return;
         }
 
-        var accessToken = await _googleDriveClient.RefreshAccessTokenAsync(integration.RefreshToken);
+        var accessToken = scanDto.BulkImportStart.PickerAccessToken;
 
         // process items - first run
         await ProcessItemsAsync(job, integration, scanDto, accessToken);
@@ -126,9 +126,52 @@ public class BulkImportProcessor
     {
         foreach (var item in job.Items.Where(i => i.Status == "Pending"))
         {
+            Console.WriteLine("=== PROCESS ITEM START ===");
+            Console.WriteLine($"ItemId: {item.Id}");
+            Console.WriteLine($"FileId: {item.FileId}");
+            Console.WriteLine($"AccessToken length: {accessToken?.Length}");
+            Console.WriteLine($"JobId: {job.Id}");
+            Console.WriteLine($"TenantId: {job.TenantId}");
+            Console.WriteLine("About to call GetFileWithAccessTokenAsync");
+
+            Console.WriteLine("=== DRIVE VISIBILITY CHECK ===");
+
             try
             {
-                var file = await _googleDriveClient.GetFileAsync(item.FileId, accessToken);
+                var service = _googleDriveClient.CreateService(accessToken);
+
+                var list = service.Files.List();
+                list.PageSize = 5;
+                list.Fields = "files(id,name)";
+                // do NOT set SupportsAllDrives here
+
+                var result = await list.ExecuteAsync();
+
+                Console.WriteLine($"Visible files count: {result.Files?.Count ?? 0}");
+
+                if (result.Files != null)
+                {
+                    foreach (var f in result.Files)
+                    {
+                        Console.WriteLine($"Visible file: {f.Name} ({f.Id})");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Visibility check failed");
+                Console.WriteLine(ex.ToString());
+            }
+
+            try
+            {
+                
+                var file = await _googleDriveClient.GetFileWithAccessTokenAsync(item.FileId, accessToken);
+                Console.WriteLine("GetFileWithAccessTokenAsync returned");
+                Console.WriteLine($"File.Name: {file?.Name}");
+                Console.WriteLine($"File.MimeType: {file?.MimeType}");
+                Console.WriteLine($"File.Size: {file?.Size}");
+
                 if (file == null)
                 {
                     item.Status = "Failed";
@@ -138,7 +181,9 @@ public class BulkImportProcessor
 
                 item.FileName = _sanitizer.Sanitize(file.Name);
 
-                using var stream = await _googleDriveClient.GetFileStreamAsync(item.FileId, accessToken);
+                Console.WriteLine("About to call GetFileStreamAsSystemAsync");
+
+                using var stream = await _googleDriveClient.GetFileStreamAsSystemAsync(item.FileId, accessToken);
 
                 var notCorrupted = await _antiCorrpution.ValidateAsync(stream, file.Name);
                 if (!notCorrupted.IsValid)
