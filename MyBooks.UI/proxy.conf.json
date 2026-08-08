@@ -1,0 +1,38 @@
+{
+  "/api/auth": {
+    "target": "http://localhost:5272",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": { "^/api/auth": "" }
+  },
+  "/api/catalog": {
+    "target": "http://localhost:5093",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": { "^/api/catalog": "" }
+  },
+  "/api/file": {
+    "target": "http://localhost:5261",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": { "^/api/file": "" }
+  },
+  "/api/tenant": {
+    "target": "http://localhost:5174",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": { "^/api/tenant": "" }
+  },
+  "/api/email": {
+    "target": "http://localhost:5105",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": { "^/api/email": "" }
+  },
+  "/api/support": {
+    "target": "http://localhost:5028",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": { "^/api/support": "" }
+  }
+}

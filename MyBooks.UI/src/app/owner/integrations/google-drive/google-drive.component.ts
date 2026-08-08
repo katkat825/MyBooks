@@ -116,6 +116,7 @@ export class GoogleDriveComponent implements OnInit {
         .addView(view)
         .setOAuthToken(accessToken)
         .setDeveloperKey(environment.googlePickerApiKey)
+        .setAppId(environment.googleCloudProjectNumber)
         .setCallback(async (data: any) => {
           if (data.action === google.picker.Action.PICKED) {
             // filter for actual files only

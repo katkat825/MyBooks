@@ -1,11 +1,12 @@
 export const environment = {
   production: false,
 
-  catalogBaseUrl: 'https://mybookcatalog.com/api/catalog',
-  tenantBaseUrl: 'https://mybookcatalog.com/api/tenant',
-  authBaseUrl: 'https://mybookcatalog.com/api/auth',
-  emailBaseUrl: 'https://mybookcatalog.com/api/email',
-  fileBaseUrl: 'https://mybookcatalog.com/api/file',
-  supportBaseUrl: 'https://mybookcatalog.com/api/support',
-  googlePickerApiKey: 'AIzaSyCDhTaYWXXx_qkyxuXYwDjrLJXfEchQJ9Q'
+  catalogBaseUrl: '/api/catalog',
+  tenantBaseUrl: '/api/tenant',
+  authBaseUrl: '/api/auth',
+  emailBaseUrl: '/api/email',
+  fileBaseUrl: '/api/file',
+  supportBaseUrl: '/api/support',
+  googlePickerApiKey: 'AIzaSyCDhTaYWXXx_qkyxuXYwDjrLJXfEchQJ9Q',
+  googleCloudProjectNumber: '794735980933'
 };

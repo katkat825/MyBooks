@@ -139,6 +139,8 @@ export class BulkImportComponent implements OnInit {
       const picker = new google.picker.PickerBuilder()
         .addView(view)
         .setOAuthToken(accessToken)
+        .setDeveloperKey(environment.googlePickerApiKey)
+        .setAppId(environment.googleCloudProjectNumber)
         .setCallback(async (data: any) => {
           if(data.action === google.picker.Action.PICKED) {
             const folder = data.docs[0];

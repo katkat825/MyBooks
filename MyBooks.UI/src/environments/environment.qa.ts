@@ -8,5 +8,6 @@ export const environment = {
   emailBaseUrl: 'https://qa.mybookcatalog.com/api/email',
   fileBaseUrl: 'https://qa.mybookcatalog.com/api/file',
   supportBaseUrl: 'https://qa.mybookcatalog.com/api/support',
-  googlePickerApiKey: 'AIzaSyCDhTaYWXXx_qkyxuXYwDjrLJXfEchQJ9Q'
+  googlePickerApiKey: 'AIzaSyCDhTaYWXXx_qkyxuXYwDjrLJXfEchQJ9Q',
+  googleCloudProjectNumber: '794735980933'
 };
