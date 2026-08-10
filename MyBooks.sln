@@ -24,6 +24,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyBooks.EmailService", "MyB
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyBooks.SupportService", "MyBooks.SupportService\MyBooks.SupportService.csproj", "{B86A11D4-A328-4DB7-9D20-96586E43026F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyBooks.AuthService.Tests", "MyBooks.AuthService.Tests\MyBooks.AuthService.Tests.csproj", "{3D209A14-B865-49B9-A974-205D67635003}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyBooks.FileService.Tests", "MyBooks.FileService.Tests\MyBooks.FileService.Tests.csproj", "{ED2A8978-BB67-4128-80D5-FF7B11F2C4B2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -128,6 +132,14 @@ Global
 		{B86A11D4-A328-4DB7-9D20-96586E43026F}.Release|x64.Build.0 = Release|Any CPU
 		{B86A11D4-A328-4DB7-9D20-96586E43026F}.Release|x86.ActiveCfg = Release|Any CPU
 		{B86A11D4-A328-4DB7-9D20-96586E43026F}.Release|x86.Build.0 = Release|Any CPU
+		{3D209A14-B865-49B9-A974-205D67635003}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D209A14-B865-49B9-A974-205D67635003}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D209A14-B865-49B9-A974-205D67635003}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D209A14-B865-49B9-A974-205D67635003}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED2A8978-BB67-4128-80D5-FF7B11F2C4B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED2A8978-BB67-4128-80D5-FF7B11F2C4B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED2A8978-BB67-4128-80D5-FF7B11F2C4B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED2A8978-BB67-4128-80D5-FF7B11F2C4B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
