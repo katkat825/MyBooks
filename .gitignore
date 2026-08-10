@@ -1,5 +1,6 @@
 # Ignore Visual Studio files
 .vs/
+.vs/MyBooks
 *.suo
 *.user
 *.userosscache
@@ -13,3 +14,6 @@ obj/
 *.dll
 *.pdb
 obj/debug/
+
+# Other
+MyBooks.slnLaunch.user
