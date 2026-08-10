@@ -5,12 +5,15 @@ and lets you share them with family and friends without complicated loan limits 
 fees.
 
 **Status:** on hold. The feature set is largely complete and the app has run in
-production, but the Google Drive integration it was designed around now requires a
-restricted OAuth scope, which in turn requires a paid annual third-party security
-assessment. That cost is not justifiable for a project with this expected audience,
-so deployment is paused. The reasoning is written up in
-[The Google Drive problem](#the-google-drive-problem) below, since working around it
-drove most of the interesting design decisions here.
+production, but the cloud storage integrations it was designed around depend on
+OAuth scopes that both Google and Microsoft have changed without notice, repeatedly.
+Reading a user's existing library now requires a restricted scope, which requires a
+paid annual third-party security assessment, and the unrestricted workarounds have
+already been rebuilt twice. Development is paused until the appropriate scopes are
+achievable rather than continuing to re-engineer around moving requirements. The
+reasoning is written up in
+[The third-party scope problem](#the-third-party-scope-problem) below, since it drove
+most of the interesting design decisions here.
 
 ---
 
@@ -54,10 +57,14 @@ Roles are SuperAdmin, Owner, Admin, Editor, User, plus Support and GlobalReviewe
 for internal tooling. Support staff can impersonate a tenant user to reproduce
 issues, and every impersonation is written to an audit log.
 
-## The Google Drive problem
+## The third-party scope problem
+
+The core promise of this app is that your files stay where they already are. That
+makes cloud storage permissions load-bearing rather than incidental, and it turned
+out to be the wrong thing to build on.
 
 The original design assumed the app could read a user's Drive folder on their
-behalf. That approach died in stages.
+behalf. That assumption failed in stages:
 
 **Google reclassified `drive.readonly` as a restricted scope.** Restricted scopes
 require an annual CASA security assessment by an approved third-party assessor if
@@ -72,15 +79,31 @@ stops working.
 **The Drive UI "Open with" path became impractical** as a way to hand files to a
 third-party app at any useful volume.
 
-What is left that requires no restricted scope is `drive.file` combined with the
-Google Picker: the user explicitly multi-selects files, and the resulting grant is
-per-file and persistent, so the app can read those files indefinitely without ever
-holding broad access to the user's Drive. That is what the app does now. The
-tradeoff is that newly added books require another trip through the picker, which
-is worse UX than a watched folder but costs nothing and asks far less of the user.
+**Then the Picker and `drive.file` behaviour changed again**, requiring a second
+rework of an ingest path that had already been rebuilt once.
 
-This is a case where the privacy-preserving option and the affordable option
-happened to be the same one. It was still the right call on the merits.
+**OneDrive, the planned second provider, had its own separate but comparable
+permission and scope problems**, which ended that work before it started.
+
+None of these changes were announced ahead of time. Each one broke or degraded
+functionality that was already built, tested, and working.
+
+A workaround does exist, and it is what the code does today: `drive.file` combined
+with the Google Picker, where the user explicitly multi-selects files and the
+resulting grant is per-file and persistent. It requires no restricted scope and asks
+far less of the user's privacy. Its cost is that newly added books need another trip
+through the picker instead of appearing automatically.
+
+I stopped there rather than continuing to re-engineer around it. Two providers had
+now changed permission behaviour without notice, twice in Google's case, and every
+change landed on the same part of the system. Rebuilding the ingest path a third
+time would not have made the fourth change any less likely. The right move is to
+wait until the appropriate scope is genuinely achievable — `drive.readonly` and its
+Microsoft equivalent — rather than keep shipping workarounds on a foundation that
+can move again at any time.
+
+That is a dependency risk decision rather than a technical one. The workaround
+functions. It just is not something worth building a product on.
 
 ## Other things worth calling out
 
@@ -90,7 +113,8 @@ flattened PDFs produced output that was not good enough to put in front of users
 the feature was cut rather than shipped at partial quality.
 
 **Storage is pluggable but incomplete.** Local disk and Google Drive work; the S3
-path is scaffolded but not finished. OneDrive was planned and never started.
+path is scaffolded but not finished. OneDrive was planned, but its permission model
+presented the same class of problem as Drive, so implementation never began.
 
 ## Known limitations
 
@@ -121,7 +145,7 @@ in `appsettings.json` are development placeholders and are not valid credentials
 any live system — there is currently no deployed instance, and anything that was
 ever live has been rotated.
 
-Early commits in this repository contain real development credentials, which is a
+Early commits in this repository contain real development credentials (now rotated and no longer functional), which is a
 mistake I would not repeat. Secrets belong in environment variables or a secret
 store from the first commit, not added later.
 
