@@ -116,9 +116,48 @@ the feature was cut rather than shipped at partial quality.
 path is scaffolded but not finished. OneDrive was planned, but its permission model
 presented the same class of problem as Drive, so implementation never began.
 
+## Testing
+
+Two layers, both wired into GitHub Actions in `.github/workflows/tests.yml`.
+
+**Unit and integration — xUnit.** `MyBooks.AuthService.Tests` and
+`MyBooks.FileService.Tests` cover controllers, services, validators and the EF query
+filters that enforce tenant isolation, using NSubstitute for collaborators and the EF
+in-memory provider for data. These run on every push and pull request; no environment
+is needed.
+
+**End-to-end — Playwright.** `e2e/` drives the real Angular client against a running
+backend. It signs in through the actual login form once per role and reuses the
+storage state, so role and route-guard enforcement is tested the way a user would hit
+it rather than by minting tokens. Page objects live in `e2e/pages/`, and specs are
+tagged rather than split into suites — `@smoke` is the subset worth running on every
+push, `@mobile` the cases that also run against a phone viewport. `e2e/README.md` has
+the setup and layout details.
+
+```
+dotnet test MyBooks.sln          # unit and integration
+cd e2e && npm test               # end-to-end
+cd e2e && npm run test:smoke     # the @smoke subset
+```
+
+The e2e job needs a deployed environment and four seeded accounts, so it runs on
+pushes and on pull requests from the repository itself, not from forks.
+
+Coverage is uneven by design rather than by accident: it went where the logic is
+subtle. Auth and FileService carry real risk — token issuance, impersonation,
+tenant isolation, malware scanning, bulk import — so they have unit tests. Catalog,
+Tenant, Email and Support are thinner CRUD over EF and are covered end-to-end
+instead.
+
 ## Known limitations
 
-- No automated test coverage. This is the largest gap.
+- The four remaining services have no unit test project; they are exercised only
+  through the end-to-end suite. The Angular component specs are still the CLI's
+  generated "should create" stubs and are not meaningful coverage.
+- The Google OAuth handshake and the Google Picker are cross-origin and cannot be
+  driven from Playwright. The suite asserts the outbound authorisation request
+  instead, including that the requested scope is still `drive.file` and has not
+  regressed to a restricted one. Upload through the picker is uncovered.
 - Configuration keys drifted over time. Several sections in `appsettings.json` are
   no longer read by the code and are superseded by environment variables in
   deployment.
